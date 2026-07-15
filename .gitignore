@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.npm-cache/
+.npmrc
+.DS_Store
+outputs/
