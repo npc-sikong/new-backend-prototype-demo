@@ -18,8 +18,6 @@ const INITIAL_FILTERS = {
   site: '',
   agent: '',
   member: '',
-  status: '',
-  attribution: '',
 }
 
 const MEMBER_TURNOVER_ROWS = [
@@ -338,8 +336,6 @@ export function MemberTurnoverPage({ onToast }) {
     if (filters.site && row.site !== filters.site) return false
     if (filters.agent && !matchesText(row.agent, filters.agent)) return false
     if (filters.member && !matchesText(`${row.member} ${row.id}`, filters.member)) return false
-    if (filters.status && row.status !== filters.status) return false
-    if (filters.attribution && row.attribution !== filters.attribution) return false
     return true
   }), [filters])
 
@@ -353,8 +349,6 @@ export function MemberTurnoverPage({ onToast }) {
       if (draftFilters.site && row.site !== draftFilters.site) return false
       if (draftFilters.agent && !matchesText(row.agent, draftFilters.agent)) return false
       if (draftFilters.member && !matchesText(`${row.member} ${row.id}`, draftFilters.member)) return false
-      if (draftFilters.status && row.status !== draftFilters.status) return false
-      if (draftFilters.attribution && row.attribution !== draftFilters.attribution) return false
       return true
     }).length
     onToast?.(`查询完成，共 ${resultCount} 条会员流水记录`)
@@ -381,12 +375,6 @@ export function MemberTurnoverPage({ onToast }) {
       <Field label="会员账号 / ID">
         <Input value={draftFilters.member} onChange={(value) => updateDraft('member', value)} placeholder="请输入会员账号或ID" />
       </Field>
-      <Field label="打码状态">
-        <Select value={draftFilters.status} onChange={(value) => updateDraft('status', value)} placeholder="全部状态" options={['进行中', '待确认', '即将到期', '已完成']} />
-      </Field>
-      <Field label="归因类型">
-        <Select value={draftFilters.attribution} onChange={(value) => updateDraft('attribution', value)} placeholder="全部类型" options={['指定场馆', '通用归集', '场馆+通用', '延迟归因']} />
-      </Field>
     </FilterBar>
     <Alert title="金额与流水口径">
       总余额 = 可提现余额 + 锁定余额；场馆提现流水为各场馆及“通用”未完成任务的剩余流水合计。充值提现流水将成功充值与系统发放彩金均作为独立记录，按发生顺序 FIFO 统计还需解锁流水；有效投注确认后锁定额度同步更新，盈利解锁额度仅在用户盈利时展示，并需本轮全部充值流水完成后可领取。
@@ -394,7 +382,7 @@ export function MemberTurnoverPage({ onToast }) {
     <DataTable
       rows={rows}
       rowKey="id"
-      minWidth={2080}
+      minWidth={1800}
       className="member-turnover-table"
       columns={[
         { key: 'site', label: '站点' },
@@ -408,8 +396,6 @@ export function MemberTurnoverPage({ onToast }) {
         { key: 'requiredTurnover', label: '场馆提现流水', render: (value, row) => <button className="ta-table-link member-turnover-link" onClick={() => setSelectedMember(row)}><Money value={value} tone={value > 0 ? 'positive' : 'neutral'} /><span>查看明细</span></button> },
         { key: 'rechargeRequiredTurnover', label: '充值提现流水', render: (value, row) => <button className="ta-table-link member-turnover-link" onClick={() => setSelectedRechargeMember(row)}><Money value={value} tone={value > 0 ? 'positive' : 'neutral'} /><span>查看明细</span></button> },
         { key: 'profitUnlockAmount', label: '盈利解锁额度', render: (value, row) => <ProfitUnlockCell amount={value} status={row.profitUnlockStatus} /> },
-        { key: 'status', label: '打码状态', render: (value) => <StatusTag>{value}</StatusTag> },
-        { key: 'attribution', label: '归因类型', render: (value) => <StatusTag tone={value === '通用归集' ? 'orange' : value === '延迟归因' ? 'gray' : 'blue'}>{value}</StatusTag> },
         { key: 'lastRechargeAt', label: '最近充值时间' },
         { key: 'lastSyncAt', label: '最近统计时间' },
       ]}
