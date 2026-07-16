@@ -60,7 +60,7 @@
 .version-group.is-empty > p { padding: 0 14px 2px; color: #a0adbb; }
 
 .feature-notes-backdrop { position: fixed; inset: 0; z-index: 70; display: flex; justify-content: flex-end; background: rgba(23, 37, 53, .22); }
-.feature-notes { width: min(430px, 100vw); height: 100%; overflow-y: auto; background: #fff; box-shadow: -12px 0 34px rgba(29, 48, 69, .18); }
+.feature-notes { width: max(540px, calc(100vw - 204px)); height: 100%; overflow-y: auto; background: #fff; box-shadow: -12px 0 34px rgba(29, 48, 69, .18); }
 .feature-notes-head { min-height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #edf1f5; }
 .feature-notes-head > div { display: grid; gap: 4px; color: #273c54; font-size: 15px; font-weight: 700; }
 .feature-notes-head small { color: #9aa8b6; font-size: 10px; font-weight: 400; }
@@ -72,57 +72,42 @@
 .feature-notes-body h3 { margin: 0 0 7px; padding-left: 9px; border-left: 3px solid #2b99f2; color: #40526a; font-size: 12px; }
 .feature-notes-body p { margin: 0; color: #6e7e90; font-size: 12px; line-height: 1.75; }
 .feature-notes-body b { color: #2c98ef; }
+.feature-notes-comparison-meta { display: grid; gap: 5px; margin-bottom: 10px; }
+.feature-notes-legacy { padding: 10px 11px; border: 1px solid #e5ebf1; border-radius: 5px; background: #f8fafc; }
+.feature-notes-legacy p { margin-top: 4px; }
+.feature-notes-additions { margin-top: 12px; }
+.feature-notes-additions > b { display: block; margin-bottom: 7px; }
+.feature-notes-additions > div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 9px; padding: 7px 0; border-top: 1px dashed #e4eaf0; }
+.feature-notes-additions strong { color: #52677f; font-size: 11px; line-height: 1.7; }
+.feature-notes-additions ul { display: flex; flex-wrap: wrap; gap: 5px 15px; margin: 0; padding-left: 17px; color: #6e7e90; font-size: 12px; line-height: 1.7; }
+.feature-notes-additions li { min-width: 150px; flex: 1 1 42%; }
 
 html:has(.h5-preview-stage), body:has(.h5-preview-stage), #root:has(.h5-preview-stage) { min-width: 0; }
-.h5-preview-stage { width: 100%; min-width: 390px; min-height: 844px; height: 100dvh; display: grid; place-items: center; overflow: auto; padding: 28px; background: #eef3fb; }
-.h5-withdraw-screen { width: 390px; min-height: 844px; overflow: hidden; border-radius: 28px; background: #fff; box-shadow: 0 16px 44px rgba(36, 59, 91, .18); color: #17253a; font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; }
+.h5-preview-stage { width: 100%; min-width: 0; min-height: 100dvh; height: 100dvh; display: grid; place-items: center; overflow: hidden; padding: 20px; background: #eef3fb; }
+.h5-withdraw-screen { position: relative; width: min(390px, calc(100vw - 40px)); height: min(844px, calc(100dvh - 40px)); overflow-x: hidden; overflow-y: auto; border-radius: 28px; background: #fff; box-shadow: 0 16px 44px rgba(36, 59, 91, .18); color: #17253a; font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; scrollbar-width: none; }
+.h5-withdraw-screen::-webkit-scrollbar { width: 0; height: 0; }
 .h5-withdraw-head { position: relative; height: 68px; display: flex; align-items: center; justify-content: center; background: #fff; }
 .h5-withdraw-head h1 { margin: 0; color: #111b2a; font-size: 28px; font-weight: 700; letter-spacing: 1px; }
 .h5-back-button, .h5-notes-button { position: absolute; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; color: #172132; }
 .h5-back-button { left: 17px; width: 38px; height: 38px; font-size: 26px; }
 .h5-notes-button { right: 15px; gap: 3px; height: 32px; padding: 0 5px; color: #63809f; font-size: 11px; }
 .h5-notes-button:hover { color: #2d84e7; }
-.h5-requirement-stamp { height: 20px; display: flex; align-items: center; margin: 5px 20px 5px; color: #8fa1b5; font-size: 10px; }
 .h5-withdraw-content { padding: 10px 20px 34px; }
-.h5-balance-card { padding: 23px 22px 20px; border-radius: 22px; color: #fff; background: #3f86f2; box-shadow: 0 8px 18px rgba(63, 134, 242, .17); }
-.h5-balance-top { display: flex; align-items: center; justify-content: space-between; color: #eef5ff; font-size: 16px; }
-.h5-recycle-button { display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 12px; border: 1px solid rgba(255, 255, 255, .54); border-radius: 17px; color: #fff; font-size: 13px; font-weight: 600; }
-.h5-recycle-button:hover { background: rgba(255, 255, 255, .12); }
-.h5-balance-card > strong { display: block; margin: 18px 0 21px; color: #fff; font-size: 35px; line-height: 1; letter-spacing: -.8px; }
-.h5-balance-divider { height: 1px; background: rgba(255, 255, 255, .3); }
-.h5-balance-split { display: flex; justify-content: space-between; padding-top: 18px; }
-.h5-balance-split div { display: grid; gap: 7px; }
-.h5-balance-split div:last-child { text-align: right; }
-.h5-balance-split span { color: #e9f3ff; font-size: 14px; }
-.h5-balance-split b { color: #fff; font-size: 20px; }
-.h5-turnover-card { margin-top: 16px; border-radius: 15px; background: #f3f6fc; overflow: hidden; }
-.h5-turnover-toggle { width: 100%; min-height: 58px; display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #58637b; text-align: left; font-size: 14px; }
-.h5-turnover-toggle > .anticon-exclamation-circle { color: #ffad53; font-size: 18px; }
-.h5-turnover-toggle > span { flex: 1; line-height: 1.45; }
-.h5-turnover-toggle b { color: #2e82f2; font-size: 17px; }
-.h5-turnover-toggle > .anticon-caret-down, .h5-turnover-toggle > .anticon-caret-up { color: #8ba2bb; font-size: 13px; }
-.h5-turnover-details { padding: 0 14px 12px; }
-.h5-turnover-tabs { display: flex; gap: 8px; padding: 14px 5px 0; }
-.h5-turnover-tabs button { flex: 1; min-height: 36px; padding: 0 12px; border: 1px solid #dce6f2; border-radius: 10px; color: #8fa1b5; background: transparent; font-size: 14px; font-weight: 600; }
-.h5-turnover-tabs button.active { border-color: #2e82f2; color: #2e82f2; background: #fff; box-shadow: 0 3px 8px rgba(46, 130, 242, .08); }
-.h5-turnover-tabs button:focus-visible { outline: 2px solid #2e82f2; outline-offset: 2px; }
-.h5-turnover-rule { display: flex; align-items: flex-start; gap: 8px; margin: 12px 5px 0; padding: 11px 12px; border: 1px solid #e0e8f3; border-radius: 12px; color: #8d9daf; background: #fff; font-size: 13px; line-height: 1.45; }
-.h5-turnover-rule strong { flex: none; color: #667992; font-size: 13px; }
-.h5-turnover-rule span { min-width: 0; }
-.h5-turnover-headings, .h5-turnover-row { display: grid; grid-template-columns: 1.1fr .9fr 1fr; column-gap: 8px; align-items: center; }
-.h5-turnover-headings { padding: 18px 5px 14px; border-top: 1px solid #e0e8f3; color: #9aa9b9; font-size: 20px; line-height: 1.25; }
-.h5-turnover-headings span:not(:first-child), .h5-turnover-row > span, .h5-turnover-row > strong { text-align: right; }
-.h5-turnover-row { min-height: 110px; padding: 16px 5px; border-top: 1px solid #e6edf6; color: #607086; font-size: 22px; line-height: 1.25; }
-.h5-turnover-row div { display: grid; gap: 8px; }
-.h5-turnover-row b { color: #40516a; font-size: 24px; }
-.h5-turnover-row small { color: #a3b0bf; font-size: 18px; white-space: nowrap; }
-.h5-turnover-row > strong { color: #2e82f2; font-size: 22px; }
-.h5-profit-unlock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 5px 0; padding: 16px 18px; border: 1px solid #e0e8f3; border-radius: 14px; background: #fff; }
-.h5-profit-unlock-row div { display: grid; gap: 7px; min-width: 0; }
-.h5-profit-unlock-row b { color: #40516a; font-size: 22px; }
-.h5-profit-unlock-row small { color: #98a9ba; font-size: 17px; line-height: 1.35; }
-.h5-profit-unlock-row strong { flex: none; color: #2e82f2; font-size: 24px; }
-.h5-turnover-details > p { margin: 20px 5px 2px; color: #9aa8b9; font-size: 20px; line-height: 1.35; }
+.h5-balance-card { padding: 22px 20px 24px; border-radius: 22px; color: #fff; background: linear-gradient(120deg, #3bb8ef 0%, #2e80ef 49%, #2868e6 100%); box-shadow: 0 11px 22px rgba(48, 126, 232, .24); }
+.h5-balance-top { display: flex; align-items: center; justify-content: space-between; color: rgba(239, 250, 255, .76); font-size: 15px; font-weight: 600; }
+.h5-recycle-button { display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 12px; border: 0; border-radius: 17px; color: #f4fbff; background: rgba(198, 237, 255, .27); font-size: 13px; font-weight: 600; }
+.h5-recycle-button:hover { background: rgba(226, 247, 255, .4); }
+.h5-balance-card > strong { display: block; margin: 10px 0 22px; color: #fff; font-size: 35px; line-height: 1; letter-spacing: -.8px; }
+.h5-balance-split { display: flex; align-items: stretch; padding-top: 1px; }
+.h5-balance-split div { display: grid; gap: 6px; min-width: 42%; }
+.h5-balance-split div + div { margin-left: 23px; padding-left: 23px; border-left: 1px solid rgba(205, 239, 255, .26); }
+.h5-balance-split span { color: rgba(235, 249, 255, .72); font-size: 14px; font-weight: 600; }
+.h5-balance-split b { color: #fff; font-size: 21px; line-height: 1.05; }
+.h5-hide-empty-toggle { display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 4px; color: #65758a; font-size: 14px; }
+.h5-hide-empty-toggle > span { position: relative; width: 32px; height: 20px; border-radius: 12px; color: transparent; background: #d9e3ef; transition: background .2s ease; }
+.h5-hide-empty-toggle > span::after { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(44, 76, 113, .24); content: ''; transition: transform .2s ease; }
+.h5-hide-empty-toggle.active > span { color: transparent; background: #3388ef; }
+.h5-hide-empty-toggle.active > span::after { transform: translateX(12px); }
 .h5-withdraw-methods, .h5-withdraw-info { margin-top: 22px; }
 .h5-withdraw-methods h2, .h5-withdraw-info h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; color: #1f2938; font-size: 19px; }
 .h5-withdraw-methods h2::before, .h5-withdraw-info h2::before { width: 4px; height: 19px; border-radius: 3px; background: #2f83f3; content: ''; }
@@ -133,7 +118,56 @@ html:has(.h5-preview-stage), body:has(.h5-preview-stage), #root:has(.h5-preview-
 .h5-method-icon { width: 32px; height: 32px; display: inline-grid; place-items: center; border-radius: 50%; color: #fff; font-size: 21px; }
 .h5-method-icon.usdt { background: #29c18a; }
 .h5-method-icon.alipay { background: #2d8ef4; }
+.h5-method-icon.ebpay { background: #139cff; }
+.h5-method-icon.combo { background: #6387ff; }
 .h5-method-card i { position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 12px 0 13px 0; color: #fff; background: #2d83f4; font-size: 10px; font-style: normal; }
+.h5-withdraw-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.h5-withdraw-title-row h2 { margin-bottom: 0; }
+.h5-withdraw-title-row > button { display: inline-flex; align-items: center; gap: 5px; color: #182333; font-size: 16px; font-weight: 700; white-space: nowrap; }
+.h5-withdraw-title-row > button svg { color: #2f83f3; font-size: 23px; }
+.h5-account-card { width: 100%; min-height: 78px; display: flex; align-items: center; gap: 13px; padding: 14px 16px; border: 1px solid #cfe1fa; border-radius: 16px; background: #f3f7ff; color: #161f2d; text-align: left; }
+.h5-account-card strong { display: grid; gap: 4px; flex: 1; font-size: 22px; line-height: 1.15; }
+.h5-account-card small { color: #8b94a4; font-size: 17px; font-weight: 500; }
+.h5-account-card > svg { color: #a2adba; font-size: 22px; }
+.h5-amount-input { min-height: 68px; display: flex; align-items: center; gap: 18px; padding: 0 20px; border: 1px solid #d8e4f5; border-radius: 15px; background: #f3f6fc; }
+.h5-amount-input b { color: #111a27; font-size: 18px; }
+.h5-amount-input input { width: 100%; min-width: 0; border: 0; outline: 0; color: #273449; background: transparent; font-size: 22px; }
+.h5-amount-input input::placeholder { color: #9ba7b8; }
+.h5-withdrawable-line { display: flex; align-items: center; justify-content: space-between; gap: 7px; margin: -5px 0 10px; color: #8f96a7; font-size: 11px; }
+.h5-withdrawable-line p { min-width: 0; display: flex; flex-wrap: nowrap; gap: 8px; margin: 0; line-height: 1.6; white-space: nowrap; }
+.h5-withdrawable-line p span { display: inline-block; white-space: nowrap; }
+.h5-withdrawable-line p span b { margin-left: 3px; }
+.h5-withdrawable-line b { color: #526178; font-weight: 700; }
+.h5-withdrawable-line button { flex: none; color: #2f83f3; font-size: 12px; font-weight: 700; }
+.h5-fee-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 13px; color: #8d92a2; font-size: 15px; }
+.h5-fee-line > span { color: #ffab49; font-size: 18px; }
+.h5-fee-line b { font-weight: 500; }
+.h5-fee-line em { color: #ff332b; font-style: normal; font-weight: 700; }
+.h5-fee-line button { margin-left: auto; color: #5695f7; font-weight: 700; }
+.h5-min-amount, .h5-withdraw-time { margin: 13px 0 0; color: #9299a9; font-size: 15px; }
+.h5-password-boxes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.h5-password-boxes button { aspect-ratio: 1; border: 1px solid #d7e4f6; border-radius: 14px; background: #fff; }
+.h5-password-boxes button:first-child { border-color: #548cff; box-shadow: inset 0 0 0 1px #548cff; }
+.h5-submit-button { width: 100%; height: 58px; margin-top: 22px; border-radius: 30px; color: #fff; background: #afd0ff; font-size: 22px; font-weight: 700; }
+.h5-withdraw-time { text-align: center; color: #c2c6cf; }
+.h5-unlock-backdrop { position: absolute; inset: 0; z-index: 90; display: flex; align-items: flex-end; justify-content: center; padding: 0; background: rgba(17, 29, 45, .34); }
+.h5-unlock-dialog { width: 100%; max-height: min(720px, calc(100% - 28px)); overflow-y: auto; border-radius: 22px 22px 0 0; background: #fff; box-shadow: 0 -12px 34px rgba(33, 53, 79, .18); }
+.h5-unlock-dialog header { min-height: 66px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid #edf2f8; }
+.h5-unlock-dialog header div { display: grid; gap: 4px; }
+.h5-unlock-dialog header span { color: #172334; font-size: 19px; font-weight: 800; }
+.h5-unlock-dialog header small { color: #96a4b5; font-size: 12px; }
+.h5-unlock-dialog header button { width: 32px; height: 32px; display: grid; place-items: center; color: #8fa0b4; font-size: 18px; }
+.h5-unlock-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px 8px; }
+.h5-unlock-summary div { display: grid; gap: 5px; padding: 12px; border-radius: 13px; background: #f4f8ff; }
+.h5-unlock-summary span { color: #8a9aaf; font-size: 12px; }
+.h5-unlock-summary b { color: #2d83f3; font-size: 18px; }
+.h5-unlock-table { padding: 8px 16px 3px; }
+.h5-unlock-row { position: relative; display: grid; grid-template-columns: minmax(0, 1.25fr) .72fr .92fr; gap: 8px; align-items: center; min-height: 46px; border-bottom: 1px solid #edf2f8; color: #5a6980; font-size: 12px; }
+.h5-unlock-row.head { min-height: 32px; color: #98a8bb; font-weight: 700; }
+.h5-unlock-row b { color: #596b83; font-size: 13px; }
+.h5-unlock-row strong { color: #2d83f3; font-size: 13px; }
+.h5-unlock-row em { grid-column: 1 / -1; width: max-content; margin: -5px 0 7px; padding: 2px 7px; border-radius: 10px; color: #40aa79; background: #eaf9f1; font-size: 10px; font-style: normal; }
+.h5-unlock-dialog p { margin: 10px 16px 18px; color: #8d9aac; font-size: 12px; line-height: 1.7; }
 .h5-empty-state { display: grid; justify-items: center; padding: 25px 0 8px; text-align: center; }
 .h5-empty-state img { width: 165px; height: 165px; object-fit: contain; mix-blend-mode: multiply; }
 .h5-empty-state p { margin: 18px 0 0; color: #9aa5b5; font-size: 14px; line-height: 1.7; }
@@ -144,10 +178,6 @@ html:has(.h5-preview-stage), body:has(.h5-preview-stage), #root:has(.h5-preview-
   .h5-preview-stage { width: 100%; min-width: 0; min-height: 0; height: 100dvh; padding: 0; background: #fff; }
   .h5-withdraw-screen { width: 100%; min-height: 0; height: 100dvh; overflow-y: auto; border-radius: 0; box-shadow: none; }
   .h5-withdraw-content { padding-bottom: 42px; }
-  .h5-turnover-row { grid-template-columns: 1fr 1fr; row-gap: 12px; }
-  .h5-turnover-row div { grid-column: 1 / -1; }
-  .h5-turnover-row small { white-space: normal; }
-  .h5-profit-unlock-row { align-items: flex-start; }
 }
 
 /* 可见的页面说明区，避免规则入口被工具栏内容淹没 */
@@ -166,224 +196,17 @@ html:has(.h5-preview-stage), body:has(.h5-preview-stage), #root:has(.h5-preview-
 
 @media (max-width: 1180px) { .agent-visible-note > div { flex-wrap: wrap; gap: 3px 8px; } }
 
-/* 桌面端提现页：按参考图放大主内容，保留 H5 的字段与展开内容 */
+/* 桌面环境仅展示手机预览壳，不放大成 Web 页面 */
 @media (min-width: 721px) {
   .h5-preview-stage {
-    width: 100%;
-    min-width: 0;
-    min-height: 100dvh;
-    height: 100dvh;
-    display: block;
-    overflow-y: auto;
-    padding: 28px 36px 56px;
-    background: #eef3fb;
+    padding: 24px;
+    background: radial-gradient(circle at top, #f8fbff 0, #eef3fb 45%, #e8eef7 100%);
   }
 
   .h5-withdraw-screen {
-    width: min(100%, 1885px);
-    min-height: calc(100dvh - 84px);
-    margin: 0 auto;
-    overflow: hidden;
+    width: 390px;
+    height: min(844px, calc(100dvh - 48px));
     border-radius: 30px;
-    background: #fff;
-    box-shadow: 0 16px 44px rgba(36, 59, 91, .14);
-  }
-
-  .h5-withdraw-head {
-    height: 86px;
-  }
-
-  .h5-withdraw-head h1 {
-    font-size: 36px;
-  }
-
-  .h5-back-button {
-    left: 38px;
-    width: 48px;
-    height: 48px;
-    font-size: 30px;
-  }
-
-  .h5-notes-button {
-    right: 36px;
-    height: 36px;
-    padding: 0 10px;
-    font-size: 13px;
-  }
-
-  .h5-notes-button span,
-  .h5-notes-button span::after {
-    font-size: 13px;
-  }
-
-  .h5-requirement-stamp {
-    height: 28px;
-    margin: 0 50px 10px;
-    font-size: 13px;
-  }
-
-  .h5-withdraw-content {
-    padding: 0 64px 78px;
-  }
-
-  .h5-balance-card {
-    padding: 54px 64px 62px;
-    border-radius: 0 0 60px 60px;
-    box-shadow: 0 18px 34px rgba(63, 134, 242, .17);
-  }
-
-  .h5-balance-top {
-    color: #eef5ff;
-    font-size: 22px;
-  }
-
-  .h5-recycle-button {
-    height: 42px;
-    padding: 0 17px;
-    border-radius: 22px;
-    font-size: 17px;
-  }
-
-  .h5-balance-card > strong {
-    margin: 28px 0 31px;
-    font-size: 58px;
-  }
-
-  .h5-balance-split {
-    padding-top: 34px;
-  }
-
-  .h5-balance-split div {
-    gap: 13px;
-  }
-
-  .h5-balance-split span {
-    font-size: 34px;
-  }
-
-  .h5-balance-split b {
-    font-size: 54px;
-    line-height: 1.08;
-  }
-
-  .h5-turnover-card {
-    margin-top: 40px;
-    border-radius: 38px;
-    background: #f3f6fc;
-  }
-
-  .h5-turnover-card:not(.expanded) .h5-turnover-toggle {
-    min-height: 186px;
-    padding: 30px 56px;
-    gap: 30px;
-    font-size: 36px;
-  }
-
-  .h5-turnover-toggle > .anticon-exclamation-circle {
-    flex: none;
-    color: #ffad53;
-    font-size: 46px;
-  }
-
-  .h5-turnover-toggle > span {
-    line-height: 1.35;
-  }
-
-  .h5-turnover-toggle b {
-    color: #2e82f2;
-    font-size: 43px;
-  }
-
-  .h5-turnover-toggle > .anticon-caret-down,
-  .h5-turnover-toggle > .anticon-caret-up {
-    flex: none;
-    color: #8ba2bb;
-    font-size: 24px;
-  }
-
-  .h5-turnover-tabs {
-    gap: 14px;
-    padding: 22px 5px 0;
-  }
-
-  .h5-turnover-tabs button {
-    min-height: 56px;
-    border-radius: 16px;
-    font-size: 25px;
-  }
-
-  .h5-turnover-rule {
-    gap: 14px;
-    margin-top: 18px;
-    padding: 16px 18px;
-    border-radius: 16px;
-    font-size: 21px;
-    line-height: 1.45;
-  }
-
-  .h5-turnover-rule strong {
-    font-size: 21px;
-  }
-
-  .h5-withdraw-methods,
-  .h5-withdraw-info {
-    margin-top: 58px;
-  }
-
-  .h5-withdraw-methods h2,
-  .h5-withdraw-info h2 {
-    gap: 18px;
-    margin-bottom: 25px;
-    color: #1f2938;
-    font-size: 42px;
-  }
-
-  .h5-withdraw-methods h2::before,
-  .h5-withdraw-info h2::before {
-    width: 8px;
-    height: 49px;
-    border-radius: 5px;
-  }
-
-  .h5-method-options {
-    gap: 20px;
-  }
-
-  .h5-method-card {
-    min-height: 92px;
-    gap: 14px;
-    padding: 15px 18px;
-    border-radius: 20px;
-  }
-
-  .h5-method-icon {
-    width: 52px;
-    height: 52px;
-    font-size: 30px;
-  }
-
-  .h5-method-card b {
-    font-size: 22px;
-  }
-
-  .h5-method-card i {
-    width: 31px;
-    height: 31px;
-    border-radius: 18px 0 19px 0;
-    font-size: 14px;
-  }
-
-  .h5-empty-state {
-    padding-top: 44px;
-  }
-
-  .h5-empty-state img {
-    width: 220px;
-    height: 220px;
-  }
-
-  .h5-empty-state p {
-    margin-top: 25px;
-    font-size: 19px;
+    box-shadow: 0 18px 50px rgba(36, 59, 91, .22);
   }
 }

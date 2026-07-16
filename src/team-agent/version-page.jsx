@@ -22,26 +22,26 @@ const VERSION_2_GROUPS = [
   },
   {
     portal: 'site', title: '站点后台', icon: <BankOutlined />, items: [
-      ['siteDashboard', '运营首页', '站点代理运营总览', '恢复收入、充提、投注、会员、代理、佣金余额、趋势和排行；指标卡可下钻查看组成。', '可切换周期、点击指标卡、查看趋势与代理排行，并保持原后台信息密度。'],
-      ['siteAgents', '代理管理', '代理主档与团队代理兼容', '恢复原代理资料、经营与关系详情；增加结算模式、团队身份、代理部、line_id、负责人、生效周期和当月结余。团队代理、独立单线和模式审核继续作为子模块。', '可组合筛选并查看资料、经营和关系历史；创建团队、开副线和换主线只选择本站启用代理。'],
-      ['plans', '佣金管理', '方案、结算、发放与冲正', '恢复返佣方案、分润配置、佣金发放记录、冲正统计和冲正回款；活动定义、代理成本和结算周期继续放在现有配置页签。', '可核对当月结余公式、提交与部分发放账单，并在记录、冲正和回款页面追溯。'],
-      ['members', '代理报表', '原有代理经营报表', '恢复代理会员、代理财务、存款记录、游戏记录、账变明细、转账明细、充提转账统计、场馆代理费用和站点利润；统一增加团队代理筛选与详情。', '各报表可查询、重置、分页、导出和打开详情，金额页面展示统一当月结余口径。'],
-      ['prepaid', '资金操作', '预付金、代理代存与提款', '恢复预付金账户和代理代存处理，保留代理提款审核；审核通过后同步存款、账变和转账记录。', '可调整预付金、审核代存、审核并完成提款，代理端可看到对应状态和余额变化。'],
+      ['siteDashboard', '运营首页', '站点代理运营总览', '保留原指标看板、周期切换、趋势和排行，增加佣金余额、代理余额、指标组成明细、结算归属说明和团队维度下钻。', '可切换周期、点击每张指标卡查看组成，并核对团队或结算单元归属。'],
+      ['siteAgents', '代理管理', '代理主档与团队代理兼容', '保留原代理资料和维护结构，增加结算模式、团队身份、代理部、line_id、负责人、生效周期、当月结余、组合筛选、经营详情和关系历史；团队代理、独立单线和模式审核作为新增子模块。', '可组合筛选并查看资料、经营和关系历史；创建团队、开副线和换主线只选择本站启用代理。'],
+      ['plans', '佣金管理', '方案、结算、发放与冲正', '保留原返佣方案、账单、佣金记录和冲正结构，增加团队佣金、独立单线佣金、推荐奖励、活跃定义、代理成本、当月结余公式、部分发放和站点日额度。', '可核对三类方案与账单、提交和部分发放，并在佣金记录、冲正和回款页面追溯。'],
+      ['members', '代理报表', '原有代理经营报表', '保留代理会员、代理财务、存款、游戏、账变、转账、充提统计、场馆费用和站点利润，统一增加团队、线路、结算身份、结算单元、生效周期及各页专属经营字段。', '各报表可按新增条件筛选、分页、导出和打开详情，金额页面展示统一当月结余口径。'],
+      ['prepaid', '资金操作', '预付金、代理代存与提款', '保留预付金、额度或佣金代存和代理提款结构，增加团队归属、扣款账户、流水倍数、站点审核、提款审核与记录、USDT和CNY金额及跨后台状态联动。', '可调整预付金、审核代存、审核并完成提款，代理端可看到对应状态和余额变化。'],
     ],
   },
   {
     portal: 'agent', title: '代理后台', icon: <TeamOutlined />, items: [
-      ['dashboard', '运营首页', '三身份代理经营总览', '将团队经营看板兼容为完整代理运营首页，保留主管主线、副线负责人和独立线主切换，并展示各自经营、资金和团队操作。', '三种身份切换可用；副线不显示其他线路、团队余额或平台应付账单。'],
-      ['downline', '我的代理', '下级代理、代理会员与关系申请', '恢复下级代理和代理会员；团队、线路与结算身份作为兼容字段，关系变更历史放在代理详情页签。', '可查看本人代理树、会员和关系历史，并从页面进入未来周期关系申请。'],
-      ['readonlyPlans', '我的佣金', '方案、个人佣金、账单与冲正', '恢复只读返佣方案、个人佣金、佣金记录、冲正统计和回款；保留佣金账单及主线内部结算。', '主线与独立线主可核对当月结余账单，副线只查看本人内部结算。'],
-      ['agentPay', '资金操作', '代存、提款、账变与转账', '恢复额度或佣金代存、账变明细和转账明细，并保留代理提款；申请与站点审核共享状态。', '代存和提款均校验本人余额，审核结果可在相关记录中联动查看。'],
-      ['finance', '经营报表', '个人经营报表', '恢复个人财务、存款记录、游戏记录、充提转账统计和场馆费用明细，并按身份限制查看范围。', '筛选、分页、详情和导出可用；副线只看到本人 LINE-B，独立线主只看到独立单线01。'],
+      ['dashboard', '运营首页', '三身份代理经营总览', '保留原经营指标、周期切换和明细，增加主管主线、副线负责人、独立线主切换，以及团队线路、当月结余、佣金、余额、身份操作和数据隔离。', '三种身份切换可用；副线不显示其他线路、团队余额或平台应付账单。'],
+      ['downline', '我的代理', '下级代理、代理会员与关系申请', '保留原代理和会员查询，增加结算模式、身份、结算单元、line_id、生效周期、团队归属、关系历史页签及关系与模式申请。', '可查看本人代理树、会员和关系历史，并从页面进入未来周期关系申请。'],
+      ['readonlyPlans', '我的佣金', '方案、个人佣金、账单与冲正', '保留原返佣方案、个人佣金、账单、佣金记录和冲正回款，增加方案类型、活跃定义、代理成本、当月结余、三身份资金边界和主线内部结算。', '主线与独立线主可核对当月结余账单，副线只查看本人内部结算。'],
+      ['agentPay', '资金操作', '代存、提款、账变与转账', '保留额度或佣金代存、提款、账变和转账，增加当前身份、结算单元、可选会员范围、扣款类型、流水倍数、本人可提现余额、处理中占用和CNY换算。', '代存和提款均校验本人余额，审核结果可在相关记录中联动查看。'],
+      ['finance', '经营报表', '个人经营报表', '保留个人财务、存款、游戏、充提统计和场馆费用，统一增加团队、线路、结算身份、结算单元、生效周期筛选与详情，并按身份限制查看范围。', '筛选、分页、详情和导出可用；副线只看到本人 LINE-B，独立线主只看到独立单线01。'],
     ],
   },
 ]
 
 const VERSION_1_GROUPS = [
-  { portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [['h5', 'H5 前端切换与提现流水', '后台到会员端演示入口', '在详情页顶部增加 H5 前端切换入口；提现页流水提示可展开切换场馆流水和充值流水，并逐笔查看充值额度与还需解锁流水，同时说明锁定额度会随用户投注变化重新计算。', '可从后台进入 H5、展开流水明细、切换场馆/充值两个统计页签并返回原后台。', 'h5']] },
+  { portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [['h5', 'H5 前端切换与提现页', '后台到会员端演示入口', '在详情页顶部保留 H5 前端切换入口；H5 提现页按手机端窄屏样式展示，选择提现方式后展开账户、金额和资金密码，并在提现金额标题下方展示可提现、锁定及“解锁条件”弹层。', '可从后台进入 H5、以手机端比例查看钱包概览、切换隐藏无余额场馆、选择提现方式、查看可提/锁定金额，并在解锁条件弹层内合并核对场馆流水、充值流水和彩金流水；弹层不展示已解锁记录和盈利解锁额度行。', 'h5']] },
   { portal: 'site', title: '站点后台', icon: <BankOutlined />, items: [] },
   { portal: 'agent', title: '代理后台', icon: <TeamOutlined />, items: [] },
 ]
@@ -49,7 +49,7 @@ const VERSION_1_GROUPS = [
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>
     {group.items.length ? <div className="ta-version-modules">{group.items.map(([page, title, module, change, acceptance, targetPortal]) => <article className="ta-version-module" key={`${group.portal}-${page}`}>
-      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{group.portal === 'master' && page === 'memberTurnover' ? '2026-07-14' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
+      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{page === 'memberTurnover' ? '2026-07-14' : page === 'h5' ? '2026-07-16' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
       <div className="ta-version-content"><div><b>模块说明</b><p>{module}</p></div><div><b>修改说明</b><p>{change}</p></div><div><b>功能验收</b><p>{acceptance}</p></div></div>
     </article>)}</div> : <div className="ta-version-empty">本版本该后台无新增业务模块。</div>}
   </section>
@@ -59,7 +59,7 @@ export function VersionRequirementsPage({ navigateTo }) {
   const [version, setVersion] = useState('2.0')
   const groups = version === '2.0' ? VERSION_2_GROUPS : VERSION_1_GROUPS
   return <div className="ta-version-page">
-    <div className="ta-version-hero"><div><span>{version} 版本 · {version === '2.0' ? '原第 27 周需求' : '原第 26 周需求'}</span><h1>{version === '2.0' ? '业务运营与团队代理演示原型' : 'H5 提现与后台切换演示'}</h1><p>{version === '2.0' ? '在团队代理三后台闭环与会员打码流水统计基础上，恢复站点后台和代理后台原有代理业务模块；团队代理只在旧页面补充字段、页签与角色口径，并统一采用当月结余规则。' : '保留后台到 H5 前端的切换入口，以及提现额度、场馆锁定和解锁流水的产品说明。'}</p></div><div className="ta-version-seal">{version === '2.0' ? <ApartmentOutlined /> : <MobileOutlined />}<strong>{version}</strong><span>{version === '2.0' ? 'P0 业务演示' : '需求归档'}</span></div></div>
+    <div className="ta-version-hero"><div><span>{version} 版本 · {version === '2.0' ? '原第 27 周需求' : '原第 26 周需求'}</span><h1>{version === '2.0' ? '业务运营与团队代理演示原型' : 'H5 提现与后台切换演示'}</h1><p>{version === '2.0' ? '在团队代理三后台闭环与会员打码流水统计基础上，恢复站点后台和代理后台原有代理业务模块；团队代理只在旧页面补充字段、页签与角色口径，并统一采用当月结余规则。' : '保留后台到 H5 前端的切换入口，以及手机端比例的钱包概览、提现方式、取款账户和金额输入演示。'}</p></div><div className="ta-version-seal">{version === '2.0' ? <ApartmentOutlined /> : <MobileOutlined />}<strong>{version}</strong><span>{version === '2.0' ? 'P0 业务演示' : '需求归档'}</span></div></div>
     <Tabs items={[{ value: '2.0', label: '2.0 · 第 27 周' }, { value: '1.0', label: '1.0 · 第 26 周' }]} active={version} onChange={setVersion} />
     <div className="ta-version-groups">{groups.map((group) => <VersionGroup key={`${version}-${group.portal}`} group={group} navigateTo={navigateTo} />)}</div>
     {version === '2.0' && <section className="ta-version-roadmap"><h2>后续增强能力</h2><p>以下能力只作为后续路线图，不计入本次已完成验收：批量开副线、内部结算模板、主线自有资金提前结算、方案计算预演、阶梯奖励和历史余额移交。</p></section>}

@@ -43,6 +43,29 @@ export function PageSummary({ note, onOpenNotes }) {
   return <div className="ta-page-summary"><div><span><FileTextOutlined />业务及需求说明</span><strong>{note.title}</strong><small>修改时间：{note.updatedAt}</small></div><button onClick={onOpenNotes}>查看完整说明</button></div>
 }
 
+const COMPARISON_GROUPS = [
+  ['fields', '新增字段'],
+  ['types', '新增类型'],
+  ['filters', '新增筛选项'],
+  ['views', '新增页签或弹窗'],
+  ['actions', '新增操作功能'],
+  ['rules', '新增业务规则'],
+]
+
+function ComparisonSection({ comparison }) {
+  if (!comparison) return null
+  const groups = COMPARISON_GROUPS.filter(([key]) => comparison.additions?.[key]?.length)
+  return <section className="feature-notes-comparison">
+    <h3>相对原后台的新增 / 修改</h3>
+    <div className="feature-notes-comparison-meta">
+      <p><b>模块标识：</b>（{comparison.mark}）</p>
+      <p><b>对照基线：</b>{comparison.baseline}</p>
+    </div>
+    <div className="feature-notes-legacy"><b>原后台已有：</b><p>{comparison.legacy}</p></div>
+    <div className="feature-notes-additions"><b>本原型新增 / 修改：</b>{groups.map(([key, label]) => <div key={key}><strong>{label}</strong><ul>{comparison.additions[key].map((item) => <li key={item}>{item}</li>)}</ul></div>)}</div>
+  </section>
+}
+
 export function NotesDrawer({ note, onClose }) {
   if (!note) return null
   const sections = [
@@ -57,7 +80,7 @@ export function NotesDrawer({ note, onClose }) {
   ]
   return <div className="feature-notes-backdrop" onClick={onClose}><aside className="feature-notes" role="dialog" aria-modal="true" aria-label="业务及需求说明" onClick={(event) => event.stopPropagation()}>
     <div className="feature-notes-head"><div><span>{note.title}</span><small>更新于 {note.updatedAt}</small></div><button aria-label="关闭业务及需求说明" onClick={onClose}><CloseOutlined /></button></div>
-    <div className="feature-notes-body">{sections.map(([title, content]) => <section key={title}><h3>{title}</h3><p>{content}</p></section>)}</div>
+    <div className="feature-notes-body"><ComparisonSection comparison={note.comparison} />{sections.map(([title, content]) => <section key={title}><h3>{title}</h3><p>{content}</p></section>)}</div>
   </aside></div>
 }
 
