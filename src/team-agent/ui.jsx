@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   CloseOutlined,
   DownloadOutlined,
@@ -77,15 +78,42 @@ export function Percent({ value }) {
   return <span>{(Number(value || 0) * 100).toFixed(2)}%</span>
 }
 
-export function DataTable({ columns, rows, rowKey = 'id', minWidth, emptyText = '暂无数据', className = '' }) {
-  return <div className={`ta-table-wrap ${className}`}><table className="ta-table" style={{ minWidth }}><thead><tr>{columns.map((column) => <th key={column.key} className={column.className}>{column.label}</th>)}</tr></thead><tbody>
-    {rows.length ? rows.map((row, index) => <tr key={typeof rowKey === 'function' ? rowKey(row, index) : row[rowKey] ?? index}>{columns.map((column) => <td key={column.key} className={column.cellClassName}>{column.render ? column.render(row[column.key], row, index) : row[column.key] ?? '—'}</td>)}</tr>) : <tr><td className="ta-empty-cell" colSpan={columns.length}>{emptyText}</td></tr>}
-  </tbody></table></div>
+export function DataTable({ columns, rows, rowKey = 'id', minWidth, emptyText = '暂无数据', className = '', paginated = false }) {
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize))
+  const safePage = Math.min(page, pageCount)
+  const visibleRows = paginated ? rows.slice((safePage - 1) * pageSize, safePage * pageSize) : rows
+
+  useEffect(() => setPage(1), [rows.length, pageSize])
+
+  return <>
+    <div className={`ta-table-wrap ${className}`}><table className="ta-table" style={{ minWidth }}><thead><tr>{columns.map((column) => <th key={column.key} className={column.className}>{column.label}</th>)}</tr></thead><tbody>
+      {visibleRows.length ? visibleRows.map((row, index) => <tr key={typeof rowKey === 'function' ? rowKey(row, index) : row[rowKey] ?? index}>{columns.map((column) => <td key={column.key} className={column.cellClassName}>{column.render ? column.render(row[column.key], row, index) : row[column.key] ?? '—'}</td>)}</tr>) : <tr><td className="ta-empty-cell" colSpan={columns.length}>{emptyText}</td></tr>}
+    </tbody></table></div>
+    {paginated && <Pagination total={rows.length} page={safePage} pageSize={pageSize} onChange={setPage} onPageSizeChange={(value) => setPageSize(Number(value))} />}
+  </>
 }
 
-export function Pagination({ total, page = 1, onChange }) {
-  const pages = Math.max(1, Math.ceil(total / 10))
-  return <div className="ta-pagination"><span>共 {total} 条</span><Select value="10" options={[{ value: '10', label: '10条/页' }, { value: '20', label: '20条/页' }]} /><button disabled={page <= 1} onClick={() => onChange?.(page - 1)}>上一页</button><b>{page}</b><span>/ {pages}</span><button disabled={page >= pages} onClick={() => onChange?.(page + 1)}>下一页</button></div>
+export function Pagination({ total, page = 1, pageSize = 10, onChange, onPageSizeChange }) {
+  const pages = Math.max(1, Math.ceil(total / pageSize))
+  const sizeOptions = [10, 20, 50, 100, 200].map((value) => ({ value: String(value), label: `${value}条/页` }))
+  return <div className="ta-pagination"><span>共 {total} 条</span><Select value={String(pageSize)} onChange={onPageSizeChange} options={sizeOptions} /><button disabled={page <= 1} onClick={() => onChange?.(page - 1)}>上一页</button><b>{page}</b><span>/ {pages}</span><button disabled={page >= pages} onClick={() => onChange?.(page + 1)}>下一页</button></div>
+}
+
+export function ColumnSettings({ columns, visibleKeys, onChange, fixedKeys = [], title = '列信息' }) {
+  const [open, setOpen] = useState(false)
+  function toggle(key) {
+    if (fixedKeys.includes(key)) return
+    const next = visibleKeys.includes(key) ? visibleKeys.filter((item) => item !== key) : [...visibleKeys, key]
+    if (next.length >= fixedKeys.length + 2) onChange(next)
+  }
+  return <>
+    <Button variant="ghost" onClick={() => setOpen(true)}>{title}</Button>
+    <Modal open={open} title="选择列表字段" description="只调整当前页面展示列，不改变账单或记录数据。" onClose={() => setOpen(false)} onConfirm={() => setOpen(false)} confirmText="完成" showCancel={false} width={680}>
+      <div className="ta-column-options">{columns.map((column) => <label key={column.key} className={fixedKeys.includes(column.key) ? 'is-fixed' : ''}><input type="checkbox" checked={visibleKeys.includes(column.key)} disabled={fixedKeys.includes(column.key)} onChange={() => toggle(column.key)} /><span>{column.label}</span></label>)}</div>
+    </Modal>
+  </>
 }
 
 export function SectionHeader({ title, description, actions }) {

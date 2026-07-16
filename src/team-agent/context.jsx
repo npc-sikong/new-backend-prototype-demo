@@ -37,13 +37,16 @@ export function TeamAgentProvider({ children }) {
     const id = `TEAM-${String(data.teams.length + 1).padStart(3, '0')}`
     const lineId = `LINE-${String.fromCharCode(65 + data.teams.reduce((sum, team) => sum + team.lines.length, 0))}`
     const team = {
-      id, code: `DPT-${String(data.teams.length + 1).padStart(3, '0')}`, name, site: payload.site || '旺财体育', currency: 'CNY', mainAgent,
+      id, code: `DPT-${String(data.teams.length + 1).padStart(3, '0')}`, name, teamType: payload.teamType || '推广团队', developer: payload.developer || mainAgent, site: payload.site || '旺财体育', currency: 'CNY', mainAgent,
+      memberDetailPermission: Boolean(payload.memberDetailPermission), createdAt: timestamp(), joinedAt: payload.startCycle || '2026-08',
       plan: payload.plan || '旺财团队月结方案', status: '待生效', startCycle: payload.startCycle || '2026-08', endCycle: '长期', previousNegative: 0,
       cumulativeReceived: 0, successfulTransfers: 0, processingOccupied: 0, otherDeductions: 0,
-      metrics: { newActive: 0, activeMembers: 0, memberWinLoss: 0, expenses: 0, adjustment: 0, currentNet: 0, assessmentNet: 0, commissionableNet: 0, grade: '待计算', rate: 0, payable: 0 },
+      metrics: { newActive: 0, activeMembers: 0, memberWinLoss: 0, totalWinLoss: 0, venueFee: 0, memberBonus: 0, memberRebate: 0, accountAdjustment: 0, manualOrderWinLoss: 0, depositFee: 0, withdrawalFee: 0, expenses: 0, adjustment: 0, currentNet: 0, lastBalance: 0, balanceAdjustment: 0, assessmentNet: 0, correctedNet: 0, commissionableNet: 0, commissionAdjustment: 0, grade: '待计算', rate: 0, payable: 0 },
       lines: [{ lineId, identity: '主线', agent: mainAgent, scope: '主线直属代理及会员', newActive: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: payload.startCycle || '2026-08' }],
     }
-    setData((current) => ({ ...current, teams: [...current.teams, team] }))
+    const main = data.agents.find((item) => item.account === mainAgent)
+    const operation = { id: sequence('TOP', data.teamOperations), teamId: id, teamName: name, teamType: team.teamType, mainId: main?.id || '—', mainAccount: mainAgent, secondaryAccounts: '—', action: '创建团队', reason: payload.reason || '市场推广代理线归集', operator: '站点运营', createdAt: timestamp() }
+    setData((current) => ({ ...current, teams: [...current.teams, team], teamOperations: [operation, ...current.teamOperations] }))
     return { ok: true, message: `${name} 已创建，将于 ${team.startCycle} 生效`, id }
   }
 
@@ -61,12 +64,15 @@ export function TeamAgentProvider({ children }) {
     }
     const request = {
       id: sequence('REQ-202607', data.requests), type: '开设副线', applicant: team.mainAgent, currentUnit: `${team.name} / ${team.mainAgent}`, targetUnit: `${team.name} / ${line.lineId} / ${agent}`,
-      effectiveCycle: line.startCycle, recommender: '—', status: payload.requireReview === false ? '已批准·待生效' : '待站点复核', conflict: '无冲突', createdAt: timestamp(), note: '副线从目标完整周期进入团队统一考核。',
+      effectiveCycle: line.startCycle, recommender: '—', status: payload.requireReview === false ? '已批准·待生效' : '待站点复核', conflict: '无冲突', balanceHandling: '加入团队当月结余随代理带入团队', createdAt: timestamp(), note: '副线进入团队后，余额归属按当月结余规则处理。',
     }
+    const secondaryAccounts = [...team.lines.filter((item) => item.identity === '副线').map((item) => item.agent), agent].join('、')
+    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamType || '推广团队', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts, action: '新增副线', reason: payload.reason || '扩展团队业务范围', operator: payload.requireReview === false ? '站点运营' : team.mainAgent, createdAt: timestamp() }
     setData((current) => ({
       ...current,
       teams: current.teams.map((item) => item.id === teamId ? { ...item, lines: [...item.lines, line] } : item),
       requests: [request, ...current.requests],
+      teamOperations: [operation, ...current.teamOperations],
     }))
     return { ok: true, message: `${agent} 副线已建立，状态：${line.status}` }
   }
@@ -92,10 +98,15 @@ export function TeamAgentProvider({ children }) {
     if (!applicant) return { ok: false, message: '缺少申请人' }
     const duplicate = data.requests.some((request) => request.type === payload.type && request.applicant === applicant && ['待站点复核', '待补充资料'].includes(request.status))
     if (duplicate) return { ok: false, message: '已存在相同类型的待处理申请' }
+    const balanceHandling = payload.balanceHandling || (payload.type === '独立单线加入团队' || payload.type === '开设副线'
+      ? '加入团队当月结余随代理带入新团队'
+      : payload.type === '副线转独立单线' || payload.type === '终止独立单线'
+        ? '移出团队当月结余留在原团队'
+        : '团队当月结余继续归属原团队')
     const request = {
       id: sequence('REQ-202607', data.requests), type: payload.type, applicant, currentUnit: payload.currentUnit || '—', targetUnit: payload.targetUnit || '—',
       effectiveCycle: payload.effectiveCycle || '2026-08', recommender: payload.recommender || '—', status: '待站点复核', conflict: payload.conflict || '无冲突', createdAt: timestamp(),
-      note: payload.note || '当前周期维持原关系，目标周期开始后按新结算单元处理。',
+      balanceHandling, note: payload.note || '关系按目标周期切换，余额归属按当月结余规则处理。',
     }
     setData((current) => ({ ...current, requests: [request, ...current.requests] }))
     return { ok: true, message: `${payload.type}申请已提交站点复核` }
@@ -127,19 +138,23 @@ export function TeamAgentProvider({ children }) {
         const pendingMain = request.targetUnit.split('/').at(-1).trim()
         teams = teams.map((team) => team.name === targetName ? { ...team, pendingMain, pendingMainCycle: request.effectiveCycle } : team)
       }
-      return { ...current, teams, singles, requests: current.requests.map((item) => item.id === requestId ? { ...item, status: approved ? '已批准·待生效' : '审核退回' } : item) }
+      const relatedTeam = teams.find((team) => request.currentUnit.includes(team.name) || request.targetUnit.includes(team.name))
+      const operation = approved && relatedTeam ? { id: sequence('TOP', current.teamOperations), teamId: relatedTeam.id, teamName: relatedTeam.name, teamType: relatedTeam.teamType || '推广团队', mainId: current.agents.find((item) => item.account === relatedTeam.mainAgent)?.id || '—', mainAccount: relatedTeam.mainAgent, secondaryAccounts: relatedTeam.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: request.type, reason: request.balanceHandling || request.note, operator: '站点运营', createdAt: timestamp() } : null
+      return { ...current, teams, singles, requests: current.requests.map((item) => item.id === requestId ? { ...item, status: approved ? '已批准·待生效' : '审核退回' } : item), teamOperations: operation ? [operation, ...current.teamOperations] : current.teamOperations }
     })
     return { ok: true, message: approved ? `申请已批准，将于 ${request.effectiveCycle} 生效` : '申请已退回' }
   }
 
-  function setTeamStatus(teamId, status) {
+  function setTeamStatus(teamId, status, options = {}) {
     const team = data.teams.find((item) => item.id === teamId)
     if (!team) return { ok: false, message: '未找到代理部' }
+    const balanceAssignee = options.balanceAssignee || team.mainAgent
+    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamType || '推广团队', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts: team.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: status, reason: status === '已解散' ? `团队业务终止；剩余团队结余由指定代理 ${balanceAssignee} 承接` : `团队状态调整为${status}`, operator: '站点运营', createdAt: timestamp() }
     if (status === '已解散' && (team.previousNegative > 0 || data.bills.some((bill) => bill.unitId === teamId && bill.issued < bill.payable))) {
-      setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, status: '待解散' } : item) }))
-      return { ok: false, message: '存在负值结余或未发完账单，已转为待解散' }
+      setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, status: '待解散', balanceAssignee } : item), teamOperations: [{ ...operation, action: '转为待解散', reason: `存在未发完账单或未处理结余；处理后由 ${balanceAssignee} 承接剩余结余` }, ...current.teamOperations] }))
+      return { ok: false, message: '存在未处理当月结余或未发完账单，已转为待解散' }
     }
-    setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, status } : item) }))
+    setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, status, ...(status === '已解散' ? { balanceAssignee } : {}) } : item), teamOperations: [operation, ...current.teamOperations] }))
     return { ok: true, message: `${team.name} 已更新为${status}` }
   }
 
@@ -165,6 +180,9 @@ export function TeamAgentProvider({ children }) {
       ...current,
       internalSettlements: [record, ...current.internalSettlements],
       teams: current.teams.map((item) => item.id === team.id ? { ...item, successfulTransfers: item.successfulTransfers + amount } : item),
+      agents: current.agents.map((item) => item.account === payload.secondaryAgent ? { ...item, balance: item.balance + amount } : item),
+      transfers: [{ id: sequence('TR', current.transfers), orderNo: record.id, site: team.site, agent: team.mainAgent, directAgent: team.mainAgent, team: team.name, lineId: team.lines.find((line) => line.agent === payload.secondaryAgent)?.lineId || '—', identity: '副线负责人', unit: team.name, effectiveCycle: team.startCycle, from: team.mainAgent, to: payload.secondaryAgent, type: '内部结算', amount, fee: 0, status: '成功', createdAt: record.createdAt }, ...current.transfers],
+      accountChanges: [{ id: sequence('AC', current.accountChanges), orderNo: record.id, site: team.site, agent: payload.secondaryAgent, directAgent: team.mainAgent, team: team.name, lineId: team.lines.find((line) => line.agent === payload.secondaryAgent)?.lineId || '—', identity: '副线负责人', unit: team.name, effectiveCycle: team.startCycle, owner: payload.secondaryAgent, ownerType: '代理', wallet: '佣金余额', changeType: '内部结算收款', before: current.agents.find((item) => item.account === payload.secondaryAgent)?.balance || 0, amount, after: (current.agents.find((item) => item.account === payload.secondaryAgent)?.balance || 0) + amount, status: '成功', createdAt: record.createdAt }, ...current.accountChanges],
     }))
     return { ok: true, message: `已向 ${payload.secondaryAgent} 结算 ¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}` }
   }
@@ -196,6 +214,8 @@ export function TeamAgentProvider({ children }) {
       bills: current.bills.map((item) => item.id === billId ? { ...item, issued: item.issued + amount, state: item.issued + amount >= item.payable ? '已发放' : '部分发放' } : item),
       siteQuota: { ...current.siteQuota, successfulToday: current.siteQuota.successfulToday + amount },
       teams: current.teams.map((team) => team.id === bill.unitId ? { ...team, cumulativeReceived: team.cumulativeReceived + amount } : team),
+      agents: current.agents.map((item) => item.account === bill.payee ? { ...item, balance: item.balance + amount } : item),
+      accountChanges: [{ id: sequence('AC', current.accountChanges), orderNo: bill.id, site: bill.site, agent: bill.payee, directAgent: current.agents.find((item) => item.account === bill.payee)?.parent || '—', team: bill.type === '团队佣金' ? bill.unitName : '—', lineId: current.agents.find((item) => item.account === bill.payee)?.lineId || '—', identity: current.agents.find((item) => item.account === bill.payee)?.identity || '原代理模式', unit: bill.unitName, effectiveCycle: bill.cycle, owner: bill.payee, ownerType: '代理', wallet: '佣金余额', changeType: '佣金发放', before: current.agents.find((item) => item.account === bill.payee)?.balance || 0, amount, after: (current.agents.find((item) => item.account === bill.payee)?.balance || 0) + amount, status: '成功', createdAt: timestamp() }, ...current.accountChanges],
     }))
     return { ok: true, message: `已发放 ¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}` }
   }
@@ -213,9 +233,203 @@ export function TeamAgentProvider({ children }) {
     return { ok: true, message: `${name} 已保存为待生效版本` }
   }
 
+  function copyPlan(planId) {
+    const source = data.plans.find((item) => item.id === planId)
+    if (!source) return { ok: false, message: '未找到方案' }
+    const copy = { ...structuredClone(source), id: sequence('PLAN', data.plans), name: `${source.name} · 未来版本`, effectiveCycle: '2026-08', status: '待生效' }
+    setData((current) => ({ ...current, plans: [...current.plans, copy] }))
+    return { ok: true, message: `${copy.name} 已创建` }
+  }
+
+  function updatePlanLevel(planId, grade, payload) {
+    const plan = data.plans.find((item) => item.id === planId)
+    if (!plan?.levels?.some((item) => item.grade === grade)) return { ok: false, message: '未找到等级配置' }
+    setData((current) => ({ ...current, plans: current.plans.map((item) => item.id === planId ? { ...item, levels: item.levels.map((level) => level.grade === grade ? { ...level, ...payload } : level) } : item) }))
+    return { ok: true, message: `${grade}等级配置已更新` }
+  }
+
+  function updateAgent(agentId, payload) {
+    const target = data.agents.find((item) => item.id === agentId)
+    if (!target) return { ok: false, message: '未找到代理资料' }
+    setData((current) => ({ ...current, agents: current.agents.map((item) => item.id === agentId ? { ...item, ...payload } : item) }))
+    return { ok: true, message: `${target.account} 资料已更新` }
+  }
+
+  function adjustAgentBalance(agentId, payload) {
+    const target = data.agents.find((item) => item.id === agentId)
+    const amount = Number(payload.amount)
+    if (!target || !Number.isFinite(amount) || amount === 0) return { ok: false, message: '请输入有效调整金额' }
+    if (!payload.month || payload.month === '2026-07') return { ok: false, message: '佣金余额仅允许调整历史已发放月份' }
+    const record = { id: sequence('ABA', data.agentBalanceAdjustments), agentId, account: target.account, month: payload.month, amount, reason: payload.reason || '历史佣金差异修正', operator: '若依', createdAt: timestamp() }
+    setData((current) => ({ ...current, agents: current.agents.map((item) => item.id === agentId ? { ...item, balance: item.balance + amount } : item), agentBalanceAdjustments: [record, ...current.agentBalanceAdjustments] }))
+    return { ok: true, message: `${target.account} 历史佣金余额已调整` }
+  }
+
+  function adjustBillBalance(billId, payload) {
+    const target = data.bills.find((item) => item.id === billId)
+    const amount = Number(payload.amount)
+    if (!target || target.cycle !== '2026-07') return { ok: false, message: '仅允许调整当前佣金月份的本月结余' }
+    if (!Number.isFinite(amount)) return { ok: false, message: '请输入有效本月结余调整金额' }
+    const correctedNet = target.netWinLossRaw + target.lastBalance + amount
+    const calculatedCommission = correctedNet * target.rate + Number(target.commissionAdjustment || 0)
+    const payable = Math.max(0, calculatedCommission)
+    setData((current) => ({
+      ...current,
+      bills: current.bills.map((item) => item.id === billId ? { ...item, balanceAdjustment: amount, correctedNet, netWinLoss: correctedNet, payable, adjustmentReason: payload.reason || '本月结余调整', maintainer: '若依' } : item),
+      teams: current.teams.map((team) => team.id === target.unitId ? { ...team, metrics: { ...team.metrics, balanceAdjustment: amount, correctedNet, assessmentNet: correctedNet, commissionableNet: correctedNet, payable } } : team),
+    }))
+    return { ok: true, message: `本月结余已调整，冲正后净输赢为 ¥${correctedNet.toLocaleString()}` }
+  }
+
+  function updateActivityDefinition(id, payload) {
+    if (!data.activityDefinitions.some((item) => item.id === id)) return { ok: false, message: '未找到活跃定义' }
+    setData((current) => ({ ...current, activityDefinitions: current.activityDefinitions.map((item) => item.id === id ? { ...item, ...payload, operator: '若依', updatedAt: timestamp() } : item) }))
+    return { ok: true, message: '活跃会员定义已更新' }
+  }
+
+  function updateAgentCost(id, payload) {
+    if (!data.agentCosts.some((item) => item.id === id)) return { ok: false, message: '未找到代理成本项' }
+    setData((current) => ({ ...current, agentCosts: current.agentCosts.map((item) => item.id === id ? { ...item, ...payload, operator: '站点运营', updatedAt: timestamp() } : item) }))
+    return { ok: true, message: '代理成本配置已更新' }
+  }
+
+  function saveSiteCommissionConfig(payload) {
+    setData((current) => ({ ...current, siteCommissionConfig: { ...current.siteCommissionConfig, ...payload, updatedBy: '站点运营', updatedAt: timestamp() } }))
+    return { ok: true, message: `站点佣金配置已保存，将于 ${payload.effectiveCycle || data.siteCommissionConfig.effectiveCycle} 生效` }
+  }
+
+  function updateTeamPreferences(teamId, payload) {
+    const team = data.teams.find((item) => item.id === teamId)
+    if (!team) return { ok: false, message: '未找到代理部' }
+    const nextName = String(payload.name || team.name).trim()
+    const operation = { id: sequence('TOP', data.teamOperations), teamId, teamName: nextName, teamType: payload.teamType || team.teamType, mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts: team.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: '编辑团队', reason: `更新团队类型或副线会员详情权限`, operator: '站点运营', createdAt: timestamp() }
+    setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, ...payload, name: nextName } : item), teamOperations: [operation, ...current.teamOperations] }))
+    return { ok: true, message: `${nextName} 设置已更新` }
+  }
+
+  function submitAgentPay(payload) {
+    const account = String(payload.account || '').trim()
+    const memberAccount = String(payload.member || '').trim()
+    const amount = Number(payload.amount)
+    const agentRow = data.agents.find((item) => item.account === account)
+    const member = data.members.find((item) => item.account === memberAccount)
+    const payType = payload.payType || '佣金代存'
+    const prepaid = data.prepaidAccounts.find((item) => item.agent === account)
+    if (!agentRow || !member) return { ok: false, message: '请选择当前代理范围内的会员' }
+    if (!Number.isFinite(amount) || amount <= 0) return { ok: false, message: '请输入有效代存金额' }
+    if (payType === '佣金代存' && amount > agentRow.balance) return { ok: false, message: '佣金余额不足，不能提交代存' }
+    if (payType === '额度代存' && (!prepaid || amount > prepaid.available)) return { ok: false, message: '预付金额度不足，不能提交代存' }
+    const index = data.agentPayRecords.length + 1
+    const submittedAt = timestamp()
+    const orderNo = `AP20260715${String(index).padStart(4, '0')}`
+    const record = { id: `AP-${String(index).padStart(3, '0')}`, orderNo, site: agentRow.site, agent: account, agentId: agentRow.id, directAgent: agentRow.parent, team: agentRow.unit === '—' ? '—' : agentRow.unit, lineId: agentRow.lineId, identity: agentRow.identity, unit: agentRow.unit, effectiveCycle: agentRow.effectiveCycle, member: memberAccount, payType, amount, turnoverMultiple: Number(payload.turnoverMultiple || 1), requiredTurnover: amount * Number(payload.turnoverMultiple || 1), status: '待处理', applicant: account, reviewer: '—', submittedAt, reviewedAt: '—', remark: payload.remark || '代理发起代存' }
+    const deposit = { id: `DEP-${orderNo}`, orderNo, site: agentRow.site, agent: account, agentId: agentRow.id, directAgent: agentRow.parent, team: agentRow.unit === '—' ? '—' : agentRow.unit, lineId: agentRow.lineId, identity: agentRow.identity, unit: agentRow.unit, effectiveCycle: agentRow.effectiveCycle, member: memberAccount, type: '代理代存', channel: payType === '佣金代存' ? '佣金余额' : '代理预付金', amount, fee: 0, status: '待处理', submittedAt, completedAt: '—' }
+    setData((current) => ({ ...current, agentPayRecords: [record, ...current.agentPayRecords], deposits: [deposit, ...current.deposits] }))
+    return { ok: true, message: `代存申请 ${orderNo} 已提交站点处理` }
+  }
+
+  function reviewAgentPay(id, approved, remark = '') {
+    const target = data.agentPayRecords.find((item) => item.id === id)
+    if (!target || target.status !== '待处理') return { ok: false, message: '该代存申请当前不可处理' }
+    const agentRow = data.agents.find((item) => item.account === target.agent)
+    const member = data.members.find((item) => item.account === target.member)
+    const prepaid = data.prepaidAccounts.find((item) => item.agent === target.agent)
+    if (approved && (!agentRow || !member)) return { ok: false, message: '代理或会员资料不存在' }
+    if (approved && target.payType === '佣金代存' && target.amount > agentRow.balance) return { ok: false, message: '代理佣金余额不足，处理被阻止' }
+    if (approved && target.payType === '额度代存' && (!prepaid || target.amount > prepaid.available)) return { ok: false, message: '代理预付金额度不足，处理被阻止' }
+    const reviewedAt = timestamp()
+    setData((current) => {
+      const beforeAgent = current.agents.find((item) => item.account === target.agent)?.balance || 0
+      const beforeMember = current.members.find((item) => item.account === target.member)?.balance || 0
+      const relation = { site: target.site, agent: target.agent, directAgent: target.directAgent, team: target.team, lineId: target.lineId, identity: target.identity, unit: target.unit, effectiveCycle: target.effectiveCycle }
+      return {
+        ...current,
+        agentPayRecords: current.agentPayRecords.map((item) => item.id === id ? { ...item, status: approved ? '已通过' : '已拒绝', reviewer: '站点运营', reviewedAt, remark: remark || (approved ? '资料核对通过' : '申请已拒绝') } : item),
+        deposits: current.deposits.map((item) => item.orderNo === target.orderNo ? { ...item, status: approved ? '成功' : '已拒绝', completedAt: reviewedAt } : item),
+        agents: approved && target.payType === '佣金代存' ? current.agents.map((item) => item.account === target.agent ? { ...item, balance: item.balance - target.amount } : item) : current.agents,
+        prepaidAccounts: approved && target.payType === '额度代存' ? current.prepaidAccounts.map((item) => item.agent === target.agent ? { ...item, available: item.available - target.amount, lastChange: -target.amount, updatedAt: reviewedAt } : item) : current.prepaidAccounts,
+        members: approved ? current.members.map((item) => item.account === target.member ? { ...item, balance: item.balance + target.amount, depositAmount: item.depositAmount + target.amount } : item) : current.members,
+        transfers: approved ? [{ id: sequence('TR', current.transfers), orderNo: target.orderNo, ...relation, from: target.agent, to: target.member, type: target.payType, amount: target.amount, fee: 0, status: '成功', createdAt: reviewedAt }, ...current.transfers] : current.transfers,
+        accountChanges: approved ? [
+          { id: `${sequence('AC', current.accountChanges)}-A`, orderNo: target.orderNo, ...relation, owner: target.agent, ownerType: '代理', wallet: target.payType === '佣金代存' ? '佣金余额' : '预付金额度', changeType: '代理代存扣款', before: target.payType === '佣金代存' ? beforeAgent : prepaid?.available || 0, amount: -target.amount, after: (target.payType === '佣金代存' ? beforeAgent : prepaid?.available || 0) - target.amount, status: '成功', createdAt: reviewedAt },
+          { id: `${sequence('AC', current.accountChanges)}-M`, orderNo: target.orderNo, ...relation, owner: target.member, ownerType: '会员', wallet: '中心钱包', changeType: '代理代存入账', before: beforeMember, amount: target.amount, after: beforeMember + target.amount, status: '成功', createdAt: reviewedAt },
+          ...current.accountChanges,
+        ] : current.accountChanges,
+      }
+    })
+    return { ok: true, message: approved ? '代理代存已通过并同步资金记录' : '代理代存已拒绝' }
+  }
+
+  function adjustPrepaidAccount(id, amountValue, reason = '') {
+    const amount = Number(amountValue)
+    const target = data.prepaidAccounts.find((item) => item.id === id)
+    if (!target || !Number.isFinite(amount) || amount === 0) return { ok: false, message: '请输入有效调整金额' }
+    if (target.available + amount < 0) return { ok: false, message: '调整后预付金额度不能小于零' }
+    setData((current) => ({
+      ...current,
+      prepaidAccounts: current.prepaidAccounts.map((item) => item.id === id ? { ...item, available: item.available + amount, lastChange: amount, updatedAt: timestamp(), remark: reason || '站点运营调整' } : item),
+    }))
+    return { ok: true, message: `${target.agent} 预付金额度已调整` }
+  }
+
+  function agentWithdrawableBalance(account) {
+    const agentRow = data.agents.find((item) => item.account === account)
+    if (!agentRow) return 0
+    const pending = data.withdrawals.filter((item) => item.account === account && item.status === '待审核').reduce((sum, item) => sum + Number(item.actualAmountCny || 0), 0)
+    return Math.max(0, agentRow.balance - pending)
+  }
+
+  function createAgentWithdrawal(payload) {
+    const account = String(payload.account || '').trim()
+    const agentRow = data.agents.find((item) => item.account === account)
+    const usdtAmount = Number(payload.usdtAmount || 0)
+    const actualAmountCny = Number(payload.actualAmountCny || payload.amountCny || (usdtAmount > 0 ? usdtAmount * 7.2 : 0))
+    if (!agentRow) return { ok: false, message: '未找到当前代理账号' }
+    if (!Number.isFinite(actualAmountCny) || actualAmountCny <= 0) return { ok: false, message: '请输入有效提款金额' }
+    const available = agentWithdrawableBalance(account)
+    if (actualAmountCny > available) return { ok: false, message: `超过当前可提现余额 ¥${available.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}` }
+    if (!String(payload.withdrawInfo || '').trim()) return { ok: false, message: '请填写提款信息' }
+    const index = data.withdrawals.length + 1
+    const feeCny = Math.max(7.2, actualAmountCny * 0.001)
+    const record = { id: `AWD-202607-${String(index).padStart(3, '0')}`, orderNo: `AWD20260715${String(index).padStart(4, '0')}`, site: agentRow.site, withdrawalType: payload.withdrawalType || '佣金余额提现', agentId: agentRow.id, account, agentType: agentRow.agentType, parentAccount: agentRow.parent, currency: payload.currency || (usdtAmount > 0 ? 'USDT' : 'CNY'), usdtAmount, actualAmountCny, feeCny, estimatedArrival: Math.max(0, actualAmountCny - feeCny), withdrawInfo: payload.withdrawInfo, appliedAt: timestamp(), status: '待审核', reviewer: '—', reviewedAt: '—', reviewRemark: '—', completedAt: '—' }
+    setData((current) => ({ ...current, withdrawals: [record, ...current.withdrawals] }))
+    return { ok: true, message: `提款申请 ${record.orderNo} 已提交审核` }
+  }
+
+  function reviewAgentWithdrawal(id, approved, remark = '', reviewer = '站点运营') {
+    const target = data.withdrawals.find((item) => item.id === id)
+    if (!target || target.status !== '待审核') return { ok: false, message: '该提款订单当前不可审核' }
+    const agentRow = data.agents.find((item) => item.account === target.account)
+    if (approved && (!agentRow || target.actualAmountCny > agentRow.balance)) return { ok: false, message: '代理余额不足，不能审核通过' }
+    setData((current) => ({
+      ...current,
+      withdrawals: current.withdrawals.map((item) => item.id === id ? { ...item, status: approved ? '处理中' : '已拒绝', reviewer, reviewedAt: timestamp(), reviewRemark: remark || (approved ? '资料核对通过，进入出款处理' : '审核拒绝') } : item),
+      agents: approved ? current.agents.map((item) => item.account === target.account ? { ...item, balance: item.balance - target.actualAmountCny } : item) : current.agents,
+      accountChanges: approved ? [{ id: sequence('AC', current.accountChanges), orderNo: target.orderNo, site: target.site, agent: target.account, directAgent: target.parentAccount, team: agentRow?.unit === '—' ? '—' : agentRow?.unit, lineId: agentRow?.lineId || '—', identity: agentRow?.identity || '原代理模式', unit: agentRow?.unit || '原代理模式', effectiveCycle: agentRow?.effectiveCycle || '历史兼容', owner: target.account, ownerType: '代理', wallet: '佣金余额', changeType: '代理提款冻结扣款', before: agentRow.balance, amount: -target.actualAmountCny, after: agentRow.balance - target.actualAmountCny, status: '处理中', createdAt: timestamp() }, ...current.accountChanges] : current.accountChanges,
+    }))
+    return { ok: true, message: approved ? '代理提款审核通过，已进入出款处理' : '代理提款已拒绝' }
+  }
+
+  function completeAgentWithdrawal(id) {
+    const target = data.withdrawals.find((item) => item.id === id)
+    if (!target || target.status !== '处理中') return { ok: false, message: '该提款订单当前不可完成' }
+    const agentRow = data.agents.find((item) => item.account === target.account)
+    const completedAt = timestamp()
+    setData((current) => ({
+      ...current,
+      withdrawals: current.withdrawals.map((item) => item.id === id ? { ...item, status: '已完成', completedAt } : item),
+      transfers: [{ id: sequence('TR', current.transfers), orderNo: target.orderNo, site: target.site, agent: target.account, directAgent: target.parentAccount, team: agentRow?.unit === '—' ? '—' : agentRow?.unit, lineId: agentRow?.lineId || '—', identity: agentRow?.identity || '原代理模式', unit: agentRow?.unit || '原代理模式', effectiveCycle: agentRow?.effectiveCycle || '历史兼容', from: target.account, to: target.withdrawInfo, type: '代理提款', amount: target.estimatedArrival || target.actualAmountCny, fee: target.feeCny || 0, status: '成功', createdAt: completedAt }, ...current.transfers],
+      accountChanges: current.accountChanges.map((item) => item.orderNo === target.orderNo ? { ...item, status: '成功' } : item),
+    }))
+    return { ok: true, message: '代理提款已完成，转账明细已同步' }
+  }
+
   const value = useMemo(() => ({
     data, dailyRemaining, teamAvailableBalance, createTeam, addSecondary, createSingle, requestChange, reviewRequest, setTeamStatus, changeMain,
-    addInternalSettlement, submitBill, approveBill, payoutBill, addPlan, resetDemo: () => setData(cloneInitialState()),
+    addInternalSettlement, submitBill, approveBill, payoutBill, addPlan, copyPlan, updatePlanLevel, updateAgent, adjustAgentBalance, adjustBillBalance,
+    updateActivityDefinition, updateAgentCost, saveSiteCommissionConfig, updateTeamPreferences, submitAgentPay, reviewAgentPay, adjustPrepaidAccount,
+    agentWithdrawableBalance, createAgentWithdrawal, reviewAgentWithdrawal, completeAgentWithdrawal,
+    resetDemo: () => setData(cloneInitialState()),
   }), [data, dailyRemaining])
 
   return <TeamAgentContext.Provider value={value}>{children}</TeamAgentContext.Provider>

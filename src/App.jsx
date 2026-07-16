@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ApartmentOutlined,
   AuditOutlined,
@@ -15,6 +15,7 @@ import {
   ReloadOutlined,
   SafetyCertificateOutlined,
   SearchOutlined,
+  SendOutlined,
   SettingOutlined,
   SolutionOutlined,
   SwapOutlined,
@@ -22,15 +23,19 @@ import {
   UserOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
-import { AgentPage } from './team-agent/agent-pages'
+import { AgentPage, AgentRoleBar } from './team-agent/agent-pages'
+import { AgentBaselinePage } from './team-agent/agent-baseline-pages'
 import { TeamAgentProvider, useTeamAgent } from './team-agent/context'
 import { PAGE_NOTES } from './team-agent/data'
 import { H5Withdrawal } from './team-agent/H5Withdrawal'
 import { MemberTurnoverPage } from './member-turnover-page'
 import { MasterPage } from './team-agent/master-pages'
 import { SitePage } from './team-agent/site-pages'
+import { SiteBaselinePage } from './team-agent/site-baseline-pages'
+import { LegacyReportPage } from './team-agent/legacy-report-pages'
 import { NotesDrawer, PageSummary } from './team-agent/ui'
 import { VersionRequirementsPage } from './team-agent/version-page'
+import { AgentWithdrawalPage } from './team-agent/withdrawal-pages'
 import './team-agent.css'
 
 const PORTALS = [
@@ -48,50 +53,103 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', memberTurnover: '会员打码流水统计表', agents: '代理管理', teams: '团队代理管理', singles: '独立单线管理', plans: '返佣方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
+    version: '版本需求说明', memberTurnover: '会员打码流水统计表', agents: '代理管理', teams: '团队代理管理', singles: '独立单线管理', plans: '佣金管理', settlement: '代理佣金结算', records: '佣金记录', withdrawals: '代理提款', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
   },
-  site: { teams: '团队代理管理', singles: '独立单线管理', review: '模式变更审核', plans: '方案与推荐奖励', settlement: '账单提交与发放' },
-  agent: { dashboard: '团队经营看板', bills: '我的佣金账单', internal: '副线内部结算', requests: '关系与模式申请' },
+  site: {
+    siteDashboard: '运营首页', siteAgents: '代理管理', teams: '团队代理管理', singles: '独立单线管理', review: '模式变更审核', plans: '返佣方案与分润配置', settlement: '账单提交与发放', commissionRecords: '佣金发放记录', reversal: '冲正统计', returns: '冲正回款', members: '代理会员', finance: '代理财务', deposits: '存款记录', games: '游戏记录', accountChanges: '账变明细', transfers: '转账明细', transferStats: '充提转账统计', venueFees: '场馆代理费用', siteProfit: '站点利润', prepaid: '预付金账户', agentPay: '代理代存处理', withdrawals: '代理提款审核',
+  },
+  agent: {
+    dashboard: '代理运营看板', downline: '下级代理', members: '代理会员', requests: '关系与模式申请', readonlyPlans: '返佣方案', personalCommission: '个人佣金', bills: '我的佣金账单', commissionRecords: '佣金记录', internal: '副线内部结算', reversal: '冲正统计', returns: '冲正回款', agentPay: '额度／佣金代存', withdrawals: '我的代理提款', accountChanges: '账变明细', transfers: '转账明细', finance: '个人财务', deposits: '存款记录', games: '游戏记录', transferStats: '充提转账统计', venueFees: '场馆费用明细',
+  },
 }
 
 const MASTER_NAV = [
-  { id: 'version', label: '版本需求说明', icon: FileTextOutlined, standalone: true },
-  { id: 'member-group', label: '会员管理', icon: TeamOutlined, children: [
-    { id: 'memberTurnover', label: '会员打码流水统计表', icon: BarChartOutlined },
+  { id: 'version', label: '版本需求说明', mark: '新', icon: FileTextOutlined, standalone: true },
+  { id: 'member-group', label: '会员管理', mark: '改', icon: TeamOutlined, children: [
+    { id: 'memberTurnover', label: '会员打码流水统计表', mark: '新', icon: BarChartOutlined },
   ] },
-  { id: 'agent-group', label: '代理管理', icon: ApartmentOutlined, children: [
-    { id: 'agents', label: '代理管理', icon: UserOutlined },
-    { id: 'teams', label: '团队代理管理', icon: TeamOutlined },
-    { id: 'singles', label: '独立单线管理', icon: BranchesOutlined },
-    { id: 'plans', label: '返佣方案', icon: SolutionOutlined },
-    { id: 'settlement', label: '代理佣金结算', icon: DollarCircleOutlined },
-    { id: 'records', label: '佣金记录', icon: ProfileOutlined },
-    { id: 'reversal', label: '冲正统计报表', icon: BarChartOutlined },
-    { id: 'returns', label: '冲正回款报表', icon: FileDoneOutlined },
-    { id: 'revenue', label: '代理收益看板', icon: WalletOutlined },
-    { id: 'cycle', label: '结算周期设置', icon: SettingOutlined },
-    { id: 'relations', label: '修改代理关系记录', icon: SwapOutlined },
+  { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
+    { id: 'agents', label: '代理管理', mark: '改', icon: UserOutlined },
+    { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
+    { id: 'singles', label: '独立单线管理', mark: '新', icon: BranchesOutlined },
+    { id: 'plans', label: '佣金管理', mark: '改', icon: SolutionOutlined },
+    { id: 'settlement', label: '代理佣金结算', mark: '改', icon: DollarCircleOutlined },
+    { id: 'records', label: '佣金记录', mark: '改', icon: ProfileOutlined },
+    { id: 'withdrawals', label: '代理提款', mark: '新', icon: WalletOutlined },
+    { id: 'reversal', label: '冲正统计报表', mark: '改', icon: BarChartOutlined },
+    { id: 'returns', label: '冲正回款报表', mark: '改', icon: FileDoneOutlined },
+    { id: 'revenue', label: '代理收益看板', mark: '新', icon: WalletOutlined },
+    { id: 'cycle', label: '结算周期设置', mark: '改', icon: SettingOutlined },
+    { id: 'relations', label: '修改代理关系记录', mark: '改', icon: SwapOutlined },
   ] },
 ]
 
 const SITE_NAV = [
-  { id: 'site-group', label: '团队代理运营', icon: ApartmentOutlined, children: [
-    { id: 'teams', label: '团队代理管理', icon: TeamOutlined },
-    { id: 'singles', label: '独立单线管理', icon: BranchesOutlined },
-    { id: 'review', label: '模式变更审核', icon: AuditOutlined },
-    { id: 'plans', label: '方案与推荐奖励', icon: SolutionOutlined },
-    { id: 'settlement', label: '账单提交与发放', icon: DollarCircleOutlined },
+  { id: 'siteDashboard', label: '运营首页', mark: '改', icon: BarChartOutlined, standalone: true },
+  { id: 'site-agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
+    { id: 'siteAgents', label: '代理管理', mark: '改', icon: UserOutlined },
+    { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
+    { id: 'singles', label: '独立单线管理', mark: '新', icon: BranchesOutlined },
+    { id: 'review', label: '模式变更审核', mark: '新', icon: AuditOutlined },
+  ] },
+  { id: 'site-commission-group', label: '佣金管理', mark: '改', icon: DollarCircleOutlined, children: [
+    { id: 'plans', label: '返佣方案与分润配置', mark: '改', icon: SolutionOutlined },
+    { id: 'settlement', label: '账单提交与发放', mark: '改', icon: DollarCircleOutlined },
+    { id: 'commissionRecords', label: '佣金发放记录', mark: '改', icon: ProfileOutlined },
+    { id: 'reversal', label: '冲正统计', mark: '改', icon: BarChartOutlined },
+    { id: 'returns', label: '冲正回款', mark: '改', icon: FileDoneOutlined },
+  ] },
+  { id: 'site-report-group', label: '代理报表', mark: '改', icon: BarChartOutlined, children: [
+    { id: 'members', label: '代理会员', mark: '改', icon: TeamOutlined },
+    { id: 'finance', label: '代理财务', mark: '改', icon: DollarCircleOutlined },
+    { id: 'deposits', label: '存款记录', mark: '改', icon: FileDoneOutlined },
+    { id: 'games', label: '游戏记录', mark: '改', icon: ProfileOutlined },
+    { id: 'accountChanges', label: '账变明细', mark: '改', icon: FileTextOutlined },
+    { id: 'transfers', label: '转账明细', mark: '改', icon: SwapOutlined },
+    { id: 'transferStats', label: '充提转账统计', mark: '改', icon: BarChartOutlined },
+    { id: 'venueFees', label: '场馆代理费用', mark: '改', icon: DollarCircleOutlined },
+    { id: 'siteProfit', label: '站点利润', mark: '改', icon: WalletOutlined },
+  ] },
+  { id: 'site-fund-group', label: '资金操作', mark: '改', icon: WalletOutlined, children: [
+    { id: 'prepaid', label: '预付金账户', mark: '改', icon: WalletOutlined },
+    { id: 'agentPay', label: '代理代存处理', mark: '改', icon: SendOutlined },
+    { id: 'withdrawals', label: '代理提款审核', mark: '改', icon: AuditOutlined },
   ] },
 ]
 
 const AGENT_NAV = [
-  { id: 'agent-self-group', label: '我的团队代理', icon: ApartmentOutlined, children: [
-    { id: 'dashboard', label: '团队经营看板', icon: BarChartOutlined },
-    { id: 'bills', label: '我的佣金账单', icon: FileDoneOutlined },
-    { id: 'internal', label: '副线内部结算', icon: WalletOutlined },
-    { id: 'requests', label: '关系与模式申请', icon: SwapOutlined },
+  { id: 'dashboard', label: '运营首页', mark: '改', icon: BarChartOutlined, standalone: true },
+  { id: 'agent-self-group', label: '我的代理', mark: '改', icon: ApartmentOutlined, children: [
+    { id: 'downline', label: '下级代理', mark: '改', icon: TeamOutlined },
+    { id: 'members', label: '代理会员', mark: '改', icon: UserOutlined },
+    { id: 'requests', label: '关系与模式申请', mark: '新', icon: SwapOutlined },
+  ] },
+  { id: 'agent-commission-group', label: '我的佣金', mark: '改', icon: DollarCircleOutlined, children: [
+    { id: 'readonlyPlans', label: '返佣方案', mark: '改', icon: SolutionOutlined },
+    { id: 'personalCommission', label: '个人佣金', mark: '改', icon: WalletOutlined },
+    { id: 'bills', label: '我的佣金账单', mark: '改', icon: FileDoneOutlined },
+    { id: 'commissionRecords', label: '佣金记录', mark: '改', icon: ProfileOutlined },
+    { id: 'internal', label: '副线内部结算', mark: '新', icon: WalletOutlined },
+    { id: 'reversal', label: '冲正统计', mark: '改', icon: BarChartOutlined },
+    { id: 'returns', label: '冲正回款', mark: '改', icon: FileDoneOutlined },
+  ] },
+  { id: 'agent-fund-group', label: '资金操作', mark: '改', icon: WalletOutlined, children: [
+    { id: 'agentPay', label: '额度／佣金代存', mark: '改', icon: SendOutlined },
+    { id: 'withdrawals', label: '我的代理提款', mark: '改', icon: WalletOutlined },
+    { id: 'accountChanges', label: '账变明细', mark: '改', icon: FileTextOutlined },
+    { id: 'transfers', label: '转账明细', mark: '改', icon: SwapOutlined },
+  ] },
+  { id: 'agent-report-group', label: '经营报表', mark: '改', icon: BarChartOutlined, children: [
+    { id: 'finance', label: '个人财务', mark: '改', icon: DollarCircleOutlined },
+    { id: 'deposits', label: '存款记录', mark: '改', icon: FileDoneOutlined },
+    { id: 'games', label: '游戏记录', mark: '改', icon: ProfileOutlined },
+    { id: 'transferStats', label: '充提转账统计', mark: '改', icon: BarChartOutlined },
+    { id: 'venueFees', label: '场馆费用明细', mark: '改', icon: DollarCircleOutlined },
   ] },
 ]
+
+const LEGACY_REPORT_PAGES = new Set(['members', 'finance', 'deposits', 'games', 'accountChanges', 'transfers', 'transferStats', 'venueFees', 'commissionRecords', 'reversal', 'returns', 'siteProfit', 'prepaid', 'agentPay'])
+const AGENT_BASELINE_PAGES = new Set(['downline', 'readonlyPlans', 'personalCommission'])
 
 function PortalSwitch({ active, onChange }) {
   return <div className="portal-switch" aria-label="后台切换">{PORTALS.map((item) => {
@@ -107,11 +165,11 @@ function Sidebar({ portal, page, onNavigate }) {
   return <aside className="sidebar ta-sidebar"><div className="brand"><span className="brand-mark"><BrandIcon /></span><span>{portalMeta.title}</span></div><div className="ta-brand-suffix">{portalMeta.suffix}</div><nav>
     {nav.map((item) => {
       const ItemIcon = item.icon
-      if (item.children) return <div className="ta-nav-group" key={item.id}><div className="nav-item nav-parent active-parent"><span className="icon"><ItemIcon /></span><span>{item.label}</span><span className="chevron">⌃</span></div><div className="nav-children">{item.children.map((child) => {
+      if (item.children) return <div className="ta-nav-group" key={item.id}><div className="nav-item nav-parent active-parent"><span className="icon"><ItemIcon /></span><span>{item.label}({item.mark})</span><span className="chevron">⌃</span></div><div className="nav-children">{item.children.map((child) => {
         const ChildIcon = child.icon
-        return <button key={child.id} className={`nav-item child ${page === child.id ? 'active' : ''}`} onClick={() => onNavigate(child.id)}><span className="icon"><ChildIcon /></span><span>{child.label}</span></button>
+        return <button key={child.id} className={`nav-item child ${page === child.id ? 'active' : ''}`} onClick={() => onNavigate(child.id)}><span className="icon"><ChildIcon /></span><span>{child.label}({child.mark})</span></button>
       })}</div></div>
-      return <button key={item.id} className={`nav-item ta-version-nav ${page === item.id ? 'route-active' : ''}`} onClick={() => onNavigate(item.id)}><span className="icon"><ItemIcon /></span><span>{item.label}</span></button>
+      return <button key={item.id} className={`nav-item ${item.standalone ? 'ta-version-nav' : ''} ${page === item.id ? 'route-active' : ''}`} onClick={() => onNavigate(item.id)}><span className="icon"><ItemIcon /></span><span>{item.label}({item.mark})</span></button>
     })}
   </nav></aside>
 }
@@ -120,11 +178,13 @@ function PrototypeApp() {
   const { resetDemo: resetState } = useTeamAgent()
   const [portal, setPortal] = useState('master')
   const [lastAdminPortal, setLastAdminPortal] = useState('master')
-  const [pages, setPages] = useState({ master: 'teams', site: 'teams', agent: 'dashboard' })
+  const [pages, setPages] = useState({ master: 'teams', site: 'siteDashboard', agent: 'dashboard' })
   const [agentRole, setAgentRole] = useState('main')
   const [notesOpen, setNotesOpen] = useState(false)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
+
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 
   function notify(message, tone = 'success') {
     window.clearTimeout(toastTimer.current)
@@ -163,8 +223,17 @@ function PrototypeApp() {
   const renderPage = () => {
     if (portal === 'master' && page === 'version') return <VersionRequirementsPage navigateTo={navigateTo} />
     if (portal === 'master' && page === 'memberTurnover') return <MemberTurnoverPage onToast={notify} />
+    if (page === 'withdrawals') return portal === 'agent'
+      ? <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><AgentWithdrawalPage portal={portal} role={agentRole} onToast={notify} /></>
+      : <AgentWithdrawalPage portal={portal} role={agentRole} onToast={notify} />
     if (portal === 'master') return <MasterPage page={page} navigate={(nextPage) => navigateTo('master', nextPage)} onToast={notify} />
-    if (portal === 'site') return <SitePage page={page} onToast={notify} />
+    if (portal === 'site') {
+      if (page === 'siteDashboard' || page === 'siteAgents') return <SiteBaselinePage page={page} onToast={notify} />
+      if (LEGACY_REPORT_PAGES.has(page)) return <LegacyReportPage page={page} portal="site" onToast={notify} />
+      return <SitePage page={page} onToast={notify} />
+    }
+    if (AGENT_BASELINE_PAGES.has(page)) return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><AgentBaselinePage page={page} role={agentRole} onToast={notify} onNavigate={(nextPage) => navigateTo('agent', nextPage)} /></>
+    if (LEGACY_REPORT_PAGES.has(page)) return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><LegacyReportPage page={page} portal="agent" role={agentRole} onToast={notify} /></>
     return <AgentPage page={page} role={agentRole} setRole={setAgentRole} onToast={notify} />
   }
 

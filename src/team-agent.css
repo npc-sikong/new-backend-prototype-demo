@@ -19,7 +19,7 @@
 .portal-switch { position: absolute; left: 50%; top: 50%; display: inline-flex; align-items: center; padding: 2px; border: 1px solid #dbe5ef; border-radius: 5px; background: #f6f9fc; transform: translate(-50%, -50%); }
 .portal-switch button { height: 27px; display: inline-flex; align-items: center; gap: 5px; padding: 0 12px; border-radius: 3px; color: #718297; font-size: 10px; }
 .portal-switch button:hover { color: #298edc; }
-.portal-switch button.active { color: #fff; background: #2b98f1; box-shadow: 0 1px 4px rgba(43,152,241,.24); }
+.portal-switch button.active { color: #fff; background: #2b98f1; box-shadow: 0 1px 4px rgba(43,152,241,.24); font-weight: 700; }
 .portal-switch .anticon { font-size: 11px; }
 .ta-main-shell .tabbar { height: 29px; }
 .ta-content-area { min-height: calc(100vh - 65px); padding: 13px 14px 24px; }
@@ -84,6 +84,10 @@
 .ta-pagination .ta-select { min-width: 74px; width: 74px; height: 24px; }
 .ta-pagination button, .ta-pagination b { min-width: 25px; height: 24px; display: inline-grid; place-items: center; padding: 0 7px; border-radius: 3px; background: #edf1f5; font-weight: 400; }
 .ta-pagination b { color: #fff; background: #2b98f1; }
+.ta-column-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ta-column-options label { min-height: 34px; display: flex; align-items: center; gap: 7px; padding: 7px 9px; border: 1px solid #e4eaf0; border-radius: 4px; color: #627184; background: #fff; font-size: 10px; }
+.ta-column-options label.is-fixed { color: #8795a5; background: #f6f8fa; }
+.ta-column-options input { accent-color: #2b98f1; }
 
 .ta-tag { min-height: 20px; display: inline-flex; align-items: center; justify-content: center; padding: 0 7px; border: 1px solid transparent; border-radius: 3px; font-size: 9px; line-height: 1.3; white-space: nowrap; }
 .ta-tag-green { border-color: #bcebd8; color: #31aa7e; background: #f0fbf6; }
@@ -260,8 +264,7 @@
 
 @media (max-width: 1180px) {
   .portal-switch { left: 44%; }
-  .portal-switch button span { display: none; }
-  .portal-switch button { width: 32px; justify-content: center; padding: 0; }
+  .portal-switch button { justify-content: center; padding: 0 7px; font-size: 9px; }
   .ta-role-bar { align-items: flex-start; flex-direction: column; }
   .ta-role-options { width: 100%; }
   .ta-role-options button { flex: 1; }
