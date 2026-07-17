@@ -211,11 +211,15 @@
 .settlement-legacy-table .ta-table th:nth-child(5), .settlement-legacy-table .ta-table td:nth-child(5), .settlement-legacy-table .ta-table th:nth-child(6), .settlement-legacy-table .ta-table td:nth-child(6) { width: 86px; }
 .settlement-legacy-table .ta-table th:nth-child(7), .settlement-legacy-table .ta-table td:nth-child(7) { width: 114px; }
 .settlement-legacy-table .ta-table th:nth-child(8), .settlement-legacy-table .ta-table td:nth-child(8) { width: 174px; }
-.settlement-legacy-table .ta-table th:nth-child(11), .settlement-legacy-table .ta-table td:nth-child(11) { width: 128px; text-align: center; }
-.settlement-legacy-table .ta-table th:nth-child(9), .settlement-legacy-table .ta-table td:nth-child(9), .settlement-legacy-table .ta-table th:nth-child(10), .settlement-legacy-table .ta-table td:nth-child(10) { text-align: right; }
+.settlement-legacy-table .ta-table th:nth-child(12), .settlement-legacy-table .ta-table td:nth-child(12) { width: 188px; text-align: center; }
+.settlement-legacy-table .ta-table th:nth-child(9), .settlement-legacy-table .ta-table td:nth-child(9), .settlement-legacy-table .ta-table th:nth-child(10), .settlement-legacy-table .ta-table td:nth-child(10), .settlement-legacy-table .ta-table th:nth-child(11), .settlement-legacy-table .ta-table td:nth-child(11) { text-align: right; }
 .settlement-agent-type { color: #526b86; font-weight: 600; }
+.settlement-row-actions { display: flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; }
 .settlement-action-btn { min-width: 45px; height: 25px; display: inline-flex; align-items: center; justify-content: center; border-radius: 3px; color: #fff; background: #238df0; font-size: 10px; }
-.settlement-action-btn:hover { background: #147edc; }
+.settlement-action-btn:hover:not(:disabled) { background: #147edc; }
+.settlement-action-btn:disabled, .settlement-link-btn:disabled { cursor: not-allowed; opacity: .45; }
+.settlement-link-btn { color: #238df0; font-size: 10px; }
+.settlement-link-danger { color: #ee7a36; }
 .commission-record-table .ta-table th { height: 38px; font-size: 11px; }
 .commission-record-table .ta-table td { height: 52px; font-size: 11px; }
 .commission-record-table .ta-table th:first-child, .commission-record-table .ta-table td:first-child { width: 38px; text-align: center; }
@@ -352,6 +356,11 @@
 .team-grade-summary-conditions .ta-metric-grid { margin-bottom: 0; }
 .team-grade-summary-conditions .ta-metric-card { min-height: 74px; gap: 6px; padding: 10px 12px; background: #fbfcfe; }
 .team-grade-summary-conditions .ta-metric-card > strong { font-size: 17px; }
+.team-performance-total { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; margin: 12px -1px 0; padding: 10px 12px; border: 1px solid #e3ebf3; border-radius: 5px; background: #f8fbff; color: #52677d; font-size: 11px; }
+.team-performance-total b { color: #2f4358; }
+.team-performance-total > span { display: inline-flex; align-items: center; gap: 4px; }
+.team-performance-filter .ta-filter-bar { flex-direction: column; align-items: flex-start; }
+.team-performance-filter .ta-filter-actions { align-self: flex-start; }
 
 .ta-tabs { min-height: 36px; display: flex; align-items: flex-end; gap: 2px; margin: 0 0 11px; padding: 0 8px; border-bottom: 1px solid #dfe6ed; background: #fff; }
 .ta-tabs button { height: 35px; display: inline-flex; align-items: center; gap: 6px; padding: 0 13px; border-bottom: 2px solid transparent; color: #77879a; font-size: 10px; }

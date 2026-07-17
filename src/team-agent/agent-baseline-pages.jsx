@@ -24,7 +24,7 @@ import {
 
 const ROLE_META = {
   main: { account: 'gaodashang', label: '团队负责人', identity: '团队负责人', unit: 'gaodashang01部', lineId: 'LINE-A' },
-  secondary: { account: 'WC002', label: '副线负责人', identity: '副线负责人', unit: 'gaodashang01部', lineId: 'LINE-B' },
+  secondary: { account: 'WC002', label: '副线', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-B' },
   independent: { account: 'dailiwc001', label: '独立线主', identity: '独立线主', unit: '独立单线01', lineId: 'SINGLE-001' },
 }
 
@@ -39,7 +39,7 @@ function roleAgents(data, role) {
   if (role === 'main') {
     const team = data.teams.find((item) => item.mainAgent === meta.account)
     const accounts = new Set([meta.account, ...(team?.lines || []).map((line) => line.agent), ...(current.subAgentDetails || []).map((item) => item.account)])
-    return data.agents.filter((item) => accounts.has(item.account)).map((item) => ({ ...item, treeLevel: item.account === meta.account ? '当前账号' : item.identity === '副线负责人' ? '团队副线' : '直属下级' }))
+    return data.agents.filter((item) => accounts.has(item.account)).map((item) => ({ ...item, treeLevel: item.account === meta.account ? '当前账号' : item.identity === '副线' ? '团队副线' : '直属下级' }))
   }
   const children = (current.subAgentDetails || []).map((item) => data.agents.find((agent) => agent.account === item.account) || {
     ...item, site: current.site, parent: current.account, model: current.model, settlementMode: '随上级代理', identity: '下级代理', unit: current.unit, lineId: current.lineId,
@@ -75,7 +75,7 @@ function DownlinePage({ role, onToast, onNavigate }) {
   ]
   const histories = selected ? relationshipRows(data, selected.account) : []
   return <>
-    <SectionHeader title="代理管理" description={`${meta.label} ${meta.account} 仅查看本人及授权下级的代理树、经营归属和关系版本。`} actions={<Button icon={<SwapOutlined />} variant="ghost" onClick={() => onNavigate?.('requests')}>关系与模式申请</Button>} />
+    <SectionHeader title="代理列表" description={`${meta.label} ${meta.account} 仅查看本人及授权下级的代理树、经营归属和关系版本。`} actions={<Button icon={<SwapOutlined />} variant="ghost" onClick={() => onNavigate?.('requests')}>关系与模式申请</Button>} />
     {role !== 'main' && <Alert title="查看范围">当前身份仅显示本人节点及直属下级，不展示其他副线或其他独立单线数据。</Alert>}
     <FilterBar onSearch={() => onToast?.(`已查询到 ${rows.length} 条代理记录`)} onReset={() => setFilters({ keyword: '', status: '', model: '' })} onExport={() => onToast?.(`已生成 ${rows.length} 条下级代理导出演示`)}>
       <Field label="代理账号"><Input value={filters.keyword} onChange={(keyword) => setFilters({ ...filters, keyword })} placeholder="代理ID、账号或上级" /></Field>

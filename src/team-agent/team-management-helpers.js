@@ -6,8 +6,8 @@ function findAgent(data, account) {
 
 function identityLabel(identity) {
   if (identity === '主线') return '团队负责人'
-  if (identity === '副线') return '副线负责人'
-  return identity || '团队代理成员'
+  if (identity === '副线') return '副线'
+  return identity || '副线'
 }
 
 function memberCountForLine(line, data) {
@@ -110,6 +110,15 @@ export function teamMemberRows(team, data) {
   })
 }
 
+export function lineDirectMemberRows(line, data, metric = 'activeMembers') {
+  const agent = findAgent(data, line?.agent)
+  const total = Math.max(0, Number(line?.[metric] ?? line?.activeMembers ?? 0))
+  return Array.from({ length: total }, (_, index) => {
+    const prefix = MEMBER_PREFIXES[index % MEMBER_PREFIXES.length]
+    return { id: `${metric}-${agent?.id || line.lineId}-${index + 1}`, memberName: `${prefix}${line.agent}${String(index + 1).padStart(3, '0')}`, upperAgent: `${line.agent}（${agent?.id || line.lineId}）`, memberType: metric === 'newActive' ? '新增活跃直属会员' : '活跃直属会员', validBet: Math.round((index + 1) * 1800 + total * 120), depositAmount: Math.round((index % 4 + 1) * 500) }
+  })
+}
+
 export function teamSecondaryRows(team, data) {
   return team.lines.filter((line) => line.identity === '副线').map((line) => agentRowFromLine(line, data))
 }
@@ -129,11 +138,19 @@ export function teamSingleRows(team, data) {
     })
 }
 
-export function getTeamInspectConfig(type, team, data) {
+export function getTeamInspectConfig(typeOrInspect, team, data) {
   if (!team) return { title: '明细', description: '', columns: [], rows: [] }
+  const inspect = typeof typeOrInspect === 'string' ? { type: typeOrInspect } : typeOrInspect || {}
+  const type = inspect.type
+  if (type === 'lineMembers') {
+    const line = team.lines.find((item) => item.lineId === inspect.lineId) || team.lines[0]
+    const metric = inspect.metric || 'activeMembers'
+    const metricLabel = metric === 'newActive' ? '新增活跃' : '活跃会员'
+    return { title: `${line?.agent || team.name} · ${metricLabel}直属会员`, description: '仅展示该代理本人直属会员，不展示其他副线或团队汇总会员。', columns: [{ key: 'memberName', label: '会员名称' }, { key: 'upperAgent', label: '直属代理' }, { key: 'memberType', label: '会员口径' }, { key: 'depositAmount', label: '充值金额' }, { key: 'validBet', label: '有效投注' }], rows: line ? lineDirectMemberRows(line, data, metric) : [] }
+  }
   const configs = {
     teamAgents: {
-      title: `${team.name} · 团队人数明细`,
+      title: `${team.name} · 团队成员明细`,
       description: '查看团队内代理名称、代理身份和代理ID。',
       columns: [{ key: 'agentName', label: '代理名称' }, { key: 'agentIdentity', label: '代理身份' }, { key: 'agentId', label: '代理ID' }],
       rows: teamAgentRows(team, data),

@@ -53,7 +53,7 @@ export function TeamAgentProvider({ children }) {
   function addSecondary(teamId, payload) {
     const team = data.teams.find((item) => item.id === teamId)
     const agent = String(payload.agent || '').trim()
-    if (!team || !agent) return { ok: false, message: '请选择代理部并填写副线负责人' }
+    if (!team || !agent) return { ok: false, message: '请选择代理部并填写副线' }
     if (team.status === '冻结' || team.status === '待解散') return { ok: false, message: `代理部当前为${team.status}状态，不能新增副线` }
     const occupied = data.teams.some((item) => item.lines.some((line) => line.agent === agent && !['已退出', '已关闭'].includes(line.status))) || data.singles.some((single) => single.owner === agent && single.status !== '已终止')
     if (occupied) return { ok: false, message: '该代理在目标周期已归属其他结算单元' }
@@ -181,8 +181,8 @@ export function TeamAgentProvider({ children }) {
       internalSettlements: [record, ...current.internalSettlements],
       teams: current.teams.map((item) => item.id === team.id ? { ...item, successfulTransfers: item.successfulTransfers + amount } : item),
       agents: current.agents.map((item) => item.account === payload.secondaryAgent ? { ...item, balance: item.balance + amount } : item),
-      transfers: [{ id: sequence('TR', current.transfers), orderNo: record.id, site: team.site, agent: team.mainAgent, directAgent: team.mainAgent, team: team.name, lineId: team.lines.find((line) => line.agent === payload.secondaryAgent)?.lineId || '—', identity: '副线负责人', unit: team.name, effectiveCycle: team.startCycle, from: team.mainAgent, to: payload.secondaryAgent, type: '内部结算', amount, fee: 0, status: '成功', createdAt: record.createdAt }, ...current.transfers],
-      accountChanges: [{ id: sequence('AC', current.accountChanges), orderNo: record.id, site: team.site, agent: payload.secondaryAgent, directAgent: team.mainAgent, team: team.name, lineId: team.lines.find((line) => line.agent === payload.secondaryAgent)?.lineId || '—', identity: '副线负责人', unit: team.name, effectiveCycle: team.startCycle, owner: payload.secondaryAgent, ownerType: '代理', wallet: '佣金余额', changeType: '内部结算收款', before: current.agents.find((item) => item.account === payload.secondaryAgent)?.balance || 0, amount, after: (current.agents.find((item) => item.account === payload.secondaryAgent)?.balance || 0) + amount, status: '成功', createdAt: record.createdAt }, ...current.accountChanges],
+      transfers: [{ id: sequence('TR', current.transfers), orderNo: record.id, site: team.site, agent: team.mainAgent, directAgent: team.mainAgent, team: team.name, lineId: team.lines.find((line) => line.agent === payload.secondaryAgent)?.lineId || '—', identity: '副线', unit: team.name, effectiveCycle: team.startCycle, from: team.mainAgent, to: payload.secondaryAgent, type: '内部结算', amount, fee: 0, status: '成功', createdAt: record.createdAt }, ...current.transfers],
+      accountChanges: [{ id: sequence('AC', current.accountChanges), orderNo: record.id, site: team.site, agent: payload.secondaryAgent, directAgent: team.mainAgent, team: team.name, lineId: team.lines.find((line) => line.agent === payload.secondaryAgent)?.lineId || '—', identity: '副线', unit: team.name, effectiveCycle: team.startCycle, owner: payload.secondaryAgent, ownerType: '代理', wallet: '佣金余额', changeType: '内部结算收款', before: current.agents.find((item) => item.account === payload.secondaryAgent)?.balance || 0, amount, after: (current.agents.find((item) => item.account === payload.secondaryAgent)?.balance || 0) + amount, status: '成功', createdAt: record.createdAt }, ...current.accountChanges],
     }))
     return { ok: true, message: `已向 ${payload.secondaryAgent} 结算 ¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}` }
   }

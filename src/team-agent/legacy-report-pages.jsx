@@ -27,8 +27,8 @@ const SYNCED_AGENT_REPORTS = new Set(['commissionRecords', 'reversal', 'returns'
 function settlementMeta(agent, overrides = {}) {
   const known = {
     gaodashang: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-A', identity: '团队负责人', unit: 'gaodashang01部 / 团队负责人', scopeRoles: ['main'] },
-    WC002: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-B', identity: '副线负责人', unit: 'gaodashang01部 / WC002线路', scopeRoles: ['main', 'secondary'] },
-    LGNB: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-C', identity: '副线负责人', unit: 'gaodashang01部 / LGNB线路', scopeRoles: ['main'] },
+    WC002: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-B', identity: '副线', unit: 'gaodashang01部 / WC002线路', scopeRoles: ['main', 'secondary'] },
+    LGNB: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-C', identity: '副线', unit: 'gaodashang01部 / LGNB线路', scopeRoles: ['main'] },
     dailiwc001: { site: '旺财体育', agentType: '团队代理', team: '—', line: 'SINGLE-001', identity: '独立代理', unit: '独立单线01', scopeRoles: ['independent'] },
     apppay: { site: '旺财体育', agentType: '团队代理', team: 'apppay01部', line: 'LINE-D', identity: '团队负责人', unit: 'apppay01部 / 团队负责人', scopeRoles: [] },
     charles: { site: '旺财体育', agentType: '层级代理', team: '—', line: 'LEGACY-CHARLES', identity: '3层', unit: '原代理独立结算', scopeRoles: [] },
@@ -303,7 +303,7 @@ function buildTransfers(data) {
 
 function buildCommissionRecords(data) {
   return buildFinance(data).map((item, index) => ({
-    ...item, id: `COM-${String(index + 1).padStart(3, '0')}`, billNo: item.recordNo, type: item.identity === '副线负责人' ? '主线内部结算' : item.identity === '独立线主' ? '独立单线佣金' : item.identity === '团队负责人' ? '团队佣金' : '历史代理佣金',
+    ...item, id: `COM-${String(index + 1).padStart(3, '0')}`, billNo: item.recordNo, type: item.identity === '副线' ? '主线内部结算' : item.identity === '独立线主' ? '独立单线佣金' : item.identity === '团队负责人' ? '团队佣金' : '历史代理佣金',
     base: item.currentBalance, adjustment: item.balanceAdjustment, remaining: Math.max(0, item.commission - item.issued),
   }))
 }
@@ -444,9 +444,9 @@ function FinanceMetrics({ rows, onOpen }) {
 }
 
 function detailAlert(page, detail) {
-  if (page === 'members') return <Alert title="会员归属说明">会员按当前生效线路归集；团队负责人可查看 gaodashang 团队代理树，副线负责人仅查看 WC002 本人线路，独立线主仅查看 dailiwc001 独立线。</Alert>
+  if (page === 'members') return <Alert title="会员归属说明">会员按当前生效线路归集；团队负责人可查看 gaodashang 团队代理树，副线仅查看 WC002 本人线路，独立线主仅查看 dailiwc001 独立线。</Alert>
   if (page === 'games') return <Alert title="游戏结算说明">有效投注与派彩以当前演示注单结算结果为准；冲正记录保留原注单号并进入对应结算单元复核。</Alert>
-  if (page === 'commissionRecords') return <Alert title="佣金锁定口径">{detail.identity === '副线负责人' ? '副线金额属于主线内部结算，不形成平台对副线的佣金欠款。' : '佣金按账单生成时锁定的当月结余、比例和调整计算，历史已完成周期不回写。'}</Alert>
+  if (page === 'commissionRecords') return <Alert title="佣金锁定口径">{detail.identity === '副线' ? '副线金额属于主线内部结算，不形成平台对副线的佣金欠款。' : '佣金按账单生成时锁定的当月结余、比例和调整计算，历史已完成周期不回写。'}</Alert>
   return <Alert title="范围说明">该记录按所属团队、业务线路、结算身份、结算单元和生效周期归集。</Alert>
 }
 
@@ -475,7 +475,7 @@ function GenericReportPage({ page, portal, role, onToast }) {
   }
   return <>
     <SectionHeader title={config.title} description={config.description} />
-    {synced && <Alert title="角色查看范围">{portal === 'site' ? '当前页面只展示旺财体育本站记录，不提供跨站点筛选和全局审核操作。' : '当前页面按团队负责人、副线负责人或独立线主身份收窄数据，不展示其他团队、其他线路或跨站点记录。'}</Alert>}
+    {synced && <Alert title="角色查看范围">{portal === 'site' ? '当前页面只展示旺财体育本站记录，不提供跨站点筛选和全局审核操作。' : '当前页面按团队负责人、副线或独立线主身份收窄数据，不展示其他团队、其他线路或跨站点记录。'}</Alert>}
     {config.metrics && <FinanceMetrics rows={filtered} onOpen={setMetric} />}
     <FilterBar onSearch={search} onReset={reset} onExport={() => onToast?.(`已生成 ${filtered.length} 条${config.title}导出演示`)}>
       <Field label="关键词"><Input value={draft.keyword} onChange={(keyword) => setDraft((current) => ({ ...current, keyword }))} placeholder="账号、单号、会员或结算单元" /></Field>

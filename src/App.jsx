@@ -51,13 +51,13 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', memberTurnover: '会员打码流水统计表', agents: '代理管理', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
+    version: '版本需求说明', memberTurnover: '会员打码流水统计表', agents: '代理列表', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
   },
   site: {
-    siteDashboard: '运营首页', siteAgents: '代理管理', teams: '团队代理管理', review: '模式变更审核', plans: '佣金方案', settlement: '代理佣金结算', commissionRecords: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', cycle: '结算周期设置', members: '代理会员', finance: '代理财务', deposits: '存款记录', games: '游戏记录', accountChanges: '账变明细', transfers: '转账明细', transferStats: '充提转账统计', venueFees: '场馆代理费用', siteProfit: '站点利润', prepaid: '预付金账户', agentPay: '代理代存处理',
+    siteDashboard: '运营首页', siteAgents: '代理列表', teams: '团队代理管理', review: '模式变更审核', plans: '佣金方案', settlement: '代理佣金结算', commissionRecords: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', cycle: '结算周期设置', members: '代理会员', finance: '代理财务', deposits: '存款记录', games: '游戏记录', accountChanges: '账变明细', transfers: '转账明细', transferStats: '充提转账统计', venueFees: '场馆代理费用', siteProfit: '站点利润', prepaid: '预付金账户', agentPay: '代理代存处理',
   },
   agent: {
-    dashboard: '代理运营看板', downline: '代理管理', members: '代理会员', requests: '关系与模式申请', readonlyPlans: '佣金方案', personalCommission: '个人佣金', bills: '代理佣金结算', commissionRecords: '佣金记录', internal: '副线内部结算', reversal: '冲正统计报表', returns: '冲正回款报表', agentPay: '额度／佣金代存', accountChanges: '账变明细', transfers: '转账明细', finance: '个人财务', deposits: '存款记录', games: '游戏记录', transferStats: '充提转账统计', venueFees: '场馆费用明细',
+    dashboard: '代理运营看板', downline: '代理列表', members: '代理会员', requests: '关系与模式申请', readonlyPlans: '佣金方案', personalCommission: '个人佣金', bills: '代理佣金结算', commissionRecords: '佣金记录', internal: '副线内部结算', reversal: '冲正统计报表', returns: '冲正回款报表', agentPay: '额度／佣金代存', accountChanges: '账变明细', transfers: '转账明细', finance: '个人财务', deposits: '存款记录', games: '游戏记录', transferStats: '充提转账统计', venueFees: '场馆费用明细',
   },
 }
 
@@ -69,7 +69,7 @@ const MASTER_NAV = [
     { id: 'memberTurnover', label: '会员打码流水统计表', mark: '新', icon: BarChartOutlined },
   ] },
   { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
-    { id: 'agents', label: '代理管理', mark: '改', icon: UserOutlined },
+    { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
     { id: 'plans', label: '佣金方案', mark: '改', icon: SolutionOutlined },
     { id: 'settlement', label: '代理佣金结算', mark: '改', icon: DollarCircleOutlined },
@@ -84,8 +84,8 @@ const MASTER_NAV = [
 
 const SITE_NAV = [
   { id: 'siteDashboard', label: '运营首页', mark: '改', icon: BarChartOutlined, standalone: true },
-  { id: 'site-agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
-    { id: 'siteAgents', label: '代理管理', mark: '改', icon: UserOutlined },
+  { id: 'site-agent-group', label: '代理列表', mark: '改', icon: ApartmentOutlined, children: [
+    { id: 'siteAgents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
     { id: 'review', label: '模式变更审核', mark: '新', icon: AuditOutlined },
   ] },
@@ -117,7 +117,7 @@ const SITE_NAV = [
 const AGENT_NAV = [
   { id: 'dashboard', label: '运营首页', mark: '改', icon: BarChartOutlined, standalone: true },
   { id: 'agent-self-group', label: '我的代理', mark: '改', icon: ApartmentOutlined, children: [
-    { id: 'downline', label: '代理管理', mark: '改', icon: TeamOutlined },
+    { id: 'downline', label: '代理列表', mark: '改', icon: TeamOutlined },
     { id: 'members', label: '代理会员', mark: '改', icon: UserOutlined },
     { id: 'requests', label: '关系与模式申请', mark: '新', icon: SwapOutlined },
   ] },

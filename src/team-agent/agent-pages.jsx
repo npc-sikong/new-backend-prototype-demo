@@ -35,7 +35,7 @@ import {
 
 const ROLES = {
   main: { label: '团队负责人', account: 'gaodashang', subtitle: 'gaodashang01部唯一平台收款方', icon: <ApartmentOutlined /> },
-  secondary: { label: '副线负责人', account: 'WC002', subtitle: 'gaodashang01部 / LINE-B', icon: <TeamOutlined /> },
+  secondary: { label: '副线', account: 'WC002', subtitle: 'gaodashang01部 / LINE-B', icon: <TeamOutlined /> },
   independent: { label: '独立线主', account: 'dailiwc001', subtitle: '独立单线01', icon: <BankOutlined /> },
 }
 
@@ -167,7 +167,7 @@ function MainDashboard({ onToast }) {
     <Panel title="主副线经营数据" description="可查看各副线业绩，但副线结算金额由主线自主决定。"><DataTable columns={[{ key: 'identity', label: '身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }, { key: 'lineId', label: 'line_id' }, { key: 'agent', label: '负责人' }, { key: 'newActive', label: '新增活跃' }, { key: 'activeMembers', label: '活跃会员' }, { key: 'netWinLoss', label: '净输赢值', render: (value) => <Money value={value} signed /> }, { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }]} rows={team.lines} rowKey="lineId" /></Panel>
     <Alert title="主线权限与责任" tone="warning">您可开设副线、查看团队合并与各线数据、收取团队佣金并自主结算副线；不得改写历史关系快照或透支未到账团队佣金。</Alert>
     <Modal open={modal === 'secondary'} title="开设团队副线" description="主线提交后由站点按当前开关复核。" onClose={close} onConfirm={() => show(addSecondary(team.id, { ...secondary, requireReview: true }), onToast, close)}>
-      <FormGrid><Field label="副线负责人" required><Input value={secondary.agent} onChange={(value) => setSecondary({ ...secondary, agent: value })} placeholder="代理账号" /></Field><Field label="生效周期"><Select value={secondary.startCycle} onChange={(value) => setSecondary({ ...secondary, startCycle: value })} options={['2026-08', '2026-09']} /></Field><Field label="业务范围" className="ta-field-full"><Input value={secondary.scope} onChange={(value) => setSecondary({ ...secondary, scope: value })} placeholder="代理节点及直属会员" /></Field></FormGrid>
+      <FormGrid><Field label="副线" required><Input value={secondary.agent} onChange={(value) => setSecondary({ ...secondary, agent: value })} placeholder="代理账号" /></Field><Field label="生效周期"><Select value={secondary.startCycle} onChange={(value) => setSecondary({ ...secondary, startCycle: value })} options={['2026-08', '2026-09']} /></Field><Field label="业务范围" className="ta-field-full"><Input value={secondary.scope} onChange={(value) => setSecondary({ ...secondary, scope: value })} placeholder="代理节点及直属会员" /></Field></FormGrid>
     </Modal>
     <Modal open={modal === 'settle'} title="向副线内部结算" description={`团队可用余额 ¥${teamAvailableBalance(team.id).toLocaleString('zh-CN', { minimumFractionDigits: 2 })}`} onClose={close} onConfirm={() => show(addInternalSettlement({ teamId: team.id, ...settle }), onToast, close)}>
       <FormGrid><Field label="收款副线"><Select value={settle.secondaryAgent} onChange={(value) => setSettle({ ...settle, secondaryAgent: value })} options={team.lines.filter((line) => line.identity === '副线').map((line) => line.agent)} /></Field><Field label="结算金额" required><Input type="number" value={settle.amount} onChange={(value) => setSettle({ ...settle, amount: value })} /></Field><Field label="结算依据"><Select value={settle.basis} onChange={(value) => setSettle({ ...settle, basis: value })} options={['固定金额', '内部比例', '参考副线业绩', '其他约定']} /></Field><Field label="资金来源"><Select value={settle.source} onChange={(value) => setSettle({ ...settle, source: value })} options={['平台已到账余额', '主线自有资金', '线下资金']} /></Field></FormGrid>
@@ -243,7 +243,7 @@ function AgentDashboard({ role, onToast }) {
 
 function AgentBills({ role }) {
   const { data } = useTeamAgent()
-  const identityLabel = role === 'main' ? '团队负责人' : role === 'secondary' ? '副线负责人' : '独立代理'
+  const identityLabel = role === 'main' ? '团队负责人' : role === 'secondary' ? '副线' : '独立代理'
   if (role === 'secondary') {
     const rows = data.internalSettlements.filter((item) => item.secondaryAgent === 'WC002')
     return <><SectionHeader title="代理佣金结算" description="团队副线不产生平台应付账单，仅查看主线向本人的内部结算。" /><Alert title="平台账单权限" tone="warning">当前身份没有平台应付佣金账单；团队账单唯一收款方为团队负责人。</Alert><DataTable paginated minWidth={1050} columns={[{ key: 'id', label: '内部结算单号' }, { key: 'agentType', label: '代理类型', render: () => '团队代理' }, { key: 'agentIdentity', label: '代理身份', render: () => identityLabel }, { key: 'cycle', label: '周期' }, { key: 'mainAgent', label: '付款主线' }, { key: 'amount', label: '金额', render: (value) => <Money value={value} /> }, { key: 'basis', label: '结算依据' }, { key: 'state', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }, { key: 'createdAt', label: '时间' }]} rows={rows} /><CommissionBasis data={data} role={role} /></>
