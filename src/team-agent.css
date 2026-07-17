@@ -110,6 +110,31 @@
 .returns-report-screen .ta-field:last-child .ta-input { min-width: 190px; }
 .returns-report-table .ta-table th { height: 38px; font-size: 11px; }
 .returns-report-table .ta-table td { height: 45px; font-size: 11px; }
+.negative-profit-report-screen { min-width: 0; overflow-x: hidden; }
+.negative-profit-report-screen > *, .negative-profit-report-screen .ta-panel, .negative-profit-report-screen .ta-panel-body { min-width: 0; }
+.negative-field-filter { position: relative; width: 196px; }
+.negative-field-filter-trigger { width: 100%; min-width: 126px; height: 28px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 9px; border: 1px solid #dce4ec; border-radius: 3px; color: #617184; background: #fff; font-size: 10px; font-weight: 400; cursor: pointer; }
+.negative-field-filter-trigger:hover { border-color: #72b6eb; }
+.negative-field-filter-menu { position: absolute; top: 33px; left: 0; z-index: 40; width: min(580px, 74vw); padding: 10px; border: 1px solid #d9e4ee; border-radius: 5px; background: #fff; box-shadow: 0 12px 30px rgba(35,62,92,.16); }
+.negative-field-filter-menu header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: #33475e; font-size: 11px; font-weight: 700; }
+.negative-field-filter-menu header div { display: flex; gap: 6px; }
+.negative-field-filter-menu header button { padding: 0; border: 0; color: #2b91e2; background: transparent; font-size: 10px; cursor: pointer; }
+.negative-field-filter-options { max-height: 248px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; overflow: auto; }
+.negative-field-filter-options label { min-width: 0; min-height: 30px; display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid #e6edf4; border-radius: 4px; color: #627184; background: #fff; font-size: 10px; font-weight: 500; }
+.negative-field-filter-options input { flex: none; accent-color: #2b98f1; }
+.negative-field-filter-options span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.negative-profit-report-screen .ta-panel-body > .negative-profit-report-table { width: calc(100% + 26px); max-width: calc(100% + 26px); margin: -12px -13px 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; border-width: 0 0 1px; border-radius: 0; }
+.negative-profit-report-table .ta-table { width: max-content; min-width: 100%; }
+.negative-profit-report-table .ta-table tfoot td { height: 42px; border-top: 2px solid #dfe9f3; color: #52677d; background: #f8fbff; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.negative-profit-total-row td:first-child { color: #2f4358; }
+.negative-profit-total-row .ta-money { font-weight: 700; }
+.negative-total-muted { color: #9aa8b7; font-weight: 500; }
+.negative-profit-report-screen .ta-pagination { padding-top: 10px; }
+.agent-operation-records-screen { min-width: 0; }
+.agent-operation-records-table .ta-table th:first-child, .agent-operation-records-table .ta-table td:first-child { width: 46px; text-align: center; }
+.agent-operation-records-table .ta-table td:nth-child(8) { min-width: 220px; white-space: normal; line-height: 1.55; }
+.agent-operation-secondary { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+.agent-operation-secondary span { display: inline-flex; align-items: center; min-height: 20px; padding: 0 7px; border-radius: 10px; color: #2f80cc; background: #eef6ff; font-weight: 700; }
 .return-gap-cell .ta-money { color: #f04468; font-weight: 700; }
 .reversal-link-number { color: #326fff; font-weight: 700; }
 .reversal-debt-count { color: #f04468; font-weight: 700; }
@@ -533,12 +558,6 @@
 .member-turnover-modal .ta-table td { height: 47px; font-size: 10px; }
 .member-venue-name { color: #3e526a; font-size: 11px; }
 .member-turnover-modal .ta-alert { margin-bottom: 4px; }
-
-.reward-site-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.reward-site-checks label { min-height: 56px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 3px 9px; padding: 8px 13px; border: 1px solid #dce7f3; border-radius: 7px; color: #455970; background: #fbfdff; font-size: 12px; font-weight: 700; }
-.reward-site-checks label:has(input:checked) { border-color: #2f92ea; color: #247bd0; background: #eef7ff; }
-.reward-site-checks input { width: 15px; height: 15px; accent-color: #2f92ea; }
-.reward-site-checks small { grid-column: 2; color: #9aa8b7; font-size: 10px; font-weight: 600; }
 
 @media (max-width: 1380px) {
   .ta-topbar .breadcrumb { visibility: hidden; }

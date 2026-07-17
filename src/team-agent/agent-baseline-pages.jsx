@@ -32,6 +32,10 @@ function Link({ children, onClick }) {
   return <button className="ta-table-link" onClick={onClick}>{children}</button>
 }
 
+function agentIdentityDisplay(agent) {
+  return ['官方代理', '普通代理'].includes(agent.teamAgentType) ? agent.teamAgentType : '普通代理'
+}
+
 function roleAgents(data, role) {
   const meta = ROLE_META[role] || ROLE_META.main
   const current = data.agents.find((item) => item.account === meta.account)
@@ -68,8 +72,8 @@ function DownlinePage({ role, onToast, onNavigate }) {
   const rows = source.filter((item) => (!filters.keyword || `${item.account} ${item.id} ${item.parent}`.toLowerCase().includes(filters.keyword.toLowerCase())) && (!filters.status || item.status === filters.status) && (!filters.model || item.model === filters.model))
   const columns = [
     { key: 'treeLevel', label: '关系层级', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
-    { key: 'id', label: '代理ID' }, { key: 'account', label: '代理账号', render: (value) => <b className="ta-primary-text">{value}</b> }, { key: 'parent', label: '上级代理' },
-    { key: 'model', label: '代理模型' }, { key: 'settlementMode', label: '结算模式' }, { key: 'identity', label: '代理身份', render: (value) => <StatusTag>{value}</StatusTag> },
+    { key: 'id', label: '代理ID' }, { key: 'account', label: '代理账号', render: (value) => <b className="ta-primary-text">{value}</b> }, { key: 'agentIdentity', label: '代理身份', render: (_, row) => <StatusTag tone="blue">{agentIdentityDisplay(row)}</StatusTag> }, { key: 'parent', label: '上级代理' },
+    { key: 'model', label: '代理模型' }, { key: 'settlementMode', label: '结算模式' }, { key: 'identity', label: '代理层级', render: (value) => <StatusTag>{value}</StatusTag> },
     { key: 'unit', label: '结算单元' }, { key: 'lineId', label: 'line_id' }, { key: 'effectiveCycle', label: '生效周期' }, { key: 'members', label: '会员数' }, { key: 'activeMembers', label: '活跃会员' },
     { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }, { key: 'action', label: '操作', render: (_, row) => <Link onClick={() => { setSelected(row); setTab('base') }}><EyeOutlined /> 详情</Link> },
   ]
@@ -81,7 +85,7 @@ function DownlinePage({ role, onToast, onNavigate }) {
       <Field label="代理账号"><Input value={filters.keyword} onChange={(keyword) => setFilters({ ...filters, keyword })} placeholder="代理ID、账号或上级" /></Field>
       <Field label="代理状态"><Select value={filters.status} onChange={(status) => setFilters({ ...filters, status })} placeholder="全部状态" options={['启用', '停用']} /></Field>
       <Field label="代理模型"><Select value={filters.model} onChange={(model) => setFilters({ ...filters, model })} placeholder="全部模型" options={['负盈利模式', '普通代理']} /></Field>
-      <Field label="代理身份"><Input value={meta.identity} disabled /></Field>
+      <Field label="代理层级"><Input value={meta.identity} disabled /></Field>
       <Field label="结算单元"><Input value={meta.unit} disabled /></Field>
       <Field label="生效周期"><Input value="2026-07" disabled /></Field>
     </FilterBar>
@@ -90,8 +94,9 @@ function DownlinePage({ role, onToast, onNavigate }) {
       <Tabs active={tab} onChange={setTab} items={[{ value: 'base', label: '代理资料' }, { value: 'relations', label: '关系变更历史', count: histories.length }]} />
       {selected && tab === 'base' && <DescriptionGrid columns={3} items={[
         { label: '代理ID / 账号', value: `${selected.id} / ${selected.account}` }, { label: '代理模型', value: selected.model }, { label: '代理状态', value: <StatusTag>{selected.status}</StatusTag> },
-        { label: '上级代理', value: selected.parent }, { label: '结算模式', value: selected.settlementMode }, { label: '代理身份', value: selected.identity },
-        { label: '结算单元', value: selected.unit }, { label: 'line_id', value: selected.lineId }, { label: '生效周期', value: selected.effectiveCycle },
+        { label: '上级代理', value: selected.parent }, { label: '结算模式', value: selected.settlementMode }, { label: '代理身份', value: <StatusTag tone="blue">{agentIdentityDisplay(selected)}</StatusTag> },
+        { label: '代理层级', value: selected.identity }, { label: '结算单元', value: selected.unit }, { label: 'line_id', value: selected.lineId },
+        { label: '生效周期', value: selected.effectiveCycle },
         { label: '下属代理', value: selected.subAgents || 0 }, { label: '下属会员', value: selected.members || 0 }, { label: '活跃会员', value: selected.activeMembers || 0 },
         { label: '代理余额', value: <Money value={selected.balance} /> }, { label: '有效投注', value: <Money value={selected.validBetting} /> }, { label: '总输赢', value: <Money value={selected.totalWinLoss} signed /> },
       ]} />}

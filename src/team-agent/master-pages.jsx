@@ -26,7 +26,9 @@ import {
 } from '@ant-design/icons'
 import { LEGACY_REPORT_ROWS } from './data'
 import { useTeamAgent } from './context'
+import { AgentOperationRecordsPage } from './agent-operation-records-page'
 import { MasterPlansPage as MasterPlansPageV2 } from './master-plans-page'
+import { NegativeProfitReportPage } from './negative-profit-report-page'
 import { MasterRelationsPage } from './relation-record-page'
 import { TeamGradeSummary } from './team-grade-summary'
 import { buildTeamCommissionRows, getTeamInspectConfig, teamAgentRows, teamGradeProgress, teamMemberCount, teamOverviewCounts } from './team-management-helpers'
@@ -74,10 +76,11 @@ function AgentFormDivider() {
   return <div className="agent-modal-divider" />
 }
 
-const AGENT_TYPE_OPTIONS = ['多层级代理', '星级代理', '团队代理']
+const AGENT_TYPE_OPTIONS = ['多层级代理', '星级代理', '团队代理', '单线代理']
 const TEAM_AGENT_TYPE_OPTIONS = ['官方代理', '普通代理']
 const TEAM_AGENT_ADD_IDENTITY_OPTIONS = ['团队负责人']
 const TEAM_AGENT_IDENTITY_OPTIONS = ['团队负责人', '副线', '独立代理']
+const SINGLE_PLAN_OPTIONS = ['独立单线月结方案']
 const REVERSAL_AGENT_TYPE_OPTIONS = ['团队代理', '星级代理', '层级代理']
 const REVERSAL_FILTER_DEFAULTS = { cycle: '', site: '', agentType: '', keyword: '' }
 const RETURN_FILTER_DEFAULTS = { date: '', site: '', type: '', agentType: '', flow: '', keyword: '' }
@@ -100,7 +103,8 @@ const SITE_META = {
 
 function normalizeAgentType(agent) {
   if (AGENT_TYPE_OPTIONS.includes(agent.agentType)) return agent.agentType
-  if (agent.settlementMode === '团队模式' || agent.settlementMode === '独立单线') return '团队代理'
+  if (agent.settlementMode === '独立单线') return '单线代理'
+  if (agent.settlementMode === '团队模式') return '团队代理'
   if (agent.agentType === '官方代理') return '星级代理'
   return '多层级代理'
 }
@@ -111,6 +115,7 @@ function normalizeTeamIdentity(identity) {
 }
 
 function teamAgentPayload(type, identity = '团队负责人', plan = '旺财团队月结方案', teamAgentType = '官方代理') {
+  if (type === '单线代理') return { settlementMode: '独立单线', identity: '单线代理', teamAgentType: '—', plan: plan || '独立单线月结方案' }
   if (type !== '团队代理') return { settlementMode: '原代理模式', identity: '—', teamAgentType: '—', plan: plan || (type === '星级代理' ? '星级返佣方案' : '多层级返佣方案') }
   return {
     settlementMode: identity === '独立代理' ? '独立单线' : '团队模式',
@@ -123,6 +128,7 @@ function teamAgentPayload(type, identity = '团队负责人', plan = '旺财团�
 function planOptionsForAgentType(type, teamOptions = []) {
   if (type === '团队代理') return teamOptions.length ? teamOptions : ['旺财团队月结方案']
   if (type === '星级代理') return STAR_PLAN_OPTIONS
+  if (type === '单线代理') return SINGLE_PLAN_OPTIONS
   return LEGACY_PLAN_OPTIONS
 }
 
@@ -160,6 +166,7 @@ function levelDisplay(agent) {
   if (type === '多层级代理' && agent.level) return agent.level
   if (type === '多层级代理') return `${Math.max(1, Math.min(10, Number(agent.subAgents || 0) + 1))}层代理`
   if (type === '团队代理') return normalizeTeamIdentity(agent.identity)
+  if (type === '单线代理') return '单线代理'
   return '-'
 }
 
@@ -167,6 +174,11 @@ function teamAgentTypeDisplay(agent) {
   if (normalizeAgentType(agent) !== '团队代理') return '-'
   if (TEAM_AGENT_TYPE_OPTIONS.includes(agent.teamAgentType)) return agent.teamAgentType
   return ['团队负责人', '独立代理'].includes(normalizeTeamIdentity(agent.identity)) ? '官方代理' : '普通代理'
+}
+
+function agentIdentityDisplay(agent) {
+  if (TEAM_AGENT_TYPE_OPTIONS.includes(agent.teamAgentType)) return agent.teamAgentType
+  return '普通代理'
 }
 
 function agentRank(agent) {
@@ -178,6 +190,7 @@ function agentRank(agent) {
 
 function commissionRateHint(agentType, rank) {
   if (agentType === '团队代理') return '按团队代理返佣方案计算'
+  if (agentType === '单线代理') return '按独立单线月结方案计算'
   if (agentType === '星级代理') return '30.00%'
   const level = Number(String(rank || '').match(/\d+/)?.[0] || 6)
   return `${Math.min(80, 10 + level * 5).toFixed(2)}%`
@@ -206,6 +219,7 @@ function MasterAgentsPage({ navigate, onToast }) {
   const editPlanOptions = planOptionsForAgentType(editForm.agentType, teamPlanOptions)
   const parentOptions = useMemo(() => [{ value: '无上级代理', label: '无上级代理' }, ...data.agents.map((agent) => ({ value: agent.account, label: `${agent.id} / ${agent.account}` }))], [data.agents])
   const editParentOptions = withCurrentOption(parentOptions.filter((option) => option.value !== selected?.account), editForm.parent)
+  const joinTeamOptions = data.teams.filter((team) => team.site === (editForm.joinSite || editForm.site || selected?.site)).map((team) => ({ value: team.id, label: `${team.name} / ${team.mainAgent}` }))
   const rows = useMemo(() => data.agents.filter((agent) => {
     const registeredDate = String(agent.registeredAt || '').slice(0, 10)
     return (!filters.id || String(agent.id).includes(filters.id))
@@ -231,7 +245,7 @@ function MasterAgentsPage({ navigate, onToast }) {
     setModal(type)
     if (type === 'edit') {
       const typeValue = normalizeAgentType(target)
-      const identity = normalizeTeamIdentity(target.identity)
+      const identity = typeValue === '单线代理' ? '单线代理' : normalizeTeamIdentity(target.identity)
       setEditForm({
         account: target.account,
         site: target.site || '旺财体育',
@@ -243,6 +257,9 @@ function MasterAgentsPage({ navigate, onToast }) {
         carryAllFees: target.carryAllFees || '否',
         parent: target.parent || '无上级代理',
         migratePendingCost: target.migratePendingCost || '否',
+        joinSite: target.site || '旺财体育',
+        targetTeamId: data.teams.find((team) => team.site === (target.site || '旺财体育'))?.id || '',
+        newTeamName: `${target.account}团队`,
         status: target.status || '启用',
         remark: target.remark || '',
       })
@@ -264,15 +281,28 @@ function MasterAgentsPage({ navigate, onToast }) {
       onToast('请填写密码', 'error')
       return
     }
-    const identity = form.agentType === '团队代理' ? '团队负责人' : form.identity
+    const identity = form.agentType === '团队代理' ? '团队负责人' : form.agentType === '单线代理' ? '单线代理' : form.identity
     const payload = { ...form, identity, ...teamAgentPayload(form.agentType, identity, form.plan, form.teamAgentType) }
     showResult(addAgent(payload), onToast, () => setShowAdd(false))
   }
 
   function saveEditAgent() {
+    const wasSingle = normalizeAgentType(selected) === '单线代理'
+    if (wasSingle && editForm.agentType === '团队代理' && editForm.identity === '副线' && !editForm.targetTeamId) {
+      onToast('请选择要加入的团队', 'error')
+      return
+    }
+    if (wasSingle && editForm.agentType === '团队代理' && editForm.identity === '团队负责人' && !String(editForm.newTeamName || '').trim()) {
+      onToast('请填写新的团队名称', 'error')
+      return
+    }
+    const targetTeam = data.teams.find((team) => team.id === editForm.targetTeamId)
     const payload = {
       agentType: editForm.agentType,
-      parent: editForm.parent || '无上级代理',
+      parent: wasSingle && editForm.agentType === '团队代理' && editForm.identity === '副线' ? targetTeam?.mainAgent || editForm.parent : editForm.parent || '无上级代理',
+      site: wasSingle && editForm.agentType === '团队代理' && editForm.identity === '副线' ? editForm.joinSite : editForm.site,
+      unit: editForm.agentType === '单线代理' ? (selected.unit && selected.unit !== '—' ? selected.unit : `${selected.account}单线`) : wasSingle && editForm.agentType === '团队代理' ? (editForm.identity === '副线' ? targetTeam?.name : editForm.newTeamName) : editForm.agentType === '团队代理' ? selected.unit : '—',
+      lineId: editForm.agentType === '单线代理' ? (selected.lineId && selected.lineId !== '—' ? selected.lineId : 'SINGLE-NEW') : wasSingle && editForm.agentType === '团队代理' && editForm.identity === '副线' ? '待分配' : editForm.agentType === '团队代理' ? selected.lineId : '—',
       status: editForm.status || '启用',
       remark: editForm.remark || '',
       carryAllFees: editForm.carryAllFees || '否',
@@ -285,21 +315,21 @@ function MasterAgentsPage({ navigate, onToast }) {
   }
 
   function changeAddAgentType(value) {
-    setForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? '团队负责人' : current.identity }))
+    setForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? '团队负责人' : value === '单线代理' ? '单线代理' : current.identity }))
   }
 
   function changeEditAgentType(value) {
-    setEditForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? current.identity || '团队负责人' : current.identity, rank: defaultRankForAgentType(value) }))
+    setEditForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? (TEAM_AGENT_IDENTITY_OPTIONS.includes(current.identity) ? current.identity : '团队负责人') : value === '单线代理' ? '单线代理' : current.identity, rank: defaultRankForAgentType(value) }))
   }
 
   const columns = [
     { key: 'select', label: <input type="checkbox" aria-label="选择全部代理" checked={rows.length > 0 && selectedIds.length === rows.length} onChange={(event) => setSelectedIds(event.target.checked ? rows.map((row) => row.id) : [])} />, render: (_, row) => <input type="checkbox" aria-label={`选择${row.account}`} checked={selectedIds.includes(row.id)} onChange={(event) => toggleSelected(row.id, event.target.checked)} /> },
     { key: 'id', label: '代理ID' },
     { key: 'account', label: '代理账号', render: (value) => <b className="ta-primary-text">{value}</b> },
+    { key: 'agentIdentity', label: '代理身份', render: (_, row) => <StatusTag tone="blue">{agentIdentityDisplay(row)}</StatusTag> },
     { key: 'registeredAt', label: '代理注册时间' },
     { key: 'agentType', label: '代理类型', render: (_, row) => <StatusTag tone={normalizeAgentType(row) === '团队代理' ? 'green' : 'orange'}>{normalizeAgentType(row)}</StatusTag> },
-    { key: 'teamAgentType', label: '团队类型', render: (_, row) => teamAgentTypeDisplay(row) === '-' ? '-' : <StatusTag tone="blue">{teamAgentTypeDisplay(row)}</StatusTag> },
-    { key: 'level', label: '代理身份', render: (_, row) => levelDisplay(row) },
+    { key: 'level', label: '代理层级', render: (_, row) => levelDisplay(row) },
     { key: 'site', label: '站点编码', render: (value) => siteDisplay(value) },
     { key: 'parent', label: '上级代理', render: (value) => value === '无上级代理' ? '-' : value },
     { key: 'status', label: '代理状态', render: (value) => <StatusTag tone={value === '启用' ? 'green' : 'red'}>{value === '启用' ? '正常' : '停用'}</StatusTag> },
@@ -341,8 +371,9 @@ function MasterAgentsPage({ navigate, onToast }) {
           <Field label="站点编码" required><Select value={form.site} onChange={(value) => setForm({ ...form, site: value })} placeholder="请选择站点" options={SITE_OPTIONS} /></Field>
           <Field label="佣金方案" required><Select value={form.plan} onChange={(value) => setForm({ ...form, plan: value })} placeholder="请选择佣金方案" options={addPlanOptions} /></Field>
           <Field label="代理类型" required><Select value={form.agentType} onChange={changeAddAgentType} options={AGENT_TYPE_OPTIONS} /></Field>
-          {form.agentType === '团队代理' && <Field label="团队类型" required><Select value={form.teamAgentType} onChange={(value) => setForm({ ...form, teamAgentType: value })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field>}
-          {form.agentType === '团队代理' && <Field label="代理身份" required><Select value="团队负责人" onChange={() => setForm({ ...form, identity: '团队负责人' })} options={TEAM_AGENT_ADD_IDENTITY_OPTIONS} /></Field>}
+          {form.agentType === '团队代理' && <Field label="代理身份" required><Select value={form.teamAgentType} onChange={(value) => setForm({ ...form, teamAgentType: value })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field>}
+          {form.agentType === '团队代理' && <Field label="代理层级" required><Select value="团队负责人" onChange={() => setForm({ ...form, identity: '团队负责人' })} options={TEAM_AGENT_ADD_IDENTITY_OPTIONS} /></Field>}
+          {form.agentType === '单线代理' && <Field label="代理层级" required><Input value="单线代理" disabled /></Field>}
         </FormGrid>
         <AgentFormDivider />
         <FormGrid columns={1}>
@@ -363,8 +394,8 @@ function MasterAgentsPage({ navigate, onToast }) {
           <Field label="佣金方案"><Select value={editForm.plan} onChange={(value) => setEditForm({ ...editForm, plan: value })} options={editPlanOptions} /></Field>
           <Field label="代理类型" required><Select value={editForm.agentType} onChange={changeEditAgentType} options={AGENT_TYPE_OPTIONS} /></Field>
           {editForm.agentType === '团队代理'
-            ? <><Field label="团队类型" required><Select value={editForm.teamAgentType} onChange={(value) => setEditForm({ ...editForm, teamAgentType: value })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field><Field label="代理身份" required><Select value={editForm.identity} onChange={(value) => setEditForm({ ...editForm, identity: value })} options={TEAM_AGENT_IDENTITY_OPTIONS} /></Field></>
-            : <Field label={editForm.agentType === '星级代理' ? '星级级别' : '层级级别'} required><Select value={editForm.rank} onChange={(value) => setEditForm({ ...editForm, rank: value })} options={editForm.agentType === '星级代理' ? STAR_LEVEL_OPTIONS : LEVEL_OPTIONS} /></Field>}
+            ? <><Field label="代理身份" required><Select value={editForm.teamAgentType} onChange={(value) => setEditForm({ ...editForm, teamAgentType: value })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field><Field label="代理层级" required><Select value={editForm.identity} onChange={(value) => setEditForm({ ...editForm, identity: value })} options={TEAM_AGENT_IDENTITY_OPTIONS} /></Field>{normalizeAgentType(selected || {}) === '单线代理' && editForm.identity === '副线' && <><Field label="加入站点" required><Select value={editForm.joinSite} onChange={(value) => setEditForm({ ...editForm, joinSite: value, targetTeamId: data.teams.find((team) => team.site === value)?.id || '' })} options={SITE_OPTIONS} /></Field><Field label="加入团队" required><Select value={editForm.targetTeamId} onChange={(value) => setEditForm({ ...editForm, targetTeamId: value })} placeholder="请选择团队" options={joinTeamOptions} /></Field></>}{normalizeAgentType(selected || {}) === '单线代理' && editForm.identity === '团队负责人' && <Field label="新团队名称" required><Input value={editForm.newTeamName} onChange={(value) => setEditForm({ ...editForm, newTeamName: value })} placeholder="请输入新的团队名称" /></Field>}</>
+            : editForm.agentType === '单线代理' ? <Field label="代理层级" required><Input value="单线代理" disabled /></Field> : <Field label="代理层级" required><Select value={editForm.rank} onChange={(value) => setEditForm({ ...editForm, rank: value })} options={editForm.agentType === '星级代理' ? STAR_LEVEL_OPTIONS : LEVEL_OPTIONS} /></Field>}
           <Field label="返佣比例"><div className="agent-static-value">{commissionRateHint(editForm.agentType, editForm.rank)} <small>站点上限：80.00%，代理返佣必须低于站点返佣</small></div></Field>
         </FormGrid>
         <AgentFormDivider />
@@ -424,8 +455,6 @@ function MasterTeamsPage({ onToast }) {
   const [secondaryForm, setSecondaryForm] = useState({ agent: '', scope: '', startCycle: '2026-08' })
   const [mainForm, setMainForm] = useState({ nextMain: '', effectiveCycle: '2026-08' })
   const [performanceFilters, setPerformanceFilters] = useState({ agent: '', identity: '', lineId: '', statFrom: '', statTo: '' })
-  const [lineOverrides, setLineOverrides] = useState({})
-  const [identityForm, setIdentityForm] = useState({ lineId: '', agent: '', identity: '独立代理' })
   const team = data.teams.find((item) => item.id === selectedId)
   const secondaryTeam = data.teams.find((item) => item.id === secondaryTeamId) || team
   const teamRows = data.teams.filter((item) => (!teamFilters.name || item.name.includes(teamFilters.name) || item.code.includes(teamFilters.name)) && (!teamFilters.type || item.teamType === teamFilters.type) && (!teamFilters.agent || item.mainAgent.toLowerCase().includes(teamFilters.agent.toLowerCase()) || item.lines.some((line) => line.agent.toLowerCase().includes(teamFilters.agent.toLowerCase()))) && (!teamFilters.createdFrom || String(item.createdAt).slice(0, 10) >= teamFilters.createdFrom))
@@ -470,17 +499,13 @@ function MasterTeamsPage({ onToast }) {
     {secondaryModal}
   </>
 
+  const lineRows = team.lines
   const tabs = [
-    { value: 'overview', label: '团队概况' }, { value: 'structure', label: '团队成员列表', count: team.lines.length }, { value: 'performance', label: '团队业绩查看' },
-    { value: 'bills', label: '团队账单', count: data.bills.filter((bill) => bill.unitId === team.id).length },
-    { value: 'changes', label: '关系记录', count: data.requests.filter((item) => item.currentUnit.includes(team.name) || item.targetUnit.includes(team.name)).length }, { value: 'operations', label: '操作记录', count: data.teamOperations.filter((item) => item.teamId === team.id).length },
+    { value: 'overview', label: '团队概况' }, { value: 'structure', label: '团队成员列表', count: lineRows.length }, { value: 'performance', label: '团队业绩查看' },
   ]
-  const lineRows = team.lines.map((line) => ({ ...line, ...(lineOverrides[line.lineId] || {}) }))
-  const openIdentityModal = (row) => { setIdentityForm({ lineId: row.lineId, agent: row.agent, identity: ['主线', '团队负责人'].includes(row.identity) ? '团队负责人' : '独立代理' }); setModal('lineIdentity') }
-  const saveIdentity = () => { setLineOverrides((current) => ({ ...current, [identityForm.lineId]: { ...(current[identityForm.lineId] || {}), identity: identityForm.identity, status: '生效中' } })); onToast(`${identityForm.agent} 已更换为${identityForm.identity}`, 'success'); closeModal() }
   const lineColumns = [
     { key: 'identity', label: '身份', render: (value) => <StatusTag tone={['主线', '团队负责人'].includes(value) ? 'blue' : 'gray'}>{value === '主线' ? '团队负责人' : value}</StatusTag> }, { key: 'lineId', label: 'line_id' }, { key: 'agent', label: '代理名称', render: (value) => <b>{value}</b> },
-    { key: 'activeMembers', label: '活跃会员', render: (value, row) => <ActionLink disabled={!Number(value)} onClick={() => setTeamInspect({ type: 'lineMembers', teamId: team.id, lineId: row.lineId, metric: 'activeMembers' })}>{value}</ActionLink> }, { key: 'newActive', label: '新增活跃', render: (value, row) => <ActionLink disabled={!Number(value)} onClick={() => setTeamInspect({ type: 'lineMembers', teamId: team.id, lineId: row.lineId, metric: 'newActive' })}>{value}</ActionLink> }, { key: 'firstDepositCount', label: '新增首存', render: (value) => Number(value || 0) }, { key: 'firstDepositAmount', label: '首存额度', render: (value) => <Money value={value} /> }, { key: 'netWinLoss', label: '总盈亏', render: (value) => <Money value={value} signed /> }, { key: 'startCycle', label: '生效周期' }, { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }, { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><ActionLink disabled={row.status === '停用'} onClick={() => { setLineOverrides((current) => ({ ...current, [row.lineId]: { ...(current[row.lineId] || {}), status: '停用' } })); onToast(`${row.agent} 已停用`, 'success') }}>停用</ActionLink><ActionLink onClick={() => openIdentityModal(row)}>更换身份</ActionLink></div> },
+    { key: 'activeMembers', label: '活跃会员', render: (value, row) => <ActionLink disabled={!Number(value)} onClick={() => setTeamInspect({ type: 'lineMembers', teamId: team.id, lineId: row.lineId, metric: 'activeMembers' })}>{value}</ActionLink> }, { key: 'newActive', label: '新增活跃', render: (value, row) => <ActionLink disabled={!Number(value)} onClick={() => setTeamInspect({ type: 'lineMembers', teamId: team.id, lineId: row.lineId, metric: 'newActive' })}>{value}</ActionLink> }, { key: 'firstDepositCount', label: '新增首存', render: (value) => Number(value || 0) }, { key: 'firstDepositAmount', label: '首存额度', render: (value) => <Money value={value} /> }, { key: 'netWinLoss', label: '总盈亏', render: (value) => <Money value={value} signed /> }, { key: 'startCycle', label: '生效周期' }, { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> },
   ]
   const statDates = ['2026-07-17', '2026-07-16', '2026-07-15']
   const commissionRows = buildTeamCommissionRows(team).map((row, index) => ({ ...row, statDate: row.statDate || statDates[index % statDates.length] }))
@@ -491,19 +516,12 @@ function MasterTeamsPage({ onToast }) {
     { key: 'newActive', label: '新增活跃' }, { key: 'firstDepositCount', label: '新增首存' }, { key: 'firstDepositAmount', label: '首存额度', render: (value) => <Money value={value} /> }, { key: 'activeMembers', label: '活跃会员' }, { key: 'totalWinLoss', label: '总盈亏', render: (value) => <Money value={value} signed /> },
     { key: 'operationFee', label: '运营费用', render: (value) => <Money value={value} /> }, { key: 'netRevenue', label: '净收益', render: (value) => <Money value={value} signed /> }, { key: 'contributionRate', label: '团队贡献占比', render: (value) => <Percent value={value} /> },
   ]
-  const billRows = enrichBills(data).filter((bill) => bill.unitId === team.id)
-  const changeRows = data.requests.filter((item) => item.currentUnit.includes(team.name) || item.targetUnit.includes(team.name))
-  const operationRows = data.teamOperations.filter((item) => item.teamId === team.id).map((item) => ({ ...item, balanceHandling: item.balanceHandling || item.reason }))
-
   return <>
     <SectionHeader title={`${team.name} · 团队详情`} description={`${team.code}　${team.site} / ${team.currency}　主线：${team.mainAgent}`} actions={<><Button variant="ghost" onClick={() => setSelectedId(null)}>返回列表</Button><Button icon={<UserAddOutlined />} onClick={() => openSecondaryModal(team)}>开设副线</Button><Button icon={<SwapOutlined />} variant="ghost" onClick={() => setModal('main')}>更换主线</Button><Button icon={<LockOutlined />} variant="warning" onClick={() => showResult(setTeamStatus(team.id, team.status === '冻结' ? '生效中' : '冻结'), onToast)}> {team.status === '冻结' ? '解冻' : '冻结'}</Button><Button icon={<StopOutlined />} variant="danger" onClick={() => showResult(setTeamStatus(team.id, '已解散'), onToast)}>解散</Button></>} />
     <Tabs items={tabs} active={tab} onChange={setTab} />
     {tab === 'overview' && <TeamOverview team={team} data={data} />}
-    {tab === 'structure' && <Panel title="团队成员列表" description="每条 line_id 只展示该代理本人线路，活跃人数可下钻直属会员。" actions={<Button icon={<UserAddOutlined />} size="small" onClick={() => openSecondaryModal(team)}>开副线</Button>}><DataTable columns={lineColumns} rows={lineRows} rowKey="lineId" minWidth={1300} /></Panel>}
+    {tab === 'structure' && <Panel title="团队成员列表" description="每条 line_id 只展示该代理本人线路，活跃人数可下钻直属会员。" actions={<Button icon={<UserAddOutlined />} size="small" onClick={() => openSecondaryModal(team)}>开副线</Button>}><DataTable columns={lineColumns} rows={lineRows} rowKey="lineId" minWidth={1180} /></Panel>}
     {tab === 'performance' && <div className="ta-stack"><div className="team-performance-filter"><FilterBar onSearch={() => onToast(`已查询 ${performanceRows.length} 条团队业绩`)} onReset={() => setPerformanceFilters({ agent: '', identity: '', lineId: '', statFrom: '', statTo: '' })} onExport={() => onToast(`团队业绩已导出 ${performanceRows.length} 条`)}><Field label="代理名称"><Input value={performanceFilters.agent} onChange={(value) => setPerformanceFilters({ ...performanceFilters, agent: value })} placeholder="代理账号" /></Field><Field label="身份"><Select value={performanceFilters.identity} onChange={(value) => setPerformanceFilters({ ...performanceFilters, identity: value })} placeholder="全部身份" options={['主线', '副线']} /></Field><Field label="line_id"><Input value={performanceFilters.lineId} onChange={(value) => setPerformanceFilters({ ...performanceFilters, lineId: value })} placeholder="LINE-A" /></Field><Field label="统计日期起"><Input type="date" value={performanceFilters.statFrom} onChange={(value) => setPerformanceFilters({ ...performanceFilters, statFrom: value })} /></Field><Field label="统计日期止"><Input type="date" value={performanceFilters.statTo} onChange={(value) => setPerformanceFilters({ ...performanceFilters, statTo: value })} /></Field></FilterBar></div><Panel title="团队业绩查看" description="按线路查看团队业绩、运营成本、净收益和贡献占比，仅做业绩核对，不在此页发放。"><DataTable columns={commissionColumns} rows={performanceRows} rowKey="lineId" minWidth={1500} paginated /><div className="team-performance-total"><b>总计</b><span>记录 {performanceRows.length} 条</span><span>新增活跃 {performanceTotal.newActive}</span><span>新增首存 {performanceTotal.firstDepositCount}</span><span>首存额度 <Money value={performanceTotal.firstDepositAmount} /></span><span>活跃会员 {performanceTotal.activeMembers}</span><span>总盈亏 <Money value={performanceTotal.totalWinLoss} signed /></span><span>运营费用 <Money value={performanceTotal.operationFee} /></span><span>净收益 <Money value={performanceTotal.netRevenue} signed /></span></div></Panel><FormulaPanel title="团队业绩查看口径" items={[{ label: '总盈亏', formula: '各线路总输赢合计', value: `¥${performanceTotal.totalWinLoss.toLocaleString()}` }, { label: '运营费用', formula: '按线路运营成本合计', value: `¥${performanceTotal.operationFee.toLocaleString()}` }, { label: '净收益', formula: '总盈亏 − 运营费用', value: `¥${performanceTotal.netRevenue.toLocaleString()}` }, { label: '团队贡献占比', formula: '单线正向净收益 ÷ 全团队正向净收益' }]} /></div>}
-    {tab === 'bills' && <Panel title="团队平台账单" description="每个佣金周期最多一张团队账单，唯一收款方为当期主线。"><DataTable columns={billColumns((row) => <ActionLink onClick={() => onToast(`${row.id} 账单详情已打开`)}>详情</ActionLink>)} rows={billRows} minWidth={4200} paginated /></Panel>}
-    {tab === 'changes' && <Panel title="关系与模式变更" description="所有变更从未来完整周期生效，并明确当月结余归属。"><DataTable columns={requestColumns} rows={changeRows} minWidth={1600} paginated /></Panel>}
-    {tab === 'operations' && <Panel title="团队操作记录" description="记录创建、编辑、开副线和关系操作，并保留结余处理说明。"><DataTable columns={operationColumns} rows={operationRows} minWidth={1500} paginated /></Panel>}
 
     <Modal open={!!teamInspect} title={inspectConfig?.title || '明细'} description={inspectConfig?.description} onClose={() => setTeamInspect(null)} onConfirm={() => setTeamInspect(null)} confirmText="关闭" showCancel={false} width={760}>{inspectConfig && <DataTable columns={inspectConfig.columns} rows={inspectConfig.rows} rowKey="id" paginated />}</Modal>
     {secondaryModal}
@@ -514,21 +532,8 @@ function MasterTeamsPage({ onToast }) {
     <Modal open={modal === 'edit'} title={`${team.name} · 编辑团队`} description="维护团队名称和团队类型。" onClose={closeModal} onConfirm={() => showResult(updateTeamPreferences(team.id, { name: editTeamForm.name, teamType: editTeamForm.teamType }), onToast, closeModal)}>
       <FormGrid><Field label="团队名称"><Input value={editTeamForm.name} onChange={(value) => setEditTeamForm({ ...editTeamForm, name: value })} /></Field><Field label="团队类型"><Select value={editTeamForm.teamType} onChange={(value) => setEditTeamForm({ ...editTeamForm, teamType: value })} options={['推广团队', '运营团队']} /></Field></FormGrid>
     </Modal>
-    <Modal open={modal === 'lineIdentity'} title="更换团队成员身份" description="将当前代理从本团队成员列表中调整为独立代理或团队负责人。" onClose={closeModal} onConfirm={saveIdentity} confirmText="保存身份">
-      <FormGrid><Field label="代理名称"><Input value={identityForm.agent} disabled /></Field><Field label="目标身份"><Select value={identityForm.identity} onChange={(value) => setIdentityForm({ ...identityForm, identity: value })} options={['独立代理', '团队负责人']} /></Field></FormGrid>
-      <Alert title="演示说明">本操作仅用于原型演示，保存后更新当前行身份和状态；真实业务仍需走未来周期审核与结余归属校验。</Alert>
-    </Modal>
   </>
 }
-
-const requestColumns = [
-  { key: 'id', label: '申请编号' }, { key: 'type', label: '变更类型', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }, { key: 'applicant', label: '申请人' }, { key: 'currentUnit', label: '原结算单元' }, { key: 'targetUnit', label: '目标结算单元' },
-  { key: 'effectiveCycle', label: '生效周期' }, { key: 'balanceHandling', label: '当月结余处理' }, { key: 'recommender', label: '推荐人' }, { key: 'conflict', label: '冲突检查', render: (value) => <StatusTag>{value}</StatusTag> }, { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }, { key: 'createdAt', label: '申请时间' }, { key: 'note', label: '业务说明' },
-]
-
-const operationColumns = [
-  { key: 'id', label: '序号' }, { key: 'teamName', label: '团队名称' }, { key: 'teamType', label: '团队类型' }, { key: 'mainId', label: '主线编号' }, { key: 'mainAccount', label: '主线账号' }, { key: 'secondaryAccounts', label: '副线账号' }, { key: 'action', label: '操作内容' }, { key: 'reason', label: '操作理由' }, { key: 'balanceHandling', label: '当月结余处理' }, { key: 'createdAt', label: '操作时间' }, { key: 'operator', label: '操作人' },
-]
 
 function enrichBills(data) {
   return data.bills.map((bill, index) => {
@@ -570,18 +575,6 @@ function resolveRecordAgentIdentity(recordAgentType, bill, agent) {
   }
   if (recordAgentType === '星级代理') return /星/.test(bill.grade) ? bill.grade : '1星'
   return /层/.test(bill.grade) ? bill.grade : '1层'
-}
-
-function billColumns(renderActions) {
-  const money = (value) => <Money value={value} />
-  const signed = (value) => <Money value={value} signed />
-  return [
-    { key: 'sequence', label: '序号' }, { key: 'cycle', label: '佣金月份' }, { key: 'type', label: '账单类型', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }, { key: 'site', label: '所属站点' }, { key: 'unitName', label: '团队名称 / 单线' }, { key: 'agentId', label: '代理ID' }, { key: 'payee', label: '代理账号' }, { key: 'agentType', label: '代理类型' }, { key: 'becameAgentAt', label: '成为代理时间' }, { key: 'teamType', label: '团队类型' }, { key: 'parentAccount', label: '上级代理' },
-    { key: 'teamMembers', label: '团队人数' }, { key: 'subAgentCount', label: '下级人数' }, { key: 'registeredCount', label: '注册人数' }, { key: 'firstDepositCount', label: '首存人数' }, { key: 'activeCount', label: '活跃会员' }, { key: 'newActiveCount', label: '新增活跃' }, { key: 'depositAmount', label: '存款金额', render: money }, { key: 'withdrawalAmount', label: '提款金额', render: money },
-    { key: 'totalWinLoss', label: '总输赢', render: signed }, { key: 'venueFee', label: '场馆费', render: money }, { key: 'memberBonus', label: '会员红利', render: money }, { key: 'memberRebate', label: '会员返水', render: money }, { key: 'accountAdjustment', label: '账户调整', render: signed }, { key: 'manualOrderWinLoss', label: '补单输赢', render: signed }, { key: 'depositFee', label: '存款手续费', render: money }, { key: 'withdrawalFee', label: '提款手续费', render: money },
-    { key: 'netWinLossRaw', label: '净输赢', render: signed }, { key: 'lastBalance', label: '上月结余', render: signed }, { key: 'balanceAdjustment', label: '本月结余调整', render: signed }, { key: 'correctedNet', label: '冲正后净输赢 / 本月结余', render: signed }, { key: 'grade', label: '佣金等级' }, { key: 'rate', label: '佣金比例', render: (value) => <Percent value={value} /> }, { key: 'commissionAdjustment', label: '佣金调整', render: signed }, { key: 'payable', label: '佣金', render: money }, { key: 'issued', label: '已发佣金', render: money }, { key: 'remaining', label: '待发佣金', render: money },
-    { key: 'state', label: '账单状态', render: (value) => <StatusTag>{value}</StatusTag> }, { key: 'inTeam', label: '是否在团队' }, { key: 'isMainLine', label: '是否主线' }, { key: 'developer', label: '推广人员' }, { key: 'maintainer', label: '维护人' }, { key: 'reviewer', label: '审核人' }, { key: 'reviewedAt', label: '审核时间' }, { key: 'issuedBy', label: '发放人' }, { key: 'issuedAt', label: '发放时间' }, { key: 'adjustmentReason', label: '调整原因' }, { key: 'id', label: '账单编号' }, { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions">{renderActions?.(row)}</div> },
-  ]
 }
 
 function commissionRecordColumns(renderActions) {
@@ -1158,6 +1151,8 @@ function MasterCyclePage({ onToast, portal = 'master' }) {
 
 export function MasterPage({ page, navigate, onToast, portal = 'master' }) {
   if (page === 'agents') return <MasterAgentsPage navigate={navigate} onToast={onToast} />
+  if (page === 'negativeProfit') return <NegativeProfitReportPage onToast={onToast} />
+  if (page === 'agentOperations') return <AgentOperationRecordsPage onToast={onToast} />
   if (page === 'teams') return <MasterTeamsPage onToast={onToast} />
   if (page === 'plans') return <MasterPlansPageV2 onToast={onToast} />
   if (page === 'settlement') return <MasterSettlementPage onToast={onToast} />

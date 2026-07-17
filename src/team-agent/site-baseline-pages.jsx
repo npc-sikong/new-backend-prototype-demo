@@ -163,6 +163,7 @@ function buildSiteAgents(data) {
 
     return {
       ...agent,
+      agentIdentity: ['官方代理', '普通代理'].includes(agent.teamAgentType) ? agent.teamAgentType : '普通代理',
       unit: team?.name || single?.name || agent.unit || '—',
       lineId: line?.lineId || agent.lineId || single?.code || '—',
       leader: team?.mainAgent || single?.owner || (agent.parent === '无上级代理' ? agent.developer : agent.parent),
@@ -317,13 +318,14 @@ function AgentDetailModal({ record, onClose }) {
       { label: '所属站点', value: record.site },
       { label: '代理状态', value: <StatusTag>{record.status}</StatusTag> },
       { label: '代理类型', value: record.agentType },
+      { label: '代理身份', value: <StatusTag tone="blue">{record.agentIdentity}</StatusTag> },
       { label: '代理模型', value: record.model },
       { label: '佣金方案', value: record.plan },
       { label: '推广人员', value: record.developer },
       { label: '上级代理', value: `${record.parentId} / ${record.parent}` },
       { label: '可选绑定会员', value: record.boundMemberAccount },
       { label: '结算模式', value: <StatusTag>{record.settlementMode}</StatusTag> },
-      { label: '代理身份', value: record.identity === '—' ? '—' : <StatusTag tone="blue">{record.identity}</StatusTag> },
+      { label: '代理层级', value: record.identity === '—' ? '—' : <StatusTag tone="blue">{record.identity}</StatusTag> },
       { label: '代理部', value: record.unit },
       { label: 'line_id', value: record.lineId },
       { label: '负责人', value: record.leader },
@@ -424,13 +426,14 @@ function SiteAgentsPage({ onToast }) {
   const columns = [
     { key: 'id', label: '代理ID' },
     { key: 'account', label: '代理账号', render: (value) => <b className="ta-primary-text">{value}</b> },
+    { key: 'agentIdentity', label: '代理身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
     { key: 'agentType', label: '代理类型', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
     { key: 'model', label: '代理模型', render: (value) => <StatusTag>{value}</StatusTag> },
     { key: 'status', label: '代理状态', render: (value) => <StatusTag>{value}</StatusTag> },
     { key: 'developer', label: '推广人员' },
     { key: 'parent', label: '上级代理' },
     { key: 'settlementMode', label: '结算模式', render: (value) => <StatusTag>{value}</StatusTag> },
-    { key: 'identity', label: '代理身份', render: (value) => value === '—' ? value : <StatusTag tone="blue">{value}</StatusTag> },
+    { key: 'identity', label: '代理层级', render: (value) => value === '—' ? value : <StatusTag tone="blue">{value}</StatusTag> },
     { key: 'unit', label: '代理部' },
     { key: 'lineId', label: 'line_id' },
     { key: 'leader', label: '负责人' },
@@ -445,14 +448,14 @@ function SiteAgentsPage({ onToast }) {
   ]
 
   return <>
-    <SectionHeader title="代理列表" description="延续站点代理主档，保留代理模型，并补充当前有效代理身份、代理部与当月结余。" actions={<Button icon={<ReloadOutlined />} variant="ghost" onClick={() => notify(onToast, '本站代理主档已刷新')}>刷新列表</Button>} />
+    <SectionHeader title="代理列表" description="延续站点代理主档，保留代理模型，并补充官方/普通代理身份、代理层级、代理部与当月结余。" actions={<Button icon={<ReloadOutlined />} variant="ghost" onClick={() => notify(onToast, '本站代理主档已刷新')}>刷新列表</Button>} />
     <Alert title="本站代理选择边界">代理选择框只列出 {CURRENT_SITE} 已存在且状态为启用的代理；本页仅查询主档、经营与关系历史，创建团队、开副线、换主线等操作仍在团队代理管理处理。</Alert>
     <FilterBar onSearch={() => notify(onToast, `已查询到 ${rows.length} 条本站代理记录`)} onReset={() => setFilters(emptyFilters)} onExport={() => notify(onToast, '本站代理主档已导出')}>
       <Field label="代理账号"><Select value={filters.account} onChange={(value) => setFilter('account', value)} options={enabledAgentOptions} placeholder="全部本站启用代理" /></Field>
       <Field label="代理状态"><Select value={filters.status} onChange={(value) => setFilter('status', value)} options={['启用', '停用']} placeholder="全部状态" /></Field>
       <Field label="代理模型"><Select value={filters.model} onChange={(value) => setFilter('model', value)} options={['负盈利模式', '普通代理']} placeholder="全部模型" /></Field>
       <Field label="结算模式"><Select value={filters.settlementMode} onChange={(value) => setFilter('settlementMode', value)} options={['团队模式', '独立单线', '原代理模式']} placeholder="全部结算模式" /></Field>
-      <Field label="代理身份"><Select value={filters.identity} onChange={(value) => setFilter('identity', value)} options={['团队负责人', '副线', '独立线主', '—']} placeholder="全部身份" /></Field>
+      <Field label="代理层级"><Select value={filters.identity} onChange={(value) => setFilter('identity', value)} options={['团队负责人', '副线', '独立线主', '单线代理', '—']} placeholder="全部层级" /></Field>
       <Field label="推广人员"><Input value={filters.developer} onChange={(value) => setFilter('developer', value)} placeholder="推广人员" /></Field>
       <Field label="上级代理"><Input value={filters.parent} onChange={(value) => setFilter('parent', value)} placeholder="编号或账号" /></Field>
     </FilterBar>

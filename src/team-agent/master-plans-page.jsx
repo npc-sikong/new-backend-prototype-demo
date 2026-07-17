@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { DeleteOutlined, DownloadOutlined, EditOutlined, FileDoneOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
-import { Button, DataTable, Field, FormGrid, Input, Modal, Percent, SectionHeader, Select, StatusTag, Tabs, Toolbar } from './ui'
+import { Button, DataTable, Field, Input, Modal, SectionHeader, Select, Toolbar } from './ui'
 import { useTeamAgent } from './context'
 
 function ActionLink({ children, onClick, disabled = false }) {
   return <button className="ta-table-link" disabled={disabled} onClick={onClick}>{children}</button>
 }
 
-const REBATE_UPDATED_AT = '2026-07-17 20:23'
+const REBATE_UPDATED_AT = '2026-07-17 20:54'
 const REBATE_TYPE_OPTIONS = [
   { value: 'level', label: '层级代理' },
   { value: 'star', label: '星级代理' },
@@ -94,59 +94,8 @@ function validateRebateDetails(mode, details) {
   return ''
 }
 
-const REWARD_SITE_OPTIONS = ['旺财体育', '财神客栈']
-const REWARD_STATUS_OPTIONS = ['生效中', '待生效', '停用']
-const EMPTY_REWARD_FORM = { name: '', effectiveCycle: '2026-08', status: '待生效', levels: [] }
-
-function defaultRewardLevels() {
-  return [{ level: 1, netProfit: 0, rewardRate: 0.06 }, { level: 2, netProfit: 50000, rewardRate: 0.08 }, { level: 3, netProfit: 100000, rewardRate: 0.1 }]
-}
-
-function buildRewardTemplates(plans) {
-  const rewardPlans = plans.filter((plan) => plan.type === '推荐奖励方案')
-  const templates = rewardPlans.map((plan, index) => ({
-    id: plan.id,
-    sequence: index + 1,
-    name: plan.name.replace(/\d+%方案$/, '阶梯模板'),
-    sites: plan.site ? [plan.site] : [],
-    levels: defaultRewardLevels(),
-    effectiveCycle: plan.effectiveCycle || '2026-08',
-    status: plan.status || '待生效',
-    operator: 'codex',
-    operatedAt: REBATE_UPDATED_AT,
-  }))
-  const demoRows = [
-    { id: 'PLAN-R-TPL-002', name: '高净收益推荐奖励模板', sites: ['财神客栈'], levels: [{ level: 1, netProfit: 0, rewardRate: 0.05 }, { level: 2, netProfit: 80000, rewardRate: 0.08 }, { level: 3, netProfit: 180000, rewardRate: 0.12 }], effectiveCycle: '2026-08', status: '待生效', operator: 'codex', operatedAt: REBATE_UPDATED_AT },
-    { id: 'PLAN-R-TPL-003', name: '备用推荐奖励基础模板', sites: [], levels: [{ level: 1, netProfit: 0, rewardRate: 0.04 }, { level: 2, netProfit: 50000, rewardRate: 0.06 }], effectiveCycle: '2026-09', status: '待生效', operator: 'codex', operatedAt: REBATE_UPDATED_AT },
-  ]
-  return [...templates, ...demoRows].map((row, index) => ({ ...row, sequence: index + 1 }))
-}
-
-function rewardFormFromTemplate(row) {
-  return { name: row.name, effectiveCycle: row.effectiveCycle, status: row.status, levels: row.levels.map((level) => ({ ...level })) }
-}
-
-function rewardAmount(value) {
-  return `¥${Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
-
-function rewardLevelText(level) {
-  return `${level.level}级：推荐人员净收益≥${rewardAmount(level.netProfit)} / 提成 ${rebatePercent(level.rewardRate)}`
-}
-
-function validateRewardLevels(levels) {
-  if (!levels.length) return '请至少配置一个推荐奖励层级'
-  const sorted = [...levels].sort((a, b) => Number(a.level) - Number(b.level))
-  for (let index = 1; index < sorted.length; index += 1) {
-    if (Number(sorted[index].netProfit || 0) < Number(sorted[index - 1].netProfit || 0)) return '高层级推荐人员净收益不能低于低层级'
-    if (Number(sorted[index].rewardRate || 0) < Number(sorted[index - 1].rewardRate || 0)) return '高层级推荐人提成百分比不能低于低层级'
-  }
-  return ''
-}
-
 export function MasterPlansPage({ onToast }) {
   const { data } = useTeamAgent()
-  const [tab, setTab] = useState('rebate')
   const [rows, setRows] = useState(() => buildLegacyRebateRows(data.plans))
   const [editing, setEditing] = useState(null)
   const [editName, setEditName] = useState('')
@@ -157,11 +106,6 @@ export function MasterPlansPage({ onToast }) {
   const [createType, setCreateType] = useState('level')
   const [createDetails, setCreateDetails] = useState(() => defaultRebateDetails('level'))
   const [createRules, setCreateRules] = useState(DEFAULT_REBATE_RULES)
-  const [rewardRows, setRewardRows] = useState(() => buildRewardTemplates(data.plans))
-  const [rewardMode, setRewardMode] = useState('')
-  const [rewardTargetId, setRewardTargetId] = useState('')
-  const [rewardForm, setRewardForm] = useState(EMPTY_REWARD_FORM)
-  const [siteSelection, setSiteSelection] = useState([])
 
   const openEditor = (row) => { setEditing(row); setEditName(row.name); setEditDetails(row.details.map((detail) => ({ ...detail }))); setEditRules(row.mode === 'team' ? { activeRule: row.activeRule || DEFAULT_REBATE_RULES.activeRule, newActiveRule: row.newActiveRule || DEFAULT_REBATE_RULES.newActiveRule } : DEFAULT_REBATE_RULES) }
   const openCreator = () => { setCreateName(''); setCreateType('level'); setCreateDetails(defaultRebateDetails('level')); setCreateRules(DEFAULT_REBATE_RULES); setCreating(true) }
@@ -184,44 +128,12 @@ export function MasterPlansPage({ onToast }) {
     setRows((current) => [...current, { id: `REBATE-CUSTOM-${Date.now()}`, sequence: current.length + 1, name: createName || `${rebateTypeName(createType)}返佣方案`, createdAt: `${REBATE_UPDATED_AT}:00`, operator: 'codex', operatedAt: `${REBATE_UPDATED_AT}:00`, mode: createType, details: createDetails, ...(createType === 'team' ? createRules : {}) }])
     setCreating(false); onToast?.('新增代理方案已保存', 'success')
   }
-  const openRewardCreate = () => { setRewardMode('create'); setRewardTargetId(''); setRewardForm({ ...EMPTY_REWARD_FORM, levels: defaultRewardLevels() }) }
-  const openRewardEdit = (row) => { setRewardMode('edit'); setRewardTargetId(row.id); setRewardForm(rewardFormFromTemplate(row)) }
-  const openSiteConfig = (row) => { setRewardMode('sites'); setRewardTargetId(row.id); setSiteSelection(row.sites || []) }
-  const updateRewardLevel = (index, key, value) => setRewardForm((current) => ({ ...current, levels: current.levels.map((level, itemIndex) => itemIndex === index ? { ...level, [key]: key === 'rewardRate' ? normalizeRebateRate(value) : Number(value || 0) } : level) }))
-  const addRewardLevel = () => setRewardForm((current) => ({ ...current, levels: [...current.levels, { level: Math.max(0, ...current.levels.map((level) => Number(level.level || 0))) + 1, netProfit: 0, rewardRate: 0 }] }))
-  const removeRewardLevel = (index) => setRewardForm((current) => ({ ...current, levels: current.levels.filter((_, itemIndex) => itemIndex !== index) }))
-  const saveReward = () => {
-    if (!rewardForm.name.trim()) return onToast?.('请输入推荐奖励模板名称', 'error')
-    const error = validateRewardLevels(rewardForm.levels)
-    if (error) return onToast?.(error, 'error')
-    const row = { id: rewardTargetId || `PLAN-R-TPL-${Date.now()}`, name: rewardForm.name, levels: rewardForm.levels, effectiveCycle: rewardForm.effectiveCycle, status: rewardForm.status, operator: 'codex', operatedAt: REBATE_UPDATED_AT }
-    setRewardRows((current) => (rewardMode === 'edit' ? current.map((item) => item.id === rewardTargetId ? { ...item, ...row } : item) : [...current, row]).map((item, index) => ({ ...item, sequence: index + 1 })))
-    setRewardMode(''); onToast?.(rewardMode === 'edit' ? '推荐奖励模板已修改' : '推荐奖励模板已新增', 'success')
-  }
-  const saveSiteConfig = () => {
-    const selectedSites = [...new Set(siteSelection)]
-    setRewardRows((current) => current.map((item) => item.id === rewardTargetId ? { ...item, sites: selectedSites, operator: 'codex', operatedAt: REBATE_UPDATED_AT } : { ...item, sites: (item.sites || []).filter((site) => !selectedSites.includes(site)) }).map((item, index) => ({ ...item, sequence: index + 1 })))
-    setRewardMode(''); onToast?.('推荐奖励模板配置站点已保存，重复站点已从其它模板解绑', 'success')
-  }
-  const toggleRewardSite = (site) => setSiteSelection((current) => current.includes(site) ? current.filter((item) => item !== site) : [...current, site])
-  const removeReward = (row) => { setRewardRows((current) => current.filter((item) => item.id !== row.id).map((item, index) => ({ ...item, sequence: index + 1 }))); onToast?.('推荐奖励模板已删除', 'success') }
-
   const rebateColumns = [
     { key: 'sequence', label: '序号', cellClassName: 'legacy-rebate-index' },
     { key: 'name', label: '返佣方案名称', render: (value, row) => <span className={row.mode === 'team' ? 'legacy-rebate-team-name' : ''}>{value}</span> },
     { key: 'details', label: '方案详情', render: (value, row) => <div className="legacy-rebate-detail-lines">{row.mode === 'team' && <span>活跃会员：{rebateRuleText(row.activeRule)}；新增活跃：{rebateRuleText(row.newActiveRule)}</span>}{value.map((detail) => <span key={`${row.id}-${detail.level}`}>{rebateDetailLabel(row, detail)}</span>)}</div> },
     { key: 'createdAt', label: '创建时间' }, { key: 'operator', label: '最后操作人' }, { key: 'operatedAt', label: '操作时间' },
     { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><ActionLink onClick={() => openEditor(row)}><EditOutlined /> 修改</ActionLink><ActionLink onClick={() => openEditor(row)}><SettingOutlined /> 配置</ActionLink></div> },
-  ]
-  const rewardColumns = [
-    { key: 'sequence', label: '序号', cellClassName: 'legacy-rebate-index' },
-    { key: 'name', label: '推荐奖励模板名称' },
-    { key: 'levels', label: '奖励层级', render: (value) => <div className="legacy-rebate-detail-lines">{value.map((level) => <span key={`${level.level}-${level.netProfit}`}>{rewardLevelText(level)}</span>)}</div> },
-    { key: 'sites', label: '已配置站点', render: (value) => value?.length ? <div className="legacy-rebate-detail-lines">{value.map((site) => <span key={site}>{site}</span>)}</div> : <StatusTag tone="gray">未配置</StatusTag> },
-    { key: 'effectiveCycle', label: '生效周期' },
-    { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> },
-    { key: 'operator', label: '最后操作人' },
-    { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><ActionLink onClick={() => openRewardEdit(row)}><EditOutlined /> 修改</ActionLink><ActionLink onClick={() => openSiteConfig(row)}><SettingOutlined /> 配置站点</ActionLink><ActionLink onClick={() => removeReward(row)}><DeleteOutlined /> 删除</ActionLink></div> },
   ]
   const renderLevelRows = (mode, details, updateDetail, removeLevel, prefix) => details.map((detail, index) => <tr key={`${prefix}-${index}`}>
     <td><Input className="legacy-level-input" type="number" value={detail.level} min="0" step="1" onChange={(value) => updateDetail(index, 'level', value)} /></td>
@@ -234,31 +146,15 @@ export function MasterPlansPage({ onToast }) {
 
   return <>
     <section className="legacy-rebate-screen">
-      <SectionHeader title="佣金方案" description="按原返佣方案列表维护代理返佣配置；推荐奖励先维护多层级模板，再将模板配置到一个或多个站点。" />
-      <Tabs items={[{ value: 'rebate', label: '代理返佣方案' }, { value: 'reward', label: '推荐奖励' }]} active={tab} onChange={setTab} />
-      {tab === 'rebate' && <><Toolbar><Button icon={<PlusOutlined />} onClick={openCreator}>新增代理方案</Button><Button icon={<DownloadOutlined />} variant="warning" onClick={() => onToast?.('返佣方案已导出', 'success')}>导出</Button><Button icon={<FileDoneOutlined />} variant="ghost" disabled>下载文件</Button></Toolbar><DataTable minWidth={1320} columns={rebateColumns} rows={rows} className="legacy-rebate-table" rowKey="id" /></>}
-      {tab === 'reward' && <><Toolbar><Button icon={<PlusOutlined />} onClick={openRewardCreate}>新增推荐奖励模板</Button><Button icon={<DownloadOutlined />} variant="warning" onClick={() => onToast?.('推荐奖励模板已导出', 'success')}>导出</Button></Toolbar><DataTable minWidth={1280} columns={rewardColumns} rows={rewardRows} className="legacy-rebate-table" rowKey="id" paginated /></>}
+      <SectionHeader title="佣金方案" description="按原返佣方案列表维护代理返佣配置，当前详情页仅保留代理返佣方案列表。" />
+      <Toolbar><Button icon={<PlusOutlined />} onClick={openCreator}>新增代理方案</Button><Button icon={<DownloadOutlined />} variant="warning" onClick={() => onToast?.('返佣方案已导出', 'success')}>导出</Button><Button icon={<FileDoneOutlined />} variant="ghost" disabled>下载文件</Button></Toolbar>
+      <DataTable minWidth={1320} columns={rebateColumns} rows={rows} className="legacy-rebate-table" rowKey="id" />
     </section>
     <Modal open={creating} title="新增代理方案" onClose={() => setCreating(false)} onConfirm={saveCreator} confirmDisabled={!createDetails.length} width={1380}>
       <div className="legacy-rebate-modal-body"><div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={createName} onChange={setCreateName} placeholder="请输入方案名称" /></div><div className="legacy-rebate-name-row"><span><b>*</b> 方案类型</span><Select value={createType} onChange={changeCreateType} options={REBATE_TYPE_OPTIONS} /></div>{createType === 'team' && renderRuleFields(createRules, setCreateRules)}<Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addCreateLevel}>添加级别</Button>{renderLevelTable(createType, createDetails, updateCreateDetail, removeCreateLevel, 'create')}<div className="legacy-rebate-help"><strong>说明：</strong><p>1、层级代理和星级代理只配置对应级别的返佣比例。</p><p>2、团队代理可配置新增活跃、活跃会员、总输赢条件，并绑定活跃会员与新增活跃判定条件。</p><p>3、返佣比例以百分比填写，高层级已设置值不能低于低层级。</p></div></div>
     </Modal>
     <Modal open={!!editing} title="修改佣金方案" onClose={() => setEditing(null)} onConfirm={saveEditor} width={1380}>
       <div className="legacy-rebate-modal-body"><div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={editName} onChange={setEditName} /></div>{editing?.mode === 'team' && renderRuleFields(editRules, setEditRules)}<Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addEditLevel}>添加级别</Button>{renderLevelTable(editing?.mode || 'level', editDetails, updateEditDetail, removeEditLevel, 'edit')}<div className="legacy-rebate-help"><strong>说明：</strong><p>1、层级代理和星级代理只配置对应级别的返佣比例。</p><p>2、团队代理可配置新增活跃、活跃会员、总输赢条件，并绑定活跃会员与新增活跃判定条件。</p><p>3、返佣比例以百分比填写，高层级已设置值不能低于低层级。</p></div></div>
-    </Modal>
-    <Modal open={rewardMode === 'create' || rewardMode === 'edit'} title={rewardMode === 'edit' ? '修改推荐奖励模板' : '新增推荐奖励模板'} description="先维护一套或多套多层级模板，再通过“配置站点”将模板应用到站点。" onClose={() => setRewardMode('')} onConfirm={saveReward} width={1050}>
-      <div className="legacy-rebate-modal-body">
-        <FormGrid><Field label="模板名称" required><Input value={rewardForm.name} onChange={(name) => setRewardForm({ ...rewardForm, name })} placeholder="请输入推荐奖励模板名称" /></Field><Field label="生效周期"><Select value={rewardForm.effectiveCycle} onChange={(effectiveCycle) => setRewardForm({ ...rewardForm, effectiveCycle })} options={['2026-07', '2026-08', '2026-09']} /></Field><Field label="状态"><Select value={rewardForm.status} onChange={(status) => setRewardForm({ ...rewardForm, status })} options={REWARD_STATUS_OPTIONS} /></Field></FormGrid>
-        <Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addRewardLevel}>添加层级</Button>
-        <div className="legacy-rebate-modal-grid"><table className="legacy-level-table"><thead><tr><th>奖励层级</th><th>推荐人员净收益 ≥</th><th>推荐人提成百分比(%)</th><th>操作</th></tr></thead><tbody>{rewardForm.levels.map((level, index) => <tr key={`reward-${index}`}><td><Input className="legacy-level-input" type="number" min="1" step="1" value={level.level} onChange={(value) => updateRewardLevel(index, 'level', value)} /></td><td><Input className="legacy-level-input" type="number" min="0" value={level.netProfit} onChange={(value) => updateRewardLevel(index, 'netProfit', value)} /></td><td><Input className="legacy-level-input" type="number" min="0" max="100" step="0.01" value={rebateRateInputValue(level.rewardRate)} onChange={(value) => updateRewardLevel(index, 'rewardRate', value)} /></td><td><ActionLink onClick={() => removeRewardLevel(index)}><DeleteOutlined /> 删除</ActionLink></td></tr>)}</tbody></table><div className="legacy-rebate-blank" /></div>
-        <div className="legacy-rebate-help"><strong>说明：</strong><p>1、推荐奖励模板可配置多个层级，按推荐人员净收益命中对应提成百分比。</p><p>2、高层级推荐人员净收益和提成百分比不能低于低层级。</p><p>3、模板保存后再通过“配置站点”应用到一个或多个站点。</p></div>
-      </div>
-    </Modal>
-    <Modal open={rewardMode === 'sites'} title="配置站点" description="一个站点同一时间只能绑定一个推荐奖励模板；保存后，新选择的站点会自动从其它模板解绑。" onClose={() => setRewardMode('')} onConfirm={saveSiteConfig} confirmText="保存配置" width={720}>
-      <div className="reward-site-checks">{REWARD_SITE_OPTIONS.map((site) => {
-        const owner = rewardRows.find((row) => row.id !== rewardTargetId && row.sites?.includes(site))
-        return <label key={site}><input type="checkbox" checked={siteSelection.includes(site)} onChange={() => toggleRewardSite(site)} /><span>{site}</span>{owner && <small>当前：{owner.name}</small>}</label>
-      })}</div>
-      <div className="legacy-rebate-help"><strong>说明：</strong><p>同一站点只能同时配置一个推荐奖励模板。若勾选已被其它模板使用的站点，保存后该站点会切换到当前模板。</p></div>
     </Modal>
   </>
 }

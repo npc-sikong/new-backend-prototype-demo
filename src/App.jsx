@@ -8,6 +8,7 @@ import {
   FileDoneOutlined,
   FileTextOutlined,
   FullscreenOutlined,
+  HistoryOutlined,
   MenuOutlined,
   MobileOutlined,
   ProfileOutlined,
@@ -51,7 +52,7 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', memberTurnover: '会员打码流水统计表', agents: '代理列表', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
+    version: '版本需求说明', memberTurnover: '会员打码流水统计表', agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
   },
   site: {
     siteDashboard: '运营首页', siteAgents: '代理列表', teams: '团队代理管理', review: '模式变更审核', plans: '佣金方案', settlement: '代理佣金结算', commissionRecords: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', cycle: '结算周期设置', members: '代理会员', finance: '代理财务', deposits: '存款记录', games: '游戏记录', accountChanges: '账变明细', transfers: '转账明细', transferStats: '充提转账统计', venueFees: '场馆代理费用', siteProfit: '站点利润', prepaid: '预付金账户', agentPay: '代理代存处理',
@@ -70,6 +71,8 @@ const MASTER_NAV = [
   ] },
   { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
+    { id: 'negativeProfit', label: '负盈利代理报表', mark: '新', icon: BarChartOutlined },
+    { id: 'agentOperations', label: '代理操作记录', mark: '新', icon: HistoryOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
     { id: 'plans', label: '佣金方案', mark: '改', icon: SolutionOutlined },
     { id: 'settlement', label: '代理佣金结算', mark: '改', icon: DollarCircleOutlined },

@@ -101,7 +101,7 @@ export function Percent({ value }) {
   return <span>{(Number(value || 0) * 100).toFixed(2)}%</span>
 }
 
-export function DataTable({ columns, rows, rowKey = 'id', minWidth, emptyText = '暂无数据', className = '', paginated = false }) {
+export function DataTable({ columns, rows, rowKey = 'id', minWidth, emptyText = '暂无数据', className = '', paginated = false, footer }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize))
@@ -113,7 +113,7 @@ export function DataTable({ columns, rows, rowKey = 'id', minWidth, emptyText = 
   return <>
     <div className={`ta-table-wrap ${className}`}><table className="ta-table" style={{ minWidth }}><thead><tr>{columns.map((column) => <th key={column.key} className={column.className}>{column.label}</th>)}</tr></thead><tbody>
       {visibleRows.length ? visibleRows.map((row, index) => <tr key={typeof rowKey === 'function' ? rowKey(row, index) : row[rowKey] ?? index}>{columns.map((column) => <td key={column.key} className={column.cellClassName}>{column.render ? column.render(row[column.key], row, index) : row[column.key] ?? '—'}</td>)}</tr>) : <tr><td className="ta-empty-cell" colSpan={columns.length}>{emptyText}</td></tr>}
-    </tbody></table></div>
+    </tbody>{footer && <tfoot>{footer}</tfoot>}</table></div>
     {paginated && <Pagination total={rows.length} page={safePage} pageSize={pageSize} onChange={setPage} onPageSizeChange={(value) => setPageSize(Number(value))} />}
   </>
 }
