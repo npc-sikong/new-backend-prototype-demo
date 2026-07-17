@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ApartmentOutlined, BankOutlined, MobileOutlined, SafetyCertificateOutlined, TeamOutlined } from '@ant-design/icons'
 import { Button, Tabs } from './ui'
 
-const VERSION_2_GROUPS = [
+const VERSION_2_GROUPS_BASE = [
   {
     portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [
       ['memberTurnover', '会员打码流水统计表', '会员余额与提现流水统计', '新增站点、代理、会员、充值额度、总余额、可提现余额、锁定余额、场馆提现流水和充值提现流水等字段；两类流水均说明锁定额度会随用户有效投注变化重新计算。场馆提现流水可查看场馆或通用归集明细，充值提现流水可查看每笔充值额度与提现流水需求。', '可筛选会员记录，并核对场馆/通用明细、每笔充值的充值额度与提现流水需求，以及锁定额度随投注变化的统计规则。'],
@@ -55,6 +55,34 @@ const VERSION_2_GROUPS = [
   },
 ]
 
+const ROLE_SYNC_ITEMS = {
+  site: [
+    ['agents', '代理列表', '本站代理资料', '清理站点后台原代理菜单后，从总控代理列表按站点权限同步；固定旺财体育本站数据，隐藏所属站点字段和跨站点操作。', '只显示旺财体育代理资料，保留本站查询与详情，不可查看或操作其他站点。'],
+    ['negativeProfit', '负盈利代理报表', '本站负盈利代理账单', '同步总控负盈利代理明细、字段筛选和逐列总计，数据固定为旺财体育本站。', '字段筛选、横向明细和逐列总计可用，不出现其他站点记录。'],
+    ['agentOperations', '代理操作记录', '本站代理操作流水', '同步总控代理操作记录，按团队所属站点筛选为旺财体育本站。', '可按团队、代理和日期查询本站操作记录。'],
+    ['teams', '团队代理管理', '本站团队结构管理', '同步总控团队代理业务口径，保留本站创建、维护、成员与会员下钻。', '只管理旺财体育团队，团队人数、会员和业绩下钻可用。'],
+    ['plans', '佣金方案', '本站适用佣金方案', '同步总控佣金方案口径，站点仅维护本站适用方案组合。', '可选择本站生效方案，不能修改其他站点配置。'],
+    ['settlement', '代理佣金结算', '本站佣金账单处理', '同步总控账单口径，隐藏所属站点字段并保留本站提交与发放操作。', '只能处理旺财体育账单，不能执行总控审核权限。'],
+    ['records', '佣金记录', '本站佣金发放查询', '同步总控佣金记录口径，仅展示旺财体育平台账单与内部结算记录。', '可筛选、分页、导出和查看本站记录详情。'],
+    ['reversal', '冲正统计报表', '本站冲正汇总', '同步总控冲正统计口径，隐藏所属站点字段并限制为本站数据。', '只展示旺财体育冲正汇总。'],
+    ['returns', '冲正回款报表', '本站冲正回款明细', '同步总控冲正回款口径，隐藏所属站点字段并限制为本站数据。', '只展示旺财体育垫付与回款明细。'],
+    ['cycle', '结算周期设置', '本站结算周期配置', '结算周期设置仅下发站点后台，当前站点固定为旺财体育。', '可分别维护本站普通代理和团队代理结算周期。'],
+  ],
+  agent: [
+    ['agents', '代理列表', '本人及授权下级代理', '清理代理后台原代理菜单后，从总控代理列表按当前演示身份同步；隐藏所属站点和管理操作。', '团队负责人查看本人团队，副线和独立代理只查看本人线路。'],
+    ['negativeProfit', '负盈利代理报表', '本人负盈利账单', '同步总控负盈利代理明细、字段筛选和逐列总计，隐藏审核人员、审核时间、维护人和调整原因。', '团队负责人和独立代理只查看本人账单，副线不显示平台账单。'],
+    ['agentOperations', '代理操作记录', '本人相关操作流水', '同步总控代理操作记录，仅展示当前身份相关记录并隐藏后台操作人。', '切换身份后操作记录范围同步变化。'],
+    ['teams', '团队代理管理', '当前身份团队经营', '同步团队代理业务内容，并按团队负责人、副线、独立代理展示各自可见结构与经营范围。', '副线只查看本人 line_id，独立代理只查看本人单线。'],
+    ['plans', '佣金方案', '当前身份适用方案', '同步总控佣金方案口径，代理端只读并隐藏新增、修改、删除操作。', '只能查看当前身份适用方案。'],
+    ['settlement', '代理佣金结算', '本人结算账单', '同步总控账单口径，代理端仅只读本人平台账单或内部结算。', '团队负责人和独立代理查看本人平台账单，副线只看本人内部结算。'],
+    ['records', '佣金记录', '本人佣金发放查询', '同步总控佣金记录口径，仅保留当前身份本人及授权范围。', '切换身份后记录范围正确，不展示所属站点。'],
+    ['reversal', '冲正统计报表', '本人权限内冲正汇总', '同步总控冲正统计口径，仅保留当前身份本人及授权范围。', '不展示其他团队、线路或站点记录。'],
+    ['returns', '冲正回款报表', '本人权限内回款明细', '同步总控冲正回款口径，仅保留当前身份本人及授权范围。', '不展示其他团队、线路或站点记录。'],
+  ],
+}
+
+const VERSION_2_GROUPS = VERSION_2_GROUPS_BASE.map((group) => ROLE_SYNC_ITEMS[group.portal] ? { ...group, items: ROLE_SYNC_ITEMS[group.portal] } : group)
+
 const VERSION_1_GROUPS = [
   { portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [['h5', 'H5 前端切换与提现页', '后台到会员端演示入口', '在详情页顶部保留 H5 前端切换入口；H5 提现页按手机端窄屏样式展示，选择提现方式后展开账户、金额和资金密码，并在提现金额标题下方展示可提现、锁定及“解锁条件”弹层。', '可从后台进入 H5、以手机端比例查看钱包概览、切换隐藏无余额场馆、选择提现方式、查看可提/锁定金额，并在解锁条件弹层内按“类型 / 锁定额度 / 还需解锁流水”合并核对场馆流水、充值流水和彩金流水；弹层不展示已解锁记录和盈利解锁额度行。', 'h5']] },
   { portal: 'site', title: '站点后台', icon: <BankOutlined />, items: [] },
@@ -77,7 +105,7 @@ export function VersionRequirementsPage({ navigateTo }) {
   const [version, setVersion] = useState('2.0')
   const groups = version === '2.0' ? VERSION_2_GROUPS : VERSION_1_GROUPS
   return <div className="ta-version-page">
-    <div className="ta-version-hero"><div><span>{version} 版本 · {version === '2.0' ? '原第 27 周需求' : '原第 26 周需求'}</span><h1>{version === '2.0' ? '业务运营与团队代理演示原型' : 'H5 提现与后台切换演示'}</h1><p>{version === '2.0' ? '在团队代理三后台闭环与会员打码流水统计基础上，恢复站点后台和代理后台原有代理业务模块；团队代理只在旧页面补充字段、页签与角色口径，并统一采用当月结余规则。' : '保留后台到 H5 前端的切换入口，以及手机端比例的钱包概览、提现方式、取款账户和金额输入演示。'}</p></div><div className="ta-version-seal">{version === '2.0' ? <ApartmentOutlined /> : <MobileOutlined />}<strong>{version}</strong><span>{version === '2.0' ? 'P0 业务演示' : '需求归档'}</span></div></div>
+    <div className="ta-version-hero"><div><span>{version} 版本 · {version === '2.0' ? '原第 27 周需求' : '原第 26 周需求'}</span><h1>{version === '2.0' ? '业务运营与团队代理演示原型' : 'H5 提现与后台切换演示'}</h1><p>{version === '2.0' ? '站点后台和代理后台统一清理原代理菜单，从总控代理管理按角色权限选择性同步同名页面；站点固定本站范围，代理端按当前身份收窄数据，总控原报表保持不变。' : '保留后台到 H5 前端的切换入口，以及手机端比例的钱包概览、提现方式、取款账户和金额输入演示。'}</p></div><div className="ta-version-seal">{version === '2.0' ? <ApartmentOutlined /> : <MobileOutlined />}<strong>{version}</strong><span>{version === '2.0' ? 'P0 业务演示' : '需求归档'}</span></div></div>
     <Tabs items={[{ value: '2.0', label: '2.0 · 第 27 周' }, { value: '1.0', label: '1.0 · 第 26 周' }]} active={version} onChange={setVersion} />
     <div className="ta-version-groups">{groups.map((group) => <VersionGroup key={`${version}-${group.portal}`} group={group} navigateTo={navigateTo} />)}</div>
     {version === '2.0' && <section className="ta-version-roadmap"><h2>后续增强能力</h2><p>以下能力只作为后续路线图，不计入本次已完成验收：批量开副线、内部结算模板、主线自有资金提前结算、方案计算预演、阶梯奖励和历史余额移交。</p></section>}

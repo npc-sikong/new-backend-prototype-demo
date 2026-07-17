@@ -512,3 +512,45 @@ NOTE_COMPARISONS['site:teams'] = {
   updatedAt: '2026-07-17 18:03',
   record: '修改时间：2026-07-17 18:03；修改说明：站点团队详情同步团队成员列表和直属会员下钻口径；修改内容：负责人改为代理名称，活跃会员移到代理名称右侧，去除业务范围字段，并为新增活跃和活跃会员增加直属会员明细弹窗。',
 }
+
+const ROLE_MODULE_SYNC_AT = '2026-07-18 05:43'
+const SITE_SYNC_COMPARISONS = {
+  agents: 'site:siteAgents', negativeProfit: 'master:negativeProfit', agentOperations: 'master:agentOperations', teams: 'site:teams', plans: 'site:plans', settlement: 'site:settlement', records: 'site:commissionRecords', reversal: 'site:reversal', returns: 'site:returns', cycle: 'site:cycle',
+}
+const AGENT_SYNC_COMPARISONS = {
+  agents: 'agent:downline', negativeProfit: 'master:negativeProfit', agentOperations: 'master:agentOperations', teams: 'agent:dashboard', plans: 'agent:readonlyPlans', settlement: 'agent:bills', records: 'agent:commissionRecords', reversal: 'agent:reversal', returns: 'agent:returns',
+}
+
+function registerRoleSyncComparisons(portal, mapping) {
+  Object.entries(mapping).forEach(([page, baseKey]) => {
+    const base = NOTE_COMPARISONS[baseKey]
+    if (!base) return
+    const scopeRule = portal === 'site'
+      ? '固定展示旺财体育本站数据，隐藏所属站点筛选、列表字段和跨站点权限'
+      : '按团队负责人、副线或独立代理当前身份展示本人及授权范围，隐藏所属站点、审核维护字段和管理操作'
+    NOTE_COMPARISONS[`${portal}:${page}`] = {
+      ...base,
+      baseline: `${portal === 'site' ? '站点后台' : '代理后台'} / 代理管理同步页面`,
+      additions: {
+        ...(base.additions || {}),
+        rules: [...(base.additions?.rules || []), scopeRule, '代理收益看板和修改代理关系记录不下发', ...(portal === 'agent' ? ['结算周期设置不下发代理后台'] : [])],
+      },
+      updatedAt: ROLE_MODULE_SYNC_AT,
+      record: `修改时间：${ROLE_MODULE_SYNC_AT}；修改说明：清理原有代理模块后，按${portal === 'site' ? '站点运营' : '代理身份'}权限同步总控代理管理页面；修改内容：统一为单一代理管理菜单，保留允许下发的同名页面，${scopeRule}。`,
+    }
+  })
+}
+
+registerRoleSyncComparisons('site', SITE_SYNC_COMPARISONS)
+registerRoleSyncComparisons('agent', AGENT_SYNC_COMPARISONS)
+
+NOTE_COMPARISONS['master:version'] = {
+  ...NOTE_COMPARISONS['master:version'],
+  additions: {
+    ...NOTE_COMPARISONS['master:version'].additions,
+    views: [...NOTE_COMPARISONS['master:version'].additions.views, '站点后台与代理后台同步页面清单'],
+    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置只下发站点后台'],
+  },
+  updatedAt: ROLE_MODULE_SYNC_AT,
+  record: `修改时间：${ROLE_MODULE_SYNC_AT}；修改说明：更新三后台代理管理同步与不下发边界；修改内容：版本说明按角色列出同步页面，明确站点范围、代理身份范围、隐藏字段和不下发页面。`,
+}

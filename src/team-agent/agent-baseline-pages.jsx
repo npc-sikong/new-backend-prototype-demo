@@ -25,7 +25,7 @@ import {
 const ROLE_META = {
   main: { account: 'gaodashang', label: '团队负责人', identity: '团队负责人', unit: 'gaodashang01部', lineId: 'LINE-A' },
   secondary: { account: 'WC002', label: '副线', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-B' },
-  independent: { account: 'dailiwc001', label: '独立线主', identity: '独立线主', unit: '独立单线01', lineId: 'SINGLE-001' },
+  independent: { account: 'dailiwc001', label: '独立代理', identity: '独立代理', unit: '独立单线01', lineId: 'SINGLE-001' },
 }
 
 function Link({ children, onClick }) {

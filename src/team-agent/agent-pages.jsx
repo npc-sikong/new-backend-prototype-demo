@@ -36,7 +36,7 @@ import {
 const ROLES = {
   main: { label: '团队负责人', account: 'gaodashang', subtitle: 'gaodashang01部唯一平台收款方', icon: <ApartmentOutlined /> },
   secondary: { label: '副线', account: 'WC002', subtitle: 'gaodashang01部 / LINE-B', icon: <TeamOutlined /> },
-  independent: { label: '独立线主', account: 'dailiwc001', subtitle: '独立单线01', icon: <BankOutlined /> },
+  independent: { label: '独立代理', account: 'dailiwc001', subtitle: '独立单线01', icon: <BankOutlined /> },
 }
 
 function show(result, onToast, onSuccess) {
