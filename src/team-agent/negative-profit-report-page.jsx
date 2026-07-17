@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { DownOutlined, DownloadOutlined, FolderOpenOutlined } from '@ant-design/icons'
 import { useTeamAgent } from './context'
 import {
+  Alert,
   Button,
   DataTable,
   Field,
@@ -63,6 +64,8 @@ const COLUMN_DEFS = [
 ]
 
 const ALL_KEYS = COLUMN_DEFS.map((column) => column.key)
+const AGENT_HIDDEN_KEYS = new Set(['reviewer', 'reviewedAt', 'maintainer', 'adjustmentReason'])
+const ROLE_ACCOUNTS = { main: ['gaodashang'], secondary: ['WC002'], independent: ['dailiwc001'] }
 const COUNT_KEYS = ['teamMembers', 'subAgentCount', 'registeredCount', 'firstDepositCount', 'activeCount', 'newActiveCount']
 const COUNT_KEY_SET = new Set(COUNT_KEYS)
 const SIGNED_MONEY_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment'])
@@ -88,6 +91,7 @@ function buildRows(data) {
       if (!isNegativeMode) return null
       return {
         id: bill.id,
+        site: bill.site || agent.site || '—',
         index: 0,
         cycle: bill.cycle,
         teamName: bill.unitName || team?.name || agent.unit || '—',
@@ -146,7 +150,7 @@ function FieldColumnFilter({ columns, visibleKeys, onChange }) {
       <span>{selectedText}</span><DownOutlined />
     </button>
     {open && <div className="negative-field-filter-menu">
-      <header><span>选择明细字段</span><div><button type="button" onClick={() => onChange(ALL_KEYS)}>全选</button><button type="button" onClick={() => onChange(['index'])}>仅序号</button></div></header>
+      <header><span>选择明细字段</span><div><button type="button" onClick={() => onChange(columns.map((column) => column.key))}>全选</button><button type="button" onClick={() => onChange(['index'])}>仅序号</button></div></header>
       <div className="negative-field-filter-options">
         {columns.map((column) => <label key={column.key}>
           <input type="checkbox" checked={visibleKeys.includes(column.key)} onChange={() => toggleKey(column.key)} />
@@ -171,18 +175,28 @@ function NegativeReportTotalRow({ columns, rows }) {
   </tr>
 }
 
-export function NegativeProfitReportPage({ onToast }) {
+export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'main' }) {
   const { data } = useTeamAgent()
-  const allRows = useMemo(() => buildRows(data), [data])
+  const allRows = useMemo(() => buildRows(data).filter((row) => {
+    if (portal === 'site') return row.site === '旺财体育'
+    if (portal === 'agent') return (ROLE_ACCOUNTS[role] || []).includes(row.agentAccount)
+    return true
+  }), [data, portal, role])
+  const availableColumns = portal === 'agent' ? COLUMN_DEFS.filter((column) => !AGENT_HIDDEN_KEYS.has(column.key)) : COLUMN_DEFS
+  const availableKeys = availableColumns.map((column) => column.key)
   const [filters, setFilters] = useState(FILTER_DEFAULTS)
-  const [visibleKeys, setVisibleKeys] = useState(ALL_KEYS)
+  const [visibleKeys, setVisibleKeys] = useState(() => availableKeys)
+  useEffect(() => setVisibleKeys((current) => {
+    const allowed = current.filter((key) => availableKeys.includes(key))
+    return allowed.length ? allowed : availableKeys
+  }), [portal])
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
   const rows = allRows.filter((row) => (!filters.cycle || row.cycle === filters.cycle)
     && (!filters.teamType || row.teamType === filters.teamType)
     && (!filters.commissionState || row.commissionState === filters.commissionState)
     && (!filters.auditState || row.auditState === filters.auditState)
     && (!filters.keyword || `${row.teamName}${row.agentId}${row.agentAccount}${row.parentAccount}`.toLowerCase().includes(filters.keyword.toLowerCase())))
-  const columns = COLUMN_DEFS
+  const columns = availableColumns
     .filter((column) => visibleKeys.includes(column.key))
     .map((column) => ({
       ...column,
@@ -198,17 +212,18 @@ export function NegativeProfitReportPage({ onToast }) {
   const tableMinWidth = Math.max(1480, columns.length * 118)
   const resetFilters = () => {
     setFilters(FILTER_DEFAULTS)
-    setVisibleKeys(ALL_KEYS)
+    setVisibleKeys(availableKeys)
   }
 
   return <section className="ta-stack negative-profit-report-screen">
-    <SectionHeader title="负盈利代理报表" description="按佣金周期汇总负盈利模式代理及负向结余账单，集中核对人数、收支、成本、结余、佣金和审核发放信息。" actions={<Toolbar><Button icon={<DownloadOutlined />} variant="slate" onClick={() => onToast(`负盈利代理报表已导出 ${rows.length} 条`)}>导出</Button><Button icon={<FolderOpenOutlined />} variant="ghost" onClick={() => onToast('负盈利代理报表文件已下载')}>下载文件</Button></Toolbar>} />
+    <SectionHeader title="负盈利代理报表" description={portal === 'master' ? '按佣金周期汇总负盈利模式代理及负向结余账单，集中核对人数、收支、成本、结余、佣金和审核发放信息。' : portal === 'site' ? '同步总控负盈利代理口径，仅查看旺财体育本站的代理及负向结余账单。' : '同步总控负盈利代理口径，仅查看当前演示身份本人可见的负向结余账单。'} actions={<Toolbar><Button icon={<DownloadOutlined />} variant="slate" onClick={() => onToast(`负盈利代理报表已导出 ${rows.length} 条`)}>导出</Button><Button icon={<FolderOpenOutlined />} variant="ghost" onClick={() => onToast('负盈利代理报表文件已下载')}>下载文件</Button></Toolbar>} />
+    {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '数据固定为旺财体育本站，不展示其他站点记录。' : '团队负责人只查看本人团队账单，副线不承接平台账单，独立代理只查看本人单线账单；审核人员、审核时间、维护人和调整原因不向代理端展示。'}</Alert>}
     <FilterBar onSearch={() => onToast(`已查询 ${rows.length} 条负盈利代理记录`)} onReset={resetFilters}>
       <Field label="佣金周期"><Select value={filters.cycle} onChange={(value) => setFilter('cycle', value)} placeholder="全部周期" options={unique(allRows, 'cycle')} /></Field>
       <Field label="团队类型"><Select value={filters.teamType} onChange={(value) => setFilter('teamType', value)} placeholder="全部类型" options={unique(allRows, 'teamType')} /></Field>
       <Field label="佣金状态"><Select value={filters.commissionState} onChange={(value) => setFilter('commissionState', value)} placeholder="全部状态" options={unique(allRows, 'commissionState')} /></Field>
-      <Field label="审核状态"><Select value={filters.auditState} onChange={(value) => setFilter('auditState', value)} placeholder="全部状态" options={unique(allRows, 'auditState')} /></Field>
-      <Field label="字段筛选"><FieldColumnFilter columns={COLUMN_DEFS} visibleKeys={visibleKeys} onChange={setVisibleKeys} /></Field>
+      {portal !== 'agent' && <Field label="审核状态"><Select value={filters.auditState} onChange={(value) => setFilter('auditState', value)} placeholder="全部状态" options={unique(allRows, 'auditState')} /></Field>}
+      <Field label="字段筛选"><FieldColumnFilter columns={availableColumns} visibleKeys={visibleKeys} onChange={setVisibleKeys} /></Field>
       <Field label="代理/团队"><Input value={filters.keyword} onChange={(value) => setFilter('keyword', value)} placeholder="代理账号、编号、团队或上级" /></Field>
     </FilterBar>
     <Panel title="负盈利代理明细" description="字段较多时可通过字段筛选多选需要展示的明细字段。">

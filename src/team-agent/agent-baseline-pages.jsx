@@ -79,7 +79,7 @@ function DownlinePage({ role, onToast, onNavigate }) {
   ]
   const histories = selected ? relationshipRows(data, selected.account) : []
   return <>
-    <SectionHeader title="代理列表" description={`${meta.label} ${meta.account} 仅查看本人及授权下级的代理树、经营归属和关系版本。`} actions={<Button icon={<SwapOutlined />} variant="ghost" onClick={() => onNavigate?.('requests')}>关系与模式申请</Button>} />
+    <SectionHeader title="代理列表" description={`${meta.label} ${meta.account} 仅查看本人及授权下级的代理树、经营归属和关系版本。`} actions={onNavigate ? <Button icon={<SwapOutlined />} variant="ghost" onClick={() => onNavigate('requests')}>关系与模式申请</Button> : null} />
     {role !== 'main' && <Alert title="查看范围">当前身份仅显示本人节点及直属下级，不展示其他副线或其他独立单线数据。</Alert>}
     <FilterBar onSearch={() => onToast?.(`已查询到 ${rows.length} 条代理记录`)} onReset={() => setFilters({ keyword: '', status: '', model: '' })} onExport={() => onToast?.(`已生成 ${rows.length} 条下级代理导出演示`)}>
       <Field label="代理账号"><Input value={filters.keyword} onChange={(keyword) => setFilters({ ...filters, keyword })} placeholder="代理ID、账号或上级" /></Field>

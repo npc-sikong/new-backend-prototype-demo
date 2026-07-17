@@ -1149,10 +1149,10 @@ function MasterCyclePage({ onToast, portal = 'master' }) {
   </section>
 }
 
-export function MasterPage({ page, navigate, onToast, portal = 'master' }) {
+export function MasterPage({ page, navigate, onToast, portal = 'master', role = 'main' }) {
   if (page === 'agents') return <MasterAgentsPage navigate={navigate} onToast={onToast} />
-  if (page === 'negativeProfit') return <NegativeProfitReportPage onToast={onToast} />
-  if (page === 'agentOperations') return <AgentOperationRecordsPage onToast={onToast} />
+  if (page === 'negativeProfit') return <NegativeProfitReportPage portal={portal} role={role} onToast={onToast} />
+  if (page === 'agentOperations') return <AgentOperationRecordsPage portal={portal} role={role} onToast={onToast} />
   if (page === 'teams') return <MasterTeamsPage onToast={onToast} />
   if (page === 'plans') return <MasterPlansPageV2 onToast={onToast} />
   if (page === 'settlement') return <MasterSettlementPage onToast={onToast} />
