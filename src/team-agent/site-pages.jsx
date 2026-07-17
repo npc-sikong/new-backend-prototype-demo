@@ -15,7 +15,8 @@ import {
   WalletOutlined,
 } from '@ant-design/icons'
 import { useTeamAgent } from './context'
-import { getTeamInspectConfig, teamMemberCount, teamSecondaryRows, teamSingleRows } from './team-management-helpers'
+import { TeamGradeSummary } from './team-grade-summary'
+import { getTeamInspectConfig, teamGradeProgress, teamMemberCount, teamOverviewCounts, teamSecondaryRows, teamSingleRows } from './team-management-helpers'
 import {
   Alert,
   Button,
@@ -77,6 +78,8 @@ function SiteTeamsPage({ onToast }) {
   const teamOperations = (data.teamOperations || []).filter((item) => item.site ? item.site === SITE_NAME : !item.teamId || siteTeamIds.has(item.teamId))
   const inspectType = modal === 'secondaryInspect' ? 'secondary' : modal === 'singleInspect' ? 'single' : modal
   const inspectConfig = getTeamInspectConfig(inspectType, team, data)
+  const overviewCounts = team ? teamOverviewCounts(team, data) : null
+  const gradeProgress = team ? teamGradeProgress(team, data) : null
   const close = () => setModal(null)
   const openDetails = (row) => {
     setSelected(row)
@@ -91,7 +94,7 @@ function SiteTeamsPage({ onToast }) {
     resultMessage(result, onToast, close)
   }
   const columns = [
-    { key: 'code', label: '代理部编号' }, { key: 'name', label: '代理部名称', render: (value) => <b className="ta-primary-text">{value}</b> }, { key: 'teamType', label: '团队类型', render: (_, row) => getTeamType(row) }, { key: 'mainAgent', label: '主管主线' },
+    { key: 'code', label: '代理部编号' }, { key: 'name', label: '代理部名称', render: (value) => <b className="ta-primary-text">{value}</b> }, { key: 'teamType', label: '团队类型', render: (_, row) => getTeamType(row) }, { key: 'mainAgent', label: '团队负责人' },
     { key: 'teamPeople', label: '团队人数', render: (_, row) => <Link onClick={() => { setSelected(row); setModal('teamAgents') }}>{row.lines.length}</Link> },
     { key: 'members', label: '会员人数', render: (_, row) => <Link onClick={() => { setSelected(row); setModal('members') }}>{teamMemberCount(row, data)}</Link> },
     { key: 'lineBreakdown', label: '团队副线/单线', render: (_, row) => <div className="team-line-breakdown"><Link onClick={() => { setSelected(row); setModal('secondaryInspect') }}>{`团队副线 ${teamSecondaryRows(row, data).length}`}</Link><Link onClick={() => { setSelected(row); setModal('singleInspect') }}>{`单线 ${teamSingleRows(row, data).length}`}</Link></div> },
@@ -107,7 +110,7 @@ function SiteTeamsPage({ onToast }) {
     { key: 'id', label: '记录编号', render: (value, row) => value || row.operationId || row.code || '—' },
     { key: 'teamName', label: '代理部', render: (value, row) => value || row.team || data.teams.find((item) => item.id === row.teamId)?.name || '—' },
     { key: 'teamType', label: '团队类型', render: (value) => value || '—' },
-    { key: 'mainAccount', label: '主管主线', render: (value, row) => [row.mainId, value].filter((item) => item && item !== '—').join(' / ') || '—' },
+    { key: 'mainAccount', label: '团队负责人', render: (value, row) => [row.mainId, value].filter((item) => item && item !== '—').join(' / ') || '—' },
     { key: 'secondaryAccounts', label: '副线账号', render: (value) => value || '—' },
     { key: 'operation', label: '操作类型', render: (value, row) => value || row.type || row.action || '—' },
     { key: 'reason', label: '操作原因', render: (value, row) => value || row.detail || row.description || row.content || row.note || '—' },
@@ -115,27 +118,27 @@ function SiteTeamsPage({ onToast }) {
     { key: 'createdAt', label: '操作时间', render: (value, row) => value || row.operatedAt || row.updatedAt || '—' },
   ]
   return <>
-    <SectionHeader title="团队代理管理" description="按本站范围创建代理部、指定主管主线，并维护副线、成员与团队生命周期。" actions={<Button icon={<PlusOutlined />} onClick={() => setModal('create')}>创建代理部</Button>} />
+    <SectionHeader title="团队代理管理" description="按本站范围创建代理部、指定团队负责人，并维护副线、成员与团队生命周期。" actions={<Button icon={<PlusOutlined />} onClick={() => setModal('create')}>创建代理部</Button>} />
     <MetricGrid columns={4}><MetricCard label="代理部" value={siteTeams.length} icon={<ApartmentOutlined />} /><MetricCard label="生效中" value={siteTeams.filter((item) => item.status === '生效中').length} tone="green" icon={<CheckCircleOutlined />} /><MetricCard label="有效副线" value={siteTeams.flatMap((item) => item.lines).filter((line) => line.identity === '副线' && line.status === '生效中').length} tone="blue" icon={<TeamOutlined />} /><MetricCard label="待处理关系" value={data.requests.filter((item) => ['待站点复核', '待补充资料'].includes(item.status)).length} tone="orange" icon={<ClockCircleOutlined />} /></MetricGrid>
     <Tabs items={[{ value: 'teams', label: '代理部列表', count: siteTeams.length }, { value: 'monitor', label: '内部结算监控', count: data.internalSettlements.length }, { value: 'operations', label: '操作记录', count: teamOperations.length }]} active={tab} onChange={setTab} />
-    {tab === 'teams' && <><FilterBar onSearch={() => onToast('站点团队列表已查询')} onReset={() => onToast('筛选条件已重置')}><Field label="代理部"><Input placeholder="名称或编号" /></Field><Field label="主管主线"><Input placeholder="代理账号" /></Field><Field label="状态"><Select value="" placeholder="全部状态" options={['待生效', '生效中', '冻结', '待解散']} /></Field></FilterBar><DataTable paginated minWidth={1880} columns={columns} rows={siteTeams} /></>}
+    {tab === 'teams' && <><FilterBar onSearch={() => onToast('站点团队列表已查询')} onReset={() => onToast('筛选条件已重置')}><Field label="代理部"><Input placeholder="名称或编号" /></Field><Field label="团队负责人"><Input placeholder="代理账号" /></Field><Field label="状态"><Select value="" placeholder="全部状态" options={['待生效', '生效中', '冻结', '待解散']} /></Field></FilterBar><DataTable paginated minWidth={1880} columns={columns} rows={siteTeams} /></>}
     {tab === 'monitor' && <><Alert title="站点监控边界" tone="warning">站点可查看和冻结内部结算风险记录，但不替主线决定副线结算金额。</Alert><DataTable paginated minWidth={1250} columns={internalColumns} rows={data.internalSettlements} /></>}
     {tab === 'operations' && <DataTable paginated minWidth={1320} columns={operationColumns} rows={teamOperations} rowKey={(row, index) => row.id || row.operationId || `${row.teamId || 'team'}-${row.createdAt || index}`} emptyText="暂无本站团队生命周期记录" />}
     <Alert title="当月结余归属规则">加入团队时，当月结余随代理带入团队；移出团队时，当月结余留在原团队；团队解散时，由站点指定的代理承担当月结余。</Alert>
 
     <Modal open={modal === 'create'} title="创建代理部" description="站点指定主线、团队方案和未来完整生效周期。" onClose={close} onConfirm={() => resultMessage(createTeam(teamForm), onToast, close)}>
-      <FormGrid><Field label="代理部名称" required help="建议使用“发展人拼音+序号部”，仅作命名提示，不强制校验。"><Input value={teamForm.name} onChange={(value) => setTeamForm({ ...teamForm, name: value })} placeholder="例如：zhangsan1部" /></Field><Field label="主管主线" required><Input value={teamForm.mainAgent} onChange={(value) => setTeamForm({ ...teamForm, mainAgent: value })} placeholder="代理账号" /></Field><Field label="团队类型"><Input value={teamForm.teamType} onChange={(value) => setTeamForm({ ...teamForm, teamType: value })} placeholder="请输入团队类型" /></Field><Field label="团队方案"><Select value={teamForm.plan} onChange={(value) => setTeamForm({ ...teamForm, plan: value })} options={data.plans.filter((plan) => plan.type === '团队佣金方案').map((plan) => plan.name)} /></Field><Field label="生效周期"><Select value={teamForm.startCycle} onChange={(value) => setTeamForm({ ...teamForm, startCycle: value })} options={['2026-08', '2026-09']} /></Field></FormGrid>
+      <FormGrid><Field label="代理部名称" required help="建议使用“发展人拼音+序号部”，仅作命名提示，不强制校验。"><Input value={teamForm.name} onChange={(value) => setTeamForm({ ...teamForm, name: value })} placeholder="例如：zhangsan1部" /></Field><Field label="团队负责人" required><Input value={teamForm.mainAgent} onChange={(value) => setTeamForm({ ...teamForm, mainAgent: value })} placeholder="代理账号" /></Field><Field label="团队类型"><Input value={teamForm.teamType} onChange={(value) => setTeamForm({ ...teamForm, teamType: value })} placeholder="请输入团队类型" /></Field><Field label="团队方案"><Select value={teamForm.plan} onChange={(value) => setTeamForm({ ...teamForm, plan: value })} options={data.plans.filter((plan) => plan.type === '团队佣金方案').map((plan) => plan.name)} /></Field><Field label="生效周期"><Select value={teamForm.startCycle} onChange={(value) => setTeamForm({ ...teamForm, startCycle: value })} options={['2026-08', '2026-09']} /></Field></FormGrid>
     </Modal>
     <Modal open={modal === 'secondary'} title={`为 ${team?.name || ''} 开设副线`} description="站点直接复核并创建明确 line_id 和业务范围。" onClose={close} onConfirm={() => resultMessage(addSecondary(team.id, { ...secondaryForm, requireReview: false }), onToast, close)}>
       <FormGrid><Field label="副线负责人" required><Input value={secondaryForm.agent} onChange={(value) => setSecondaryForm({ ...secondaryForm, agent: value })} placeholder="代理账号" /></Field><Field label="生效周期"><Select value={secondaryForm.startCycle} onChange={(value) => setSecondaryForm({ ...secondaryForm, startCycle: value })} options={['2026-08', '2026-09']} /></Field><Field label="业务范围" className="ta-field-full"><Input value={secondaryForm.scope} onChange={(value) => setSecondaryForm({ ...secondaryForm, scope: value })} placeholder="代理节点及直属会员" /></Field></FormGrid>
       <Alert title="唯一性检查">同一代理同一站点、币种和周期只能进入一个团队或独立单线。</Alert>
     </Modal>
-    <Modal open={modal === 'main'} title={`更换 ${team?.name || ''} 主管主线`} description="新主线从未来周期接管，历史账单仍归原主线。" onClose={close} onConfirm={() => resultMessage(changeMain(team.id, mainForm.nextMain, mainForm.effectiveCycle), onToast, close)}>
-      <FormGrid><Field label="当前主线"><Input value={team?.mainAgent || ''} disabled /></Field><Field label="新主管主线" required><Input value={mainForm.nextMain} onChange={(value) => setMainForm({ ...mainForm, nextMain: value })} /></Field><Field label="生效周期"><Select value={mainForm.effectiveCycle} onChange={(value) => setMainForm({ ...mainForm, effectiveCycle: value })} options={['2026-08', '2026-09']} /></Field></FormGrid>
+    <Modal open={modal === 'main'} title={`更换 ${team?.name || ''} 团队负责人`} description="新主线从未来周期接管，历史账单仍归原主线。" onClose={close} onConfirm={() => resultMessage(changeMain(team.id, mainForm.nextMain, mainForm.effectiveCycle), onToast, close)}>
+      <FormGrid><Field label="当前主线"><Input value={team?.mainAgent || ''} disabled /></Field><Field label="新团队负责人" required><Input value={mainForm.nextMain} onChange={(value) => setMainForm({ ...mainForm, nextMain: value })} /></Field><Field label="生效周期"><Select value={mainForm.effectiveCycle} onChange={(value) => setMainForm({ ...mainForm, effectiveCycle: value })} options={['2026-08', '2026-09']} /></Field></FormGrid>
       {team?.processingOccupied > 0 && <Alert tone="error" title="存在处理中资金">处理完成前申请不能批准，但可先保存待补充资料。</Alert>}
     </Modal>
     <Modal open={modal === 'detail'} title={`${team?.name || ''} · 详情与设置`} description="查看本站团队组织、线路业绩和团队类型。" onClose={close} onConfirm={savePreferences} confirmText="保存团队设置" width={1040}>
-      {team && <div className="ta-stack"><DescriptionGrid items={[{ label: '主管主线', value: team.mainAgent }, { label: '团队类型', value: getTeamType(team) }, { label: '创建时间', value: team.createdAt || '—' }, { label: '团队方案', value: team.plan }, { label: '生效周期', value: team.startCycle }, { label: '团队状态', value: <StatusTag>{team.status}</StatusTag> }, { label: '团队人数', value: team.lines.length }, { label: '会员人数', value: teamMemberCount(team, data) }, { label: '团队等级', value: team.metrics.grade }]} /><FormGrid><Field label="团队类型"><Input value={preferenceForm.teamType} onChange={(value) => setPreferenceForm({ ...preferenceForm, teamType: value })} /></Field></FormGrid><Alert title="当月结余归属规则">加入团队当月结余带入，移出团队留在原团队；解散团队时由站点指定代理承担。</Alert><DataTable minWidth={1260} columns={[{ key: 'identity', label: '身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }, { key: 'lineId', label: 'line_id' }, { key: 'agent', label: '负责人' }, { key: 'scope', label: '业务范围' }, { key: 'newActive', label: '新增活跃' }, { key: 'firstDepositCount', label: '新增首存', render: (value) => Number(value || 0) }, { key: 'firstDepositAmount', label: '首存额度', render: (value) => <Money value={value} /> }, { key: 'activeMembers', label: '活跃会员' }, { key: 'netWinLoss', label: '净输赢值', render: (value) => <Money value={value} signed /> }, { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }]} rows={team.lines} rowKey="lineId" /></div>}
+      {team && <div className="ta-stack"><MetricGrid columns={2}><MetricCard label="团队当前余额" value={<Money value={team.metrics.correctedNet} signed />} helper="当月结余 = 冲正后净输赢" tone="orange" /><MetricCard label="未结算收益" value={<Money value={team.metrics.payable} />} helper={`${team.metrics.grade} / ${(team.metrics.rate * 100).toFixed(0)}% 团队返佣`} tone="green" /></MetricGrid><DescriptionGrid columns={4} items={[{ label: '团队负责人', value: team.mainAgent }, { label: '团队类型', value: getTeamType(team) }, { label: '创建时间', value: team.createdAt || '—' }, { label: '团队方案', value: team.plan }, { label: '生效周期', value: team.startCycle }, { label: '团队状态', value: <StatusTag>{team.status}</StatusTag> }, { label: '团队代理总人数', value: overviewCounts.agentTotal }, { label: '总会员数', value: overviewCounts.memberTotal }, { label: '活跃会员数', value: overviewCounts.activeMembers }, { label: '副线', value: overviewCounts.secondaryTotal }, { label: '独立代理', value: overviewCounts.singleTotal }, { label: '团队返佣等级', value: `${team.metrics.grade} / ${(team.metrics.rate * 100).toFixed(0)}%` }]} /><TeamGradeSummary metrics={team.metrics} progress={gradeProgress} /><FormGrid><Field label="团队类型"><Input value={preferenceForm.teamType} onChange={(value) => setPreferenceForm({ ...preferenceForm, teamType: value })} /></Field></FormGrid><Alert title="当月结余归属规则">加入团队当月结余带入，移出团队留在原团队；解散团队时由站点指定代理承担。</Alert><DataTable minWidth={1260} columns={[{ key: 'identity', label: '身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }, { key: 'lineId', label: 'line_id' }, { key: 'agent', label: '负责人' }, { key: 'scope', label: '业务范围' }, { key: 'newActive', label: '新增活跃' }, { key: 'firstDepositCount', label: '新增首存', render: (value) => Number(value || 0) }, { key: 'firstDepositAmount', label: '首存额度', render: (value) => <Money value={value} /> }, { key: 'activeMembers', label: '活跃会员' }, { key: 'netWinLoss', label: '净输赢值', render: (value) => <Money value={value} signed /> }, { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }]} rows={team.lines} rowKey="lineId" /></div>}
     </Modal>
     <Modal open={['teamAgents', 'members', 'secondaryInspect', 'singleInspect'].includes(modal)} title={inspectConfig.title} description={inspectConfig.description} onClose={close} onConfirm={close} confirmText="关闭" showCancel={false} width={820}>
       <DataTable columns={inspectConfig.columns} rows={inspectConfig.rows} rowKey="id" paginated emptyText="暂无相关明细" />
@@ -263,7 +266,7 @@ function SiteSettlementPage({ onToast }) {
   const scopedBills = data.bills.filter((bill) => bill.site === SITE_NAME).map((bill) => ({
     ...bill,
     displayAgentType: ['团队佣金', '独立单线佣金'].includes(bill.type) ? '团队代理' : (bill.agentType || '普通代理'),
-    displayIdentity: bill.type === '团队佣金' ? '主管主线' : bill.type === '独立单线佣金' ? '独立代理' : '推荐代理',
+    displayIdentity: bill.type === '团队佣金' ? '团队负责人' : bill.type === '独立单线佣金' ? '独立代理' : '推荐代理',
   }))
   const rows = scopedBills.filter((bill) => (!filters.billType || bill.type === filters.billType) && (!filters.agentType || bill.displayAgentType === filters.agentType) && (!filters.state || bill.state === filters.state) && (!filters.payee || bill.payee.toLowerCase().includes(filters.payee.toLowerCase())))
   const columns = [

@@ -20,7 +20,7 @@ import {
 } from './ui'
 
 const ROLE_META = {
-  main: { label: '主管主线', account: 'gaodashang', boundary: '主管主线仅可申请提取本人已到账且未被占用的可提现余额。团队副线款项仍由主线通过内部结算处理。' },
+  main: { label: '团队负责人', account: 'gaodashang', boundary: '团队负责人仅可申请提取本人已到账且未被占用的可提现余额。团队副线款项仍由主线通过内部结算处理。' },
   secondary: { label: '副线负责人', account: 'WC002', boundary: '副线负责人仅可申请提取主线已成功结算至本人账户的余额，不能提取团队平台佣金。' },
   independent: { label: '独立线主', account: 'dailiwc001', boundary: '独立线主仅可申请提取平台已发放至本人账户的单线佣金，不与团队主线余额合并。' },
 }

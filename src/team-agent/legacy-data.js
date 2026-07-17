@@ -15,8 +15,8 @@ const AGENT_SCOPES = {
     teamName: 'gaodashang01部',
     lineId: 'LINE-A',
     settlementMode: '团队模式',
-    settlementIdentity: '主管主线',
-    identity: '主管主线',
+    settlementIdentity: '团队负责人',
+    identity: '团队负责人',
     settlementUnit: 'gaodashang01部',
     unit: 'gaodashang01部',
     effectiveCycle: '2026-07',
@@ -212,13 +212,13 @@ export const LEGACY_STATE = {
       id: 'TRF-WC-20260714-001', transferNo: 'TR202607140001', orderNo: 'TR202607140001', internalSettlementId: 'IS-202607-001', transferType: '团队内部结算',
       from: 'gaodashang', fromAccount: 'gaodashang', fromId: '345', fromBeforeAmount: 173800, fromChangeAmount: -28000, fromAfterAmount: 145800,
       to: 'WC002', toAccount: 'WC002', toId: '373', toBeforeAmount: 3100, toChangeAmount: 28000, toAfterAmount: 31100, type: '团队内部结算', amount: 28000, fee: 0,
-      operatorName: 'gaodashang', operatorIdentity: '主管主线', transferTime: '2026-07-14 10:20', createdAt: '2026-07-14 10:20', status: '成功', voucher: '结算凭证-A01',
+      operatorName: 'gaodashang', operatorIdentity: '团队负责人', transferTime: '2026-07-14 10:20', createdAt: '2026-07-14 10:20', status: '成功', voucher: '结算凭证-A01',
     }),
     legacyRecord('gaodashang', {
       id: 'TRF-WC-20260714-002', transferNo: 'TR202607140002', orderNo: 'TR202607140002', internalSettlementId: 'IS-202607-002', transferType: '团队内部结算',
       from: 'gaodashang', fromAccount: 'gaodashang', fromId: '345', fromBeforeAmount: 145800, fromChangeAmount: -15000, fromAfterAmount: 145800,
       to: 'LGNB', toAccount: 'LGNB', toId: '374', toBeforeAmount: 2850, toChangeAmount: 15000, toAfterAmount: 2850, type: '团队内部结算', amount: 15000, fee: 0,
-      operatorName: 'gaodashang', operatorIdentity: '主管主线', transferTime: '2026-07-14 11:05', createdAt: '2026-07-14 11:05', status: '处理中', voucher: '待补充',
+      operatorName: 'gaodashang', operatorIdentity: '团队负责人', transferTime: '2026-07-14 11:05', createdAt: '2026-07-14 11:05', status: '处理中', voucher: '待补充',
     }),
     legacyRecord('WC002', {
       id: 'TRF-WC-20260715-003', transferNo: 'TR202607150003', orderNo: 'TR202607150003', transferType: '代理额度转会员',
@@ -331,7 +331,7 @@ export const LEGACY_STATE = {
   prepaidAccounts: [
     legacyRecord('gaodashang', {
       id: 'PPA-WC-345', openingBalance: 60000, increaseAmount: 20000, usedAmount: 8500, available: 71500, prepaidBalance: 71500, frozen: 15000, totalBalance: 86500,
-      lastChange: 20000, debtAmount: 0, status: '生效中', updatedAt: '2026-07-15 12:20', remark: '主管主线预付金账户',
+      lastChange: 20000, debtAmount: 0, status: '生效中', updatedAt: '2026-07-15 12:20', remark: '团队负责人预付金账户',
     }),
     legacyRecord('WC002', {
       id: 'PPA-WC-373', openingBalance: 12000, increaseAmount: 5000, usedAmount: 3100, available: 13900, prepaidBalance: 13900, frozen: 0, totalBalance: 13900,

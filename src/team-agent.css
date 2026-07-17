@@ -338,6 +338,21 @@
 .ta-panel-body > .ta-table-wrap { margin: -12px -13px; width: calc(100% + 26px); border-width: 0; border-radius: 0 0 6px 6px; }
 .ta-stack { display: grid; gap: 11px; }
 
+.team-grade-summary { border-color: #d9e7f3; }
+.team-grade-summary .ta-panel-body { display: grid; gap: 12px; }
+.team-grade-summary-main { display: grid; grid-template-columns: minmax(260px, 1.35fr) minmax(220px, .75fr); gap: 10px; }
+.team-grade-summary-main > div { min-height: 116px; display: flex; flex-direction: column; justify-content: center; padding: 18px 22px; border: 1px solid #dbe9f6; border-radius: 6px; background: #f8fbff; }
+.team-grade-summary-main > div:first-child { border-color: #7db9eb; background: linear-gradient(135deg, #eef7ff 0%, #ffffff 68%); box-shadow: inset 4px 0 0 #2f8fe3; }
+.team-grade-summary-main span { color: #8a9cb1; font-size: 10px; font-weight: 700; }
+.team-grade-summary-main strong { margin: 7px 0 5px; color: #234362; font-size: 34px; line-height: 1; }
+.team-grade-summary-main > div:first-child strong { color: #1f7fd0; font-size: 42px; }
+.team-grade-summary-main small { color: #8fa1b5; font-size: 11px; font-weight: 700; }
+.team-grade-summary-conditions { padding-top: 10px; border-top: 1px dashed #dce6f0; }
+.team-grade-summary-conditions h3 { margin: 0 0 8px; color: #8b9daf; font-size: 10px; }
+.team-grade-summary-conditions .ta-metric-grid { margin-bottom: 0; }
+.team-grade-summary-conditions .ta-metric-card { min-height: 74px; gap: 6px; padding: 10px 12px; background: #fbfcfe; }
+.team-grade-summary-conditions .ta-metric-card > strong { font-size: 17px; }
+
 .ta-tabs { min-height: 36px; display: flex; align-items: flex-end; gap: 2px; margin: 0 0 11px; padding: 0 8px; border-bottom: 1px solid #dfe6ed; background: #fff; }
 .ta-tabs button { height: 35px; display: inline-flex; align-items: center; gap: 6px; padding: 0 13px; border-bottom: 2px solid transparent; color: #77879a; font-size: 10px; }
 .ta-tabs button:hover { color: #2b91e2; }

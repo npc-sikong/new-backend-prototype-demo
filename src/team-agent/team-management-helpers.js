@@ -5,7 +5,7 @@ function findAgent(data, account) {
 }
 
 function identityLabel(identity) {
-  if (identity === '主线') return '主管主线'
+  if (identity === '主线') return '团队负责人'
   if (identity === '副线') return '副线负责人'
   return identity || '团队代理成员'
 }
@@ -26,12 +26,73 @@ function agentRowFromLine(line, data) {
   }
 }
 
+function sumLineMetric(team, key) {
+  return team.lines.reduce((sum, line) => sum + Number(line[key] || 0), 0)
+}
+
+function findTeamPlan(team, data) {
+  return data.plans.find((plan) => plan.type === '团队佣金方案' && plan.name === team.plan) || data.plans.find((plan) => plan.type === '团队佣金方案')
+}
+
 export function teamAgentRows(team, data) {
   return team.lines.map((line) => agentRowFromLine(line, data))
 }
 
 export function teamMemberCount(team, data) {
   return team.lines.reduce((sum, line) => sum + memberCountForLine(line, data), 0)
+}
+
+export function teamOverviewCounts(team, data) {
+  return {
+    agentTotal: teamAgentRows(team, data).length,
+    memberTotal: teamMemberCount(team, data),
+    activeMembers: Number(team.metrics?.activeMembers || 0),
+    secondaryTotal: teamSecondaryRows(team, data).length,
+    singleTotal: teamSingleRows(team, data).length,
+  }
+}
+
+export function teamGradeProgress(team, data) {
+  const metrics = team.metrics || {}
+  const plan = findTeamPlan(team, data)
+  const levels = plan?.levels || []
+  const currentIndex = levels.findIndex((level) => level.grade === metrics.grade)
+  const next = levels.find((_, index) => index > currentIndex) || (currentIndex < 0 ? levels[0] : null)
+  const current = {
+    newActive: Number(metrics.newActive || 0),
+    firstDepositMembers: sumLineMetric(team, 'firstDepositCount'),
+    firstDepositAmount: sumLineMetric(team, 'firstDepositAmount'),
+    activeMembers: Number(metrics.activeMembers || 0),
+    netWinLoss: Number(metrics.correctedNet ?? metrics.assessmentNet ?? metrics.currentNet ?? 0),
+  }
+  if (!next) return { planName: plan?.name || team.plan, currentGrade: metrics.grade, nextGrade: null, completed: true, conditions: [] }
+  const specs = [
+    ['新增活跃', 'newActive', '人', 'number'],
+    ['新增首存', 'firstDepositMembers', '人', 'number'],
+    ['首存额度', 'firstDepositAmount', '元', 'money'],
+    ['活跃会员', 'activeMembers', '人', 'number'],
+    ['团队当前余额', 'netWinLoss', '元', 'money'],
+  ]
+  return {
+    planName: plan?.name || team.plan,
+    currentGrade: metrics.grade,
+    nextGrade: next.grade,
+    completed: false,
+    conditions: specs.map(([label, key, unit, type]) => ({
+      label,
+      unit,
+      type,
+      current: current[key],
+      target: Number(next[key] || 0),
+      missing: Math.max(0, Number(next[key] || 0) - current[key]),
+    })),
+  }
+}
+
+export function formatGradeConditionValue(condition, value) {
+  const amount = Number(value || 0)
+  if (condition.type === 'money') return `¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return `${amount.toLocaleString('zh-CN')}${condition.unit || ''}`
 }
 
 export function teamMemberRows(team, data) {
@@ -97,4 +158,64 @@ export function getTeamInspectConfig(type, team, data) {
     },
   }
   return configs[type] || configs.teamAgents
+}
+
+function safeNumber(value) {
+  return Number.isFinite(Number(value)) ? Number(value) : 0
+}
+
+function lineOperationFee(line, totalWinLoss) {
+  if (line.operationFee !== undefined) return safeNumber(line.operationFee)
+  return Math.round(Math.abs(totalWinLoss) * 0.08)
+}
+
+export function buildTeamCommissionRows(team, overrides = {}, issuedMap = {}) {
+  if (!team) return []
+  const baseRows = team.lines.map((line) => {
+    const totalWinLoss = safeNumber(line.totalWinLoss ?? line.netWinLoss)
+    const operationFee = lineOperationFee(line, totalWinLoss)
+    const netRevenue = safeNumber(line.netRevenue ?? totalWinLoss - operationFee)
+    const historicalDebt = safeNumber(line.historicalDebt ?? (line.identity === '主线' ? Math.max(0, -safeNumber(team.metrics?.lastBalance)) : 0))
+    const agentBalance = safeNumber(line.agentBalance ?? netRevenue - historicalDebt)
+    return { ...line, totalWinLoss, operationFee, netRevenue, historicalDebt, agentBalance }
+  })
+  const positiveRevenue = baseRows.reduce((sum, row) => sum + Math.max(0, row.netRevenue), 0) || 1
+  return baseRows.map((row) => {
+    const contributionRate = Math.max(0, row.netRevenue) / positiveRevenue
+    const defaultDividend = Math.max(0, Math.round(safeNumber(team.metrics?.payable) * contributionRate))
+    return {
+      ...row,
+      contributionRate,
+      estimatedDividend: safeNumber(overrides[row.lineId] ?? row.estimatedDividend ?? defaultDividend),
+      payoutState: issuedMap[row.lineId] ? '已发放' : '待发放',
+      payoutAt: issuedMap[row.lineId]?.operatedAt || '—',
+    }
+  })
+}
+
+export function buildTeamSettlementHistoryRows(team, currentRows, issuedRows = []) {
+  const historicalRows = currentRows.map((row, index) => {
+    const totalWinLoss = Math.round(row.totalWinLoss * (0.62 + index * 0.08))
+    const operationFee = Math.round(row.operationFee * (0.7 + index * 0.05))
+    const netRevenue = totalWinLoss - operationFee
+    const historicalDebt = index === 0 ? Math.max(0, Math.round(row.historicalDebt * 0.6)) : 0
+    const agentBalance = netRevenue - historicalDebt
+    return {
+      id: `HIS-${team.id}-${row.lineId}`,
+      cycle: '2026-06',
+      lineId: row.lineId,
+      agent: row.agent,
+      identity: row.identity,
+      totalWinLoss,
+      operationFee,
+      netRevenue,
+      historicalDebt,
+      agentBalance,
+      contributionRate: row.contributionRate,
+      estimatedDividend: Math.max(0, Math.round(row.estimatedDividend * 0.72)),
+      state: '已发放',
+      operatedAt: `2026-07-0${index + 2} 10:00`,
+    }
+  })
+  return [...issuedRows, ...historicalRows]
 }

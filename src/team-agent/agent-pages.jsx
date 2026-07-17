@@ -34,7 +34,7 @@ import {
 } from './ui'
 
 const ROLES = {
-  main: { label: '主管主线', account: 'gaodashang', subtitle: 'gaodashang01部唯一平台收款方', icon: <ApartmentOutlined /> },
+  main: { label: '团队负责人', account: 'gaodashang', subtitle: 'gaodashang01部唯一平台收款方', icon: <ApartmentOutlined /> },
   secondary: { label: '副线负责人', account: 'WC002', subtitle: 'gaodashang01部 / LINE-B', icon: <TeamOutlined /> },
   independent: { label: '独立线主', account: 'dailiwc001', subtitle: '独立单线01', icon: <BankOutlined /> },
 }
@@ -243,10 +243,10 @@ function AgentDashboard({ role, onToast }) {
 
 function AgentBills({ role }) {
   const { data } = useTeamAgent()
-  const identityLabel = role === 'main' ? '主管主线' : role === 'secondary' ? '副线负责人' : '独立代理'
+  const identityLabel = role === 'main' ? '团队负责人' : role === 'secondary' ? '副线负责人' : '独立代理'
   if (role === 'secondary') {
     const rows = data.internalSettlements.filter((item) => item.secondaryAgent === 'WC002')
-    return <><SectionHeader title="代理佣金结算" description="团队副线不产生平台应付账单，仅查看主线向本人的内部结算。" /><Alert title="平台账单权限" tone="warning">当前身份没有平台应付佣金账单；团队账单唯一收款方为主管主线。</Alert><DataTable paginated minWidth={1050} columns={[{ key: 'id', label: '内部结算单号' }, { key: 'agentType', label: '代理类型', render: () => '团队代理' }, { key: 'agentIdentity', label: '代理身份', render: () => identityLabel }, { key: 'cycle', label: '周期' }, { key: 'mainAgent', label: '付款主线' }, { key: 'amount', label: '金额', render: (value) => <Money value={value} /> }, { key: 'basis', label: '结算依据' }, { key: 'state', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }, { key: 'createdAt', label: '时间' }]} rows={rows} /><CommissionBasis data={data} role={role} /></>
+    return <><SectionHeader title="代理佣金结算" description="团队副线不产生平台应付账单，仅查看主线向本人的内部结算。" /><Alert title="平台账单权限" tone="warning">当前身份没有平台应付佣金账单；团队账单唯一收款方为团队负责人。</Alert><DataTable paginated minWidth={1050} columns={[{ key: 'id', label: '内部结算单号' }, { key: 'agentType', label: '代理类型', render: () => '团队代理' }, { key: 'agentIdentity', label: '代理身份', render: () => identityLabel }, { key: 'cycle', label: '周期' }, { key: 'mainAgent', label: '付款主线' }, { key: 'amount', label: '金额', render: (value) => <Money value={value} /> }, { key: 'basis', label: '结算依据' }, { key: 'state', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }, { key: 'createdAt', label: '时间' }]} rows={rows} /><CommissionBasis data={data} role={role} /></>
   }
   const account = role === 'main' ? 'gaodashang' : 'dailiwc001'
   const rows = data.bills.filter((bill) => bill.payee === account)

@@ -23,7 +23,7 @@ import {
 } from './ui'
 
 const ROLE_META = {
-  main: { account: 'gaodashang', label: '主管主线', identity: '主管主线', unit: 'gaodashang01部', lineId: 'LINE-A' },
+  main: { account: 'gaodashang', label: '团队负责人', identity: '团队负责人', unit: 'gaodashang01部', lineId: 'LINE-A' },
   secondary: { account: 'WC002', label: '副线负责人', identity: '副线负责人', unit: 'gaodashang01部', lineId: 'LINE-B' },
   independent: { account: 'dailiwc001', label: '独立线主', identity: '独立线主', unit: '独立单线01', lineId: 'SINGLE-001' },
 }

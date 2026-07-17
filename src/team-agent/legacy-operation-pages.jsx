@@ -23,13 +23,13 @@ import {
 const EMPTY_FILTERS = { keyword: '', identity: '', cycle: '', status: '' }
 
 const ROLE_META = {
-  main: { account: 'gaodashang', identity: '主管主线', team: 'gaodashang01部', line: 'LINE-A', unit: 'gaodashang01部 / 主管主线' },
+  main: { account: 'gaodashang', identity: '团队负责人', team: 'gaodashang01部', line: 'LINE-A', unit: 'gaodashang01部 / 团队负责人' },
   secondary: { account: 'WC002', identity: '副线负责人', team: 'gaodashang01部', line: 'LINE-B', unit: 'gaodashang01部 / WC002线路' },
   independent: { account: 'dailiwc001', identity: '独立线主', team: '—', line: 'SINGLE-001', unit: '独立单线01' },
 }
 
 const PREPAID_FALLBACK = [
-  { id: 'PP-202607-001', site: '旺财体育', agent: 'gaodashang', team: 'gaodashang01部', line: 'LINE-A', identity: '主管主线', unit: 'gaodashang01部 / 主管主线', cycle: '2026-07', opening: 60000, added: 20000, deducted: 8500, balance: 71500, debt: 0, status: '生效中', updatedAt: '2026-07-15 12:20', scopeRoles: ['main'] },
+  { id: 'PP-202607-001', site: '旺财体育', agent: 'gaodashang', team: 'gaodashang01部', line: 'LINE-A', identity: '团队负责人', unit: 'gaodashang01部 / 团队负责人', cycle: '2026-07', opening: 60000, added: 20000, deducted: 8500, balance: 71500, debt: 0, status: '生效中', updatedAt: '2026-07-15 12:20', scopeRoles: ['main'] },
   { id: 'PP-202607-002', site: '旺财体育', agent: 'WC002', team: 'gaodashang01部', line: 'LINE-B', identity: '副线负责人', unit: 'gaodashang01部 / WC002线路', cycle: '2026-07', opening: 12000, added: 5000, deducted: 3100, balance: 13900, debt: 1150, status: '生效中', updatedAt: '2026-07-15 11:45', scopeRoles: ['main', 'secondary'] },
   { id: 'PP-202607-003', site: '旺财体育', agent: 'LGNB', team: 'gaodashang01部', line: 'LINE-C', identity: '副线负责人', unit: 'gaodashang01部 / LGNB线路', cycle: '2026-07', opening: 8000, added: 0, deducted: 1750, balance: 6250, debt: 0, status: '生效中', updatedAt: '2026-07-14 18:10', scopeRoles: ['main'] },
   { id: 'PP-202607-004', site: '旺财体育', agent: 'dailiwc001', team: '—', line: 'SINGLE-001', identity: '独立线主', unit: '独立单线01', cycle: '2026-07', opening: 25000, added: 10000, deducted: 4200, balance: 30800, debt: 0, status: '生效中', updatedAt: '2026-07-15 10:05', scopeRoles: ['independent'] },
@@ -37,7 +37,7 @@ const PREPAID_FALLBACK = [
 ]
 
 const AGENT_PAY_FALLBACK = [
-  { id: 'AP-202607-001', orderNo: 'AP202607150001', site: '旺财体育', agent: 'gaodashang', payee: 'gaodashang', team: 'gaodashang01部', line: 'LINE-A', identity: '主管主线', unit: 'gaodashang01部 / 主管主线', cycle: '2026-07', type: '团队佣金发放', amount: 86000, method: 'USDT-TRC20', status: '待审核', appliedAt: '2026-07-15 09:18', reviewer: '—', remark: '本月团队佣金剩余申请', scopeRoles: ['main'] },
+  { id: 'AP-202607-001', orderNo: 'AP202607150001', site: '旺财体育', agent: 'gaodashang', payee: 'gaodashang', team: 'gaodashang01部', line: 'LINE-A', identity: '团队负责人', unit: 'gaodashang01部 / 团队负责人', cycle: '2026-07', type: '团队佣金发放', amount: 86000, method: 'USDT-TRC20', status: '待审核', appliedAt: '2026-07-15 09:18', reviewer: '—', remark: '本月团队佣金剩余申请', scopeRoles: ['main'] },
   { id: 'AP-202607-002', orderNo: 'AP202607140008', site: '旺财体育', agent: 'WC002', payee: 'WC002', team: 'gaodashang01部', line: 'LINE-B', identity: '副线负责人', unit: 'gaodashang01部 / WC002线路', cycle: '2026-07', type: '主线内部结算', amount: 28000, method: '代理余额', status: '已通过', appliedAt: '2026-07-14 10:20', reviewer: '站点运营', remark: '主线到账余额内结算', scopeRoles: ['main', 'secondary'] },
   { id: 'AP-202607-003', orderNo: 'AP202607140011', site: '旺财体育', agent: 'LGNB', payee: 'LGNB', team: 'gaodashang01部', line: 'LINE-C', identity: '副线负责人', unit: 'gaodashang01部 / LGNB线路', cycle: '2026-07', type: '主线内部结算', amount: 15000, method: '代理余额', status: '处理中', appliedAt: '2026-07-14 11:05', reviewer: '—', remark: '待补充结算凭证', scopeRoles: ['main'] },
   { id: 'AP-202607-004', orderNo: 'AP202607140016', site: '旺财体育', agent: 'dailiwc001', payee: 'dailiwc001', team: '—', line: 'SINGLE-001', identity: '独立线主', unit: '独立单线01', cycle: '2026-07', type: '独立单线佣金', amount: 68000, method: 'USDT-TRC20', status: '待发放', appliedAt: '2026-07-14 16:15', reviewer: '若依', remark: '账单审核通过', scopeRoles: ['independent'] },
@@ -72,7 +72,7 @@ function normalizePrepaid(record, index) {
     site: pick(record, ['site', 'siteName'], '旺财体育'), agent,
     team: pick(record, ['team', 'teamName'], agent === 'dailiwc001' ? '—' : 'gaodashang01部'),
     line: pick(record, ['line', 'lineId'], agent === 'WC002' ? 'LINE-B' : agent === 'dailiwc001' ? 'SINGLE-001' : 'LINE-A'),
-    identity: pick(record, ['identity', 'settlementIdentity'], agent === 'WC002' ? '副线负责人' : agent === 'dailiwc001' ? '独立线主' : '主管主线'),
+    identity: pick(record, ['identity', 'settlementIdentity'], agent === 'WC002' ? '副线负责人' : agent === 'dailiwc001' ? '独立线主' : '团队负责人'),
     unit, cycle: pick(record, ['cycle', 'effectiveCycle', 'month'], '2026-07'),
     opening: number(record, ['opening', 'openingBalance', 'lastBalance', 'creditLimit']), added: number(record, ['added', 'increaseAmount', 'credit'], Math.max(0, Number(record.lastChange || 0))),
     deducted: number(record, ['deducted', 'usedAmount', 'debit'], Math.abs(Math.min(0, Number(record.lastChange || 0)))), balance: number(record, ['balance', 'prepaidBalance', 'currentBalance', 'available']),
@@ -90,7 +90,7 @@ function normalizeAgentPay(record, index) {
     site: pick(record, ['site', 'siteName'], '旺财体育'), agent, payee: pick(record, ['payee', 'member', 'memberAccount', 'account', 'agent'], agent),
     team: pick(record, ['team', 'teamName'], agent === 'dailiwc001' ? '—' : 'gaodashang01部'),
     line: pick(record, ['line', 'lineId'], agent === 'WC002' ? 'LINE-B' : agent === 'dailiwc001' ? 'SINGLE-001' : 'LINE-A'),
-    identity: pick(record, ['identity', 'settlementIdentity'], agent === 'WC002' ? '副线负责人' : agent === 'dailiwc001' ? '独立线主' : '主管主线'),
+    identity: pick(record, ['identity', 'settlementIdentity'], agent === 'WC002' ? '副线负责人' : agent === 'dailiwc001' ? '独立线主' : '团队负责人'),
     unit, cycle: pick(record, ['cycle', 'effectiveCycle', 'month'], '2026-07'), type: payType,
     amount: number(record, ['amount', 'payAmount', 'actualAmountCny']), method: pick(record, ['method', 'payMethod', 'currency'], payType === '佣金代存' ? '代理佣金余额' : '代理预付金'),
     status: pick(record, ['status', 'state'], '待审核'), appliedAt: pick(record, ['appliedAt', 'submittedAt', 'createdAt']), reviewer: pick(record, ['reviewer', 'reviewedBy']),

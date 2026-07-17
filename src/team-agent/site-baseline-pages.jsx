@@ -452,7 +452,7 @@ function SiteAgentsPage({ onToast }) {
       <Field label="代理状态"><Select value={filters.status} onChange={(value) => setFilter('status', value)} options={['启用', '停用']} placeholder="全部状态" /></Field>
       <Field label="代理模型"><Select value={filters.model} onChange={(value) => setFilter('model', value)} options={['负盈利模式', '普通代理']} placeholder="全部模型" /></Field>
       <Field label="结算模式"><Select value={filters.settlementMode} onChange={(value) => setFilter('settlementMode', value)} options={['团队模式', '独立单线', '原代理模式']} placeholder="全部结算模式" /></Field>
-      <Field label="代理身份"><Select value={filters.identity} onChange={(value) => setFilter('identity', value)} options={['主管主线', '副线负责人', '独立线主', '—']} placeholder="全部身份" /></Field>
+      <Field label="代理身份"><Select value={filters.identity} onChange={(value) => setFilter('identity', value)} options={['团队负责人', '副线负责人', '独立线主', '—']} placeholder="全部身份" /></Field>
       <Field label="推广人员"><Input value={filters.developer} onChange={(value) => setFilter('developer', value)} placeholder="推广人员" /></Field>
       <Field label="上级代理"><Input value={filters.parent} onChange={(value) => setFilter('parent', value)} placeholder="编号或账号" /></Field>
     </FilterBar>

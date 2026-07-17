@@ -31,7 +31,7 @@ export function TeamAgentProvider({ children }) {
   function createTeam(payload) {
     const name = String(payload.name || '').trim()
     const mainAgent = String(payload.mainAgent || '').trim()
-    if (!name || !mainAgent) return { ok: false, message: '请填写代理部名称和主管主线' }
+    if (!name || !mainAgent) return { ok: false, message: '请填写代理部名称和团队负责人' }
     if (data.teams.some((team) => team.name === name)) return { ok: false, message: '代理部名称已存在' }
     if (data.teams.some((team) => team.mainAgent === mainAgent && team.status !== '已解散')) return { ok: false, message: '该代理已担任其他代理部主线' }
     const id = `TEAM-${String(data.teams.length + 1).padStart(3, '0')}`
@@ -160,7 +160,7 @@ export function TeamAgentProvider({ children }) {
 
   function changeMain(teamId, nextMain, effectiveCycle = '2026-08') {
     const team = data.teams.find((item) => item.id === teamId)
-    if (!team || !nextMain) return { ok: false, message: '请选择新主管主线' }
+    if (!team || !nextMain) return { ok: false, message: '请选择新团队负责人' }
     return requestChange({ type: '团队换主线', applicant: '站点运营', currentUnit: `${team.name} / ${team.mainAgent}`, targetUnit: `${team.name} / ${nextMain}`, effectiveCycle, conflict: team.processingOccupied > 0 ? '存在处理中内部结算' : '无冲突', note: '历史账单仍归原主线，目标周期起由新主线负责。' })
   }
 
