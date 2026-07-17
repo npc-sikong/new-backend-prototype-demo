@@ -354,7 +354,7 @@ const PAGE_CONFIG = {
     columns: [{ key: 'changeNo', label: '账变单号' }, { key: 'member', label: '会员账号' }, { key: 'agent', label: '直属代理' }, { key: 'type', label: '账变类型' }, moneyColumn('before', '账变前余额'), moneyColumn('amount', '账变金额', true), moneyColumn('after', '账变后余额'), { key: 'operator', label: '操作来源' }, statusColumn(), { key: 'occurredAt', label: '账变时间' }],
   },
   transfers: {
-    title: '转账明细', description: '查询平台佣金到账、主线内部结算、代理代存和代理提款记录。', detail: '转账详情', moneyPage: true,
+    title: '转账明细', description: '查询平台佣金到账、主线内部结算、代理代存和代理提现资金流水。', detail: '转账详情', moneyPage: true,
     columns: [{ key: 'transferNo', label: '转账单号' }, { key: 'agent', label: '代理账号' }, { key: 'counterparty', label: '交易对方' }, { key: 'type', label: '转账类型' }, moneyColumn('amount', '转账金额'), { key: 'source', label: '资金来源' }, statusColumn(), { key: 'createdAt', label: '创建时间' }],
   },
   transferStats: {
