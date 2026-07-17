@@ -26,6 +26,7 @@ import {
 } from '@ant-design/icons'
 import { LEGACY_REPORT_ROWS } from './data'
 import { useTeamAgent } from './context'
+import { MasterPlansPage as MasterPlansPageV2 } from './master-plans-page'
 import { MasterRelationsPage } from './relation-record-page'
 import { TeamGradeSummary } from './team-grade-summary'
 import { buildTeamCommissionRows, getTeamInspectConfig, teamAgentRows, teamGradeProgress, teamMemberCount, teamOverviewCounts } from './team-management-helpers'
@@ -1158,7 +1159,7 @@ function MasterCyclePage({ onToast, portal = 'master' }) {
 export function MasterPage({ page, navigate, onToast, portal = 'master' }) {
   if (page === 'agents') return <MasterAgentsPage navigate={navigate} onToast={onToast} />
   if (page === 'teams') return <MasterTeamsPage onToast={onToast} />
-  if (page === 'plans') return <MasterPlansPage onToast={onToast} />
+  if (page === 'plans') return <MasterPlansPageV2 onToast={onToast} />
   if (page === 'settlement') return <MasterSettlementPage onToast={onToast} />
   if (page === 'records') return <MasterRecordsPage onToast={onToast} />
   if (page === 'relations') return <MasterRelationsPage onToast={onToast} />
