@@ -42,7 +42,7 @@ export function TeamAgentProvider({ children }) {
       plan: payload.plan || '旺财团队月结方案', status: '待生效', startCycle: payload.startCycle || '2026-08', endCycle: '长期', previousNegative: 0,
       cumulativeReceived: 0, successfulTransfers: 0, processingOccupied: 0, otherDeductions: 0,
       metrics: { newActive: 0, activeMembers: 0, memberWinLoss: 0, totalWinLoss: 0, venueFee: 0, memberBonus: 0, memberRebate: 0, accountAdjustment: 0, manualOrderWinLoss: 0, depositFee: 0, withdrawalFee: 0, expenses: 0, adjustment: 0, currentNet: 0, lastBalance: 0, balanceAdjustment: 0, assessmentNet: 0, correctedNet: 0, commissionableNet: 0, commissionAdjustment: 0, grade: '待计算', rate: 0, payable: 0 },
-      lines: [{ lineId, identity: '主线', agent: mainAgent, scope: '主线直属代理及会员', newActive: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: payload.startCycle || '2026-08' }],
+      lines: [{ lineId, identity: '主线', agent: mainAgent, scope: '主线直属代理及会员', newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: payload.startCycle || '2026-08' }],
     }
     const main = data.agents.find((item) => item.account === mainAgent)
     const operation = { id: sequence('TOP', data.teamOperations), teamId: id, teamName: name, teamType: team.teamType, mainId: main?.id || '—', mainAccount: mainAgent, secondaryAccounts: '—', action: '创建团队', reason: payload.reason || '市场推广代理线归集', operator: '站点运营', createdAt: timestamp() }
@@ -60,7 +60,7 @@ export function TeamAgentProvider({ children }) {
     const lineCount = data.teams.reduce((sum, item) => sum + item.lines.length, 0)
     const line = {
       lineId: `LINE-${String.fromCharCode(65 + lineCount)}`, identity: '副线', agent, scope: payload.scope || `${agent} 节点及直属会员`,
-      newActive: 0, activeMembers: 0, netWinLoss: 0, status: payload.requireReview === false ? '待生效' : '待复核', startCycle: payload.startCycle || '2026-08',
+      newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: payload.requireReview === false ? '待生效' : '待复核', startCycle: payload.startCycle || '2026-08',
     }
     const request = {
       id: sequence('REQ-202607', data.requests), type: '开设副线', applicant: team.mainAgent, currentUnit: `${team.name} / ${team.mainAgent}`, targetUnit: `${team.name} / ${line.lineId} / ${agent}`,
@@ -129,7 +129,7 @@ export function TeamAgentProvider({ children }) {
       if (approved && request.type === '独立单线加入团队') {
         const targetName = request.targetUnit.split('/')[0].trim()
         const lineCount = teams.reduce((sum, team) => sum + team.lines.length, 0)
-        teams = teams.map((team) => team.name === targetName && !team.lines.some((line) => line.agent === request.applicant) ? { ...team, lines: [...team.lines, { lineId: `LINE-${String.fromCharCode(65 + lineCount)}`, identity: '副线', agent: request.applicant, scope: `${request.applicant} 原独立单线范围`, newActive: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: request.effectiveCycle }] } : team)
+        teams = teams.map((team) => team.name === targetName && !team.lines.some((line) => line.agent === request.applicant) ? { ...team, lines: [...team.lines, { lineId: `LINE-${String.fromCharCode(65 + lineCount)}`, identity: '副线', agent: request.applicant, scope: `${request.applicant} 原独立单线范围`, newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: request.effectiveCycle }] } : team)
         singles = singles.map((single) => single.owner === request.applicant ? { ...single, status: '生效中·待转入' } : single)
       }
       if (approved && request.type === '终止独立单线') singles = singles.map((single) => single.owner === request.applicant ? { ...single, status: '待终止' } : single)
@@ -255,6 +255,40 @@ export function TeamAgentProvider({ children }) {
     return { ok: true, message: `${target.account} 资料已更新` }
   }
 
+  function addAgent(payload) {
+    const account = String(payload.account || '').trim()
+    if (!account) return { ok: false, message: '请填写代理账号' }
+    if (data.agents.some((item) => item.account.toLowerCase() === account.toLowerCase())) return { ok: false, message: '代理账号已存在' }
+    const numericIds = data.agents.map((item) => Number(item.id)).filter(Number.isFinite)
+    const id = String((numericIds.length ? Math.max(...numericIds) : 1700) + 1)
+    const record = {
+      id,
+      account,
+      agentType: payload.agentType || '多层级代理',
+      registeredAt: timestamp(),
+      site: payload.site || '旺财体育',
+      status: payload.status || '启用',
+      parent: '无上级代理',
+      parentId: '—',
+      subAgents: 0,
+      members: 0,
+      balance: 0,
+      model: '负盈利模式',
+      settlementMode: payload.settlementMode || '原代理模式',
+      identity: payload.identity || '—',
+      teamAgentType: payload.teamAgentType || (payload.agentType === '团队代理' ? '官方代理' : '—'),
+      unit: '—',
+      lineId: '—',
+      effectiveCycle: '—',
+      plan: payload.plan || (payload.agentType === '星级代理' ? '星级返佣方案' : '多层级返佣方案'),
+      carryAllFees: payload.carryAllFees || '否',
+      remark: payload.remark || '',
+      lastLogin: '—',
+    }
+    setData((current) => ({ ...current, agents: [record, ...current.agents] }))
+    return { ok: true, message: `${account} 已新增` }
+  }
+
   function adjustAgentBalance(agentId, payload) {
     const target = data.agents.find((item) => item.id === agentId)
     const amount = Number(payload.amount)
@@ -302,7 +336,7 @@ export function TeamAgentProvider({ children }) {
     const team = data.teams.find((item) => item.id === teamId)
     if (!team) return { ok: false, message: '未找到代理部' }
     const nextName = String(payload.name || team.name).trim()
-    const operation = { id: sequence('TOP', data.teamOperations), teamId, teamName: nextName, teamType: payload.teamType || team.teamType, mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts: team.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: '编辑团队', reason: `更新团队类型或副线会员详情权限`, operator: '站点运营', createdAt: timestamp() }
+    const operation = { id: sequence('TOP', data.teamOperations), teamId, teamName: nextName, teamType: payload.teamType || team.teamType, mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts: team.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: '编辑团队', reason: `更新团队名称、类型或偏好设置`, operator: '站点运营', createdAt: timestamp() }
     setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, ...payload, name: nextName } : item), teamOperations: [operation, ...current.teamOperations] }))
     return { ok: true, message: `${nextName} 设置已更新` }
   }
@@ -426,7 +460,7 @@ export function TeamAgentProvider({ children }) {
 
   const value = useMemo(() => ({
     data, dailyRemaining, teamAvailableBalance, createTeam, addSecondary, createSingle, requestChange, reviewRequest, setTeamStatus, changeMain,
-    addInternalSettlement, submitBill, approveBill, payoutBill, addPlan, copyPlan, updatePlanLevel, updateAgent, adjustAgentBalance, adjustBillBalance,
+    addInternalSettlement, submitBill, approveBill, payoutBill, addPlan, copyPlan, updatePlanLevel, addAgent, updateAgent, adjustAgentBalance, adjustBillBalance,
     updateActivityDefinition, updateAgentCost, saveSiteCommissionConfig, updateTeamPreferences, submitAgentPay, reviewAgentPay, adjustPrepaidAccount,
     agentWithdrawableBalance, createAgentWithdrawal, reviewAgentWithdrawal, completeAgentWithdrawal,
     resetDemo: () => setData(cloneInitialState()),

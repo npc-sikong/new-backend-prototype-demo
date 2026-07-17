@@ -1,36 +1,42 @@
 # Design QA
 
-## Comparison target
+## Comparison Target
 
-- Source visual truth: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-f1b32d19-2af0-4175-a601-fd4e02bb9f5f.png`, `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-7a05f9b1-3e52-4354-8a18-c04858b5d502.png`, `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-69b6ed5d-d3c8-4905-8502-4c7f6500af39.png`, and `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-c8dda574-d899-4193-a374-0d07e063bd7a.png`.
-- Source intent: H5 withdrawal method selected state, account card, withdrawal amount input, fee/arrival row, fund-password boxes, and the added unlock-condition entry.
-- Implementation viewport: Codex in-app browser local preview at `http://localhost:5173/`.
-- State tested: H5 withdrawal page after selecting a withdrawal method; unlock-condition dialog opened from the amount section.
+- Source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-6837f067-2473-438d-9399-6520d057656a.png`
+- Implementation screenshot path: `/Users/sikon/Projects/新后台原型/design-qa-relation-record-implementation.png`
+- Local URL: `http://localhost:5173/`
+- Viewport: `1163 x 774`
+- State: 总控后台 / 代理管理 / 修改代理关系记录，默认筛选，变更明细默认列表。
 
 ## Findings
 
-- No actionable P0/P1/P2 differences remain in the focused implementation area.
-- The withdrawal-method expanded state now matches the reference structure: method cards, selected account, CNY amount input, fee and arrival information, fund-password boxes, and submit button.
-- The requested addition is present between `提现金额 (CNY)` and the amount input: `可提现` amount, `锁定` amount, and a right-side `解锁条件` button.
-- The unlock-condition dialog is fixed to the viewport and combines venue turnover, recharge turnover, and bonus turnover in one table with `流水类型 / 锁定额度 / 还需解锁流水`; the profit unlock amount row is no longer shown in H5.
-- The unlock-condition dialog first column now displays direct names: venue rows use venue names, recharge rows use `充值`, and bonus rows use the actual bonus name such as `VIP周礼金`.
-- The unlock-condition dialog no longer shows records whose status is `已解锁`; only records that still need unlock are visible.
-- The H5 page no longer shows the standalone `业务及需求说明 · 2026-07-16 16:21` timestamp line, while keeping the explicit `业务说明` entry in the header.
-- The unlock-condition dialog footer now uses the delayed-statistics reminder: `投注流水同步可能存在延迟，如当前解锁额度与实际情况不符，请稍后刷新并重新查看。`
+- No actionable P0/P1/P2 differences remain for the requested scoped change.
+- Accepted context difference: the reference image shows a standalone old-backend viewport, while this prototype keeps the required left navigation, portal switcher, page tab and业务说明入口.
+- Layout: the page now follows the source order: page title and refresh action, global filter card, helper copy,变更明细 card and horizontal detail table.
+- Filter structure: the filter area renders as three columns with the requested fields: 所属站点、目标账号 / 记录编号、账号类型、操作人、迁移本期未结算费用、变更状态、迁移状态、操作日期、新代理生效日（按日匹配）.
+- Table structure: the table includes the requested fields from the screenshot, with账号/站点 two-line cells,原上级/新上级 pills,新代理生效日 date chips,迁移状态 chips and a sticky操作 column.
+- Responsiveness: the page itself does not create horizontal overflow; only the wide table scrolls horizontally inside its table wrapper.
+- Image assets: no raster assets were needed; icons use the existing Ant Design icon set.
 
-## Implementation checklist
+## Interaction Evidence
 
-- [x] Move withdrawable and locked amounts above the CNY withdrawal input with simplified labels and no unit suffix.
-- [x] Add `解锁条件` button and dialog.
-- [x] Merge existing venue and recharge unlock data into one dialog table.
-- [x] Remove the H5 profit unlock amount row from the unlock-condition dialog.
-- [x] Hide unlocked records from the H5 unlock-condition dialog.
-- [x] Simplify the unlock-condition first column to direct names without `场馆流水 ·` or `充值流水 ·` prefixes.
-- [x] Remove the visible business-requirement timestamp line under the H5 page header.
-- [x] Replace the unlock-condition footer copy with the delayed-statistics reminder.
-- [x] Preserve the H5 business-notes entry and update its modification time.
-- [x] Update the version-requirements H5 entry.
-- [x] Run `npm run build` successfully.
-- [x] Verify local H5 interaction in the in-app browser with no console errors.
+- Browser-rendered page opened from the sidebar menu.
+- `查看` on the first table row opened the变更记录详情 modal.
+- Searching `charles02` filtered the table to 3 rows and updated the count to `共计：3 条记录`.
+- Reset restored the default `共计：56 条记录` display.
+- Build checked with `npm run build`.
+
+## Implementation Checklist
+
+- [x] Rebuilt 修改代理关系记录 as the screenshot-style old-backend detail page.
+- [x] Removed the old代理关系记录 / 团队操作记录 tabbed main structure.
+- [x] Added page title, subtitle and刷新数据 action.
+- [x] Added global filter card and working query/reset controls.
+- [x] Added 变更明细 wide table with sticky operation column.
+- [x] Added single-record detail modal for the操作 column.
+- [x] Updated业务及需求说明 and相对原后台差异说明.
+- [x] Updated版本需求说明.
+- [x] Recorded the durable page-style rule in `AGENTS.md`.
+- [x] Ran build and browser verification.
 
 final result: passed

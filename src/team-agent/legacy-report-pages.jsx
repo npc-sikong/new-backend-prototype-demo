@@ -21,19 +21,20 @@ import {
   StatusTag,
 } from './ui'
 
-const EMPTY_FILTERS = { keyword: '', identity: '', line: '', cycle: '', status: '' }
+const EMPTY_FILTERS = { keyword: '', agentType: '', identity: '', line: '', cycle: '', status: '' }
+const SYNCED_AGENT_REPORTS = new Set(['commissionRecords', 'reversal', 'returns'])
 
 function settlementMeta(agent, overrides = {}) {
   const known = {
-    gaodashang: { site: '旺财体育', team: 'gaodashang01部', line: 'LINE-A', identity: '主管主线', unit: 'gaodashang01部 / 主管主线', scopeRoles: ['main'] },
-    WC002: { site: '旺财体育', team: 'gaodashang01部', line: 'LINE-B', identity: '副线负责人', unit: 'gaodashang01部 / WC002线路', scopeRoles: ['main', 'secondary'] },
-    LGNB: { site: '旺财体育', team: 'gaodashang01部', line: 'LINE-C', identity: '副线负责人', unit: 'gaodashang01部 / LGNB线路', scopeRoles: ['main'] },
-    dailiwc001: { site: '旺财体育', team: '—', line: 'SINGLE-001', identity: '独立线主', unit: '独立单线01', scopeRoles: ['independent'] },
-    apppay: { site: '旺财体育', team: 'apppay01部', line: 'LINE-D', identity: '主管主线', unit: 'apppay01部 / 主管主线', scopeRoles: [] },
-    charles: { site: '旺财体育', team: '—', line: 'LEGACY-CHARLES', identity: '原代理模式', unit: '原代理独立结算', scopeRoles: [] },
-    FEE0428_A8: { site: '财神客栈', team: '—', line: 'LEGACY-FEE', identity: '原代理模式', unit: '原代理独立结算', scopeRoles: [] },
+    gaodashang: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-A', identity: '主管主线', unit: 'gaodashang01部 / 主管主线', scopeRoles: ['main'] },
+    WC002: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-B', identity: '副线负责人', unit: 'gaodashang01部 / WC002线路', scopeRoles: ['main', 'secondary'] },
+    LGNB: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-C', identity: '副线负责人', unit: 'gaodashang01部 / LGNB线路', scopeRoles: ['main'] },
+    dailiwc001: { site: '旺财体育', agentType: '团队代理', team: '—', line: 'SINGLE-001', identity: '独立代理', unit: '独立单线01', scopeRoles: ['independent'] },
+    apppay: { site: '旺财体育', agentType: '团队代理', team: 'apppay01部', line: 'LINE-D', identity: '主管主线', unit: 'apppay01部 / 主管主线', scopeRoles: [] },
+    charles: { site: '旺财体育', agentType: '层级代理', team: '—', line: 'LEGACY-CHARLES', identity: '3层', unit: '原代理独立结算', scopeRoles: [] },
+    FEE0428_A8: { site: '财神客栈', agentType: '星级代理', team: '—', line: 'LEGACY-FEE', identity: '4星', unit: '原代理独立结算', scopeRoles: [] },
   }
-  return { site: '旺财体育', team: '—', line: '原代理线路', identity: '原代理模式', unit: '原代理独立结算', cycle: '2026-07', scopeRoles: [], ...(known[agent] || {}), ...overrides }
+  return { site: '旺财体育', agentType: '层级代理', team: '—', line: '原代理线路', identity: '1层', unit: '原代理独立结算', cycle: '2026-07', scopeRoles: [], ...(known[agent] || {}), ...overrides }
 }
 
 function row(id, agent, values = {}) {
@@ -52,7 +53,7 @@ function normalizeBase(record, index, prefix, explicitAgent) {
   const agent = explicitAgent || pick(record, ['agent', 'agentAccount', 'parentAgentName', 'account'])
   const defaults = settlementMeta(agent)
   return row(pick(record, ['id', 'recordId'], `${prefix}-${index + 1}`), agent, {
-    site: pick(record, ['site', 'siteName'], defaults.site), team: pick(record, ['team', 'teamName'], defaults.team),
+    site: pick(record, ['site', 'siteName'], defaults.site), agentType: pick(record, ['agentType', 'typeName'], defaults.agentType), team: pick(record, ['team', 'teamName'], defaults.team),
     line: pick(record, ['line', 'lineId'], defaults.line), identity: pick(record, ['identity', 'settlementIdentity'], defaults.identity),
     unit: pick(record, ['unit', 'settlementUnit'], defaults.unit), cycle: pick(record, ['cycle', 'effectiveCycle', 'month'], defaults.cycle),
     scopeRoles: record.scopeRoles || defaults.scopeRoles,
@@ -365,7 +366,7 @@ const PAGE_CONFIG = {
     columns: [{ key: 'recordNo', label: '场馆费记录号' }, { key: 'agent', label: '代理账号' }, { key: 'venue', label: '场馆' }, moneyColumn('totalWinLoss', '总输赢', true), { key: 'feeRate', label: '场馆费率', render: (value) => <Percent value={value} /> }, moneyColumn('fee', '场馆费'), moneyColumn('netAfterFee', '扣费后金额', true), statusColumn()],
   },
   commissionRecords: {
-    title: '佣金发放记录', description: '查询团队佣金、独立单线佣金与主线内部结算，并可查看锁定口径。', detail: '佣金记录详情', moneyPage: true,
+    title: '佣金记录', description: '按角色范围查询团队佣金、独立单线佣金与主线内部结算，并查看锁定口径。', detail: '佣金记录详情', moneyPage: true,
     columns: [{ key: 'billNo', label: '佣金单号' }, { key: 'agent', label: '收款代理' }, { key: 'type', label: '佣金类型' }, moneyColumn('base', '当月结余 / 计算基数', true), { key: 'rate', label: '佣金比例', render: (value) => <Percent value={value} /> }, moneyColumn('adjustment', '佣金/结余调整', true), moneyColumn('commission', '应付佣金'), moneyColumn('issued', '已发金额'), moneyColumn('remaining', '待发金额'), statusColumn(), { key: 'createdAt', label: '生成时间' }],
   },
   reversal: {
@@ -388,6 +389,13 @@ const CONTEXT_COLUMNS = [
   { key: 'unit', label: '结算单元' }, { key: 'cycle', label: '生效周期' },
 ]
 
+const AGENT_TYPE_COLUMN = { key: 'agentType', label: '代理类型', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }
+const AGENT_IDENTITY_COLUMN = { key: 'identity', label: '代理身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }
+const CONTEXT_BY_PORTAL = {
+  site: [AGENT_TYPE_COLUMN, AGENT_IDENTITY_COLUMN, CONTEXT_COLUMNS[1], CONTEXT_COLUMNS[2], CONTEXT_COLUMNS[4], CONTEXT_COLUMNS[5]],
+  agent: [AGENT_TYPE_COLUMN, AGENT_IDENTITY_COLUMN, CONTEXT_COLUMNS[2], CONTEXT_COLUMNS[4], CONTEXT_COLUMNS[5]],
+}
+
 function inScope(row, portal, role) {
   if (portal === 'site') return row.site === '旺财体育'
   if (portal === 'agent') return row.scopeRoles?.includes(role || 'main')
@@ -398,6 +406,7 @@ function matches(row, filters) {
   const keyword = filters.keyword.trim().toLowerCase()
   const text = Object.entries(row).filter(([key]) => key !== 'scopeRoles').map(([, value]) => String(value)).join(' ').toLowerCase()
   return (!keyword || text.includes(keyword))
+    && (!filters.agentType || row.agentType === filters.agentType)
     && (!filters.identity || row.identity === filters.identity)
     && (!filters.line || row.line === filters.line)
     && (!filters.cycle || row.cycle === filters.cycle)
@@ -453,7 +462,9 @@ function GenericReportPage({ page, portal, role, onToast }) {
     setDraft(EMPTY_FILTERS); setApplied(EMPTY_FILTERS); setDetail(null); setMetric(null)
   }, [page, portal, role])
   const filtered = useMemo(() => rows.filter((item) => matches(item, applied)), [rows, applied])
-  const columns = useMemo(() => [...config.columns, ...CONTEXT_COLUMNS, { key: 'action', label: '操作', render: (_, item) => <ActionLink onClick={() => setDetail(item)}>详情</ActionLink> }], [config])
+  const synced = SYNCED_AGENT_REPORTS.has(page)
+  const contextColumns = synced ? CONTEXT_BY_PORTAL[portal] : CONTEXT_COLUMNS
+  const columns = useMemo(() => [...config.columns, ...contextColumns, { key: 'action', label: '操作', render: (_, item) => <ActionLink onClick={() => setDetail(item)}>详情</ActionLink> }], [config, contextColumns])
   const metricRows = metric ? filtered.filter((item) => safeNumber(item[metric.key]) !== 0) : []
   function search() {
     setApplied(draft)
@@ -464,9 +475,11 @@ function GenericReportPage({ page, portal, role, onToast }) {
   }
   return <>
     <SectionHeader title={config.title} description={config.description} />
+    {synced && <Alert title="角色查看范围">{portal === 'site' ? '当前页面只展示旺财体育本站记录，不提供跨站点筛选和全局审核操作。' : '当前页面按主管主线、副线负责人或独立线主身份收窄数据，不展示其他团队、其他线路或跨站点记录。'}</Alert>}
     {config.metrics && <FinanceMetrics rows={filtered} onOpen={setMetric} />}
     <FilterBar onSearch={search} onReset={reset} onExport={() => onToast?.(`已生成 ${filtered.length} 条${config.title}导出演示`)}>
       <Field label="关键词"><Input value={draft.keyword} onChange={(keyword) => setDraft((current) => ({ ...current, keyword }))} placeholder="账号、单号、会员或结算单元" /></Field>
+      {synced && <Field label="代理类型"><Select value={draft.agentType} onChange={(agentType) => setDraft((current) => ({ ...current, agentType }))} placeholder="全部类型" options={unique(rows, 'agentType')} /></Field>}
       <Field label="结算身份"><Select value={draft.identity} onChange={(identity) => setDraft((current) => ({ ...current, identity }))} placeholder="全部身份" options={unique(rows, 'identity')} /></Field>
       <Field label="业务线路"><Select value={draft.line} onChange={(line) => setDraft((current) => ({ ...current, line }))} placeholder="全部线路" options={unique(rows, 'line')} /></Field>
       <Field label="生效周期"><Select value={draft.cycle} onChange={(cycle) => setDraft((current) => ({ ...current, cycle }))} placeholder="全部周期" options={unique(rows, 'cycle')} /></Field>

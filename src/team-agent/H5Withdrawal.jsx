@@ -53,7 +53,7 @@ export function H5Withdrawal({ onBack, onOpenNotes, onToast }) {
     <section className="h5-unlock-dialog" role="dialog" aria-modal="true" aria-label="解锁条件" onClick={(event) => event.stopPropagation()}>
       <header><div><span>解锁条件</span><small>场馆流水与充值流水合并展示</small></div><button aria-label="关闭解锁条件" onClick={() => setShowUnlockConditions(false)}><CloseOutlined /></button></header>
       <div className="h5-unlock-summary"><div><span>锁定金额</span><b>{money(WALLET.locked, '¥')}</b></div><div><span>还需解锁流水</span><b>{money(totalRemaining, '¥')}</b></div></div>
-      <div className="h5-unlock-table"><div className="h5-unlock-row head"><span>流水类型</span><span>锁定额度</span><span>还需解锁流水</span></div>
+      <div className="h5-unlock-table"><div className="h5-unlock-row head"><span>类型</span><span>锁定额度</span><span>还需解锁流水</span></div>
         {visibleUnlockRows.map((row) => <div className="h5-unlock-row" key={row.id}><span>{row.type}</span><b>{money(row.locked, '¥')}</b><strong>{typeof row.remaining === 'number' ? money(row.remaining, '¥') : row.remaining}</strong>{row.status && <em>{row.status}</em>}</div>)}
       </div>
       <p>投注流水同步可能存在延迟，如当前解锁额度与实际情况不符，请稍后刷新并重新查看。</p>

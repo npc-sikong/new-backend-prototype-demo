@@ -120,6 +120,7 @@ function withdrawalDetails(record) {
 function OperationsWithdrawalPage({ portal, onToast }) {
   const { data, reviewAgentWithdrawal, completeAgentWithdrawal } = useTeamAgent()
   const withdrawals = data.withdrawals || []
+  const scopedWithdrawals = portal === 'site' ? withdrawals.filter((record) => pick(record, ['site', 'siteName']) === '旺财体育') : withdrawals
   const [tab, setTab] = useState('review')
   const [filters, setFilters] = useState({ site: '', account: '', agentType: '', withdrawalType: '', orderNo: '', status: '', startDate: '', endDate: '' })
   const [selected, setSelected] = useState(null)
@@ -128,13 +129,13 @@ function OperationsWithdrawalPage({ portal, onToast }) {
   const reviewer = portal === 'master' ? '总控运营' : '站点运营'
 
   const options = useMemo(() => ({
-    sites: unique(withdrawals.map((record) => pick(record, ['site', 'siteName'])), ['旺财体育', '财神客栈']),
-    agentTypes: unique(withdrawals.map(agentTypeOf), ['官方代理', '普通代理']),
-    withdrawalTypes: unique(withdrawals.map(withdrawalTypeOf), WITHDRAWAL_TYPES),
-    statuses: unique(withdrawals.map(statusOf), ['待审核', '处理中', '已通过', '已拒绝', '已完成']),
-  }), [withdrawals])
+    sites: unique(scopedWithdrawals.map((record) => pick(record, ['site', 'siteName'])), ['旺财体育', '财神客栈']),
+    agentTypes: unique(scopedWithdrawals.map(agentTypeOf), ['官方代理', '普通代理']),
+    withdrawalTypes: unique(scopedWithdrawals.map(withdrawalTypeOf), WITHDRAWAL_TYPES),
+    statuses: unique(scopedWithdrawals.map(statusOf), ['待审核', '处理中', '已通过', '已拒绝', '已完成']),
+  }), [scopedWithdrawals])
 
-  const rows = useMemo(() => withdrawals.filter((record) => {
+  const rows = useMemo(() => scopedWithdrawals.filter((record) => {
     if (tab === 'review' && !isPending(record)) return false
     if (filters.site && pick(record, ['site', 'siteName']) !== filters.site) return false
     if (filters.account && !String(accountOf(record)).toLowerCase().includes(filters.account.trim().toLowerCase())) return false
@@ -146,7 +147,7 @@ function OperationsWithdrawalPage({ portal, onToast }) {
     if (filters.startDate && day < filters.startDate) return false
     if (filters.endDate && day > filters.endDate) return false
     return true
-  }), [filters, tab, withdrawals])
+  }), [filters, scopedWithdrawals, tab])
 
   function resetFilters() {
     setFilters({ site: '', account: '', agentType: '', withdrawalType: '', orderNo: '', status: '', startDate: '', endDate: '' })
@@ -171,7 +172,7 @@ function OperationsWithdrawalPage({ portal, onToast }) {
 
   const columns = [
     { key: 'orderNo', label: '订单号', render: (_, record) => <b className="ta-primary-text">{orderNo(record)}</b> },
-    { key: 'site', label: '站点', render: (_, record) => pick(record, ['site', 'siteName']) },
+    ...(portal === 'master' ? [{ key: 'site', label: '站点', render: (_, record) => pick(record, ['site', 'siteName']) }] : []),
     { key: 'agentAccount', label: '代理账号', render: (_, record) => accountOf(record) },
     { key: 'agentType', label: '代理类型', render: (_, record) => <StatusTag tone="blue">{agentTypeOf(record)}</StatusTag> },
     { key: 'withdrawalType', label: '提款类型', render: (_, record) => withdrawalTypeOf(record) },
@@ -183,13 +184,13 @@ function OperationsWithdrawalPage({ portal, onToast }) {
   ]
 
   return <>
-    <SectionHeader title={portal === 'master' ? '总控代理提款管理' : '站点代理提款管理'} description={`${reviewer}在此核对代理身份、提款金额和收款信息；审核结果会同步至代理本人提款记录。`} />
+    <SectionHeader title="代理提款" description={`${reviewer}在此核对${portal === 'site' ? '本站' : '全站'}代理身份、提款金额和收款信息；审核结果会同步至代理本人提款记录。`} />
     <Tabs active={tab} onChange={setTab} items={[
-      { value: 'review', label: '提款审核', count: withdrawals.filter(isPending).length },
-      { value: 'records', label: '提款记录', count: withdrawals.length },
+      { value: 'review', label: '提款审核', count: scopedWithdrawals.filter(isPending).length },
+      { value: 'records', label: '提款记录', count: scopedWithdrawals.length },
     ]} />
     <FilterBar onSearch={() => onToast?.(`已查询到 ${rows.length} 条提款订单`, 'success')} onReset={resetFilters}>
-      <Field label="站点"><Select value={filters.site} onChange={(value) => setFilters({ ...filters, site: value })} placeholder="全部站点" options={options.sites} /></Field>
+      {portal === 'master' && <Field label="站点"><Select value={filters.site} onChange={(value) => setFilters({ ...filters, site: value })} placeholder="全部站点" options={options.sites} /></Field>}
       <Field label="代理账号"><Input value={filters.account} onChange={(value) => setFilters({ ...filters, account: value })} placeholder="请输入代理账号" /></Field>
       <Field label="代理类型"><Select value={filters.agentType} onChange={(value) => setFilters({ ...filters, agentType: value })} placeholder="全部类型" options={options.agentTypes} /></Field>
       <Field label="提款类型"><Select value={filters.withdrawalType} onChange={(value) => setFilters({ ...filters, withdrawalType: value })} placeholder="全部类型" options={options.withdrawalTypes} /></Field>
@@ -198,7 +199,7 @@ function OperationsWithdrawalPage({ portal, onToast }) {
       <Field label="申请时间"><Input type="date" value={filters.startDate} onChange={(value) => setFilters({ ...filters, startDate: value })} /></Field>
       <Field label="结束时间"><Input type="date" value={filters.endDate} onChange={(value) => setFilters({ ...filters, endDate: value })} /></Field>
     </FilterBar>
-    <DataTable paginated minWidth={1420} columns={columns} rows={rows} emptyText={tab === 'review' ? '当前没有待审核提款订单' : '暂无符合条件的提款记录'} />
+    <DataTable paginated minWidth={portal === 'master' ? 1420 : 1280} columns={columns} rows={rows} emptyText={tab === 'review' ? '当前没有待审核提款订单' : '暂无符合条件的提款记录'} />
 
     <Modal open={modal === 'review'} title={`${orderNo(selected)} · 提款审核`} description="请核对代理身份、申请金额和提款信息后再提交审核结果。" width={780} onClose={closeModal} onConfirm={() => review(true)} confirmText="审核通过" confirmDisabled={!remark.trim()}>
       {selected && <><DescriptionGrid columns={3} items={withdrawalDetails(selected)} /><Field label="审核备注" required><Input value={remark} onChange={setRemark} placeholder="请填写通过说明或拒绝原因" /></Field><Toolbar><Button icon={<AuditOutlined />} variant="danger" disabled={!remark.trim()} onClick={() => review(false)}>审核拒绝</Button></Toolbar><Alert title="审核结果说明" tone="warning">通过后订单进入出款处理；拒绝后订单结束并释放对应处理中金额。审核备注会展示给代理本人。</Alert></>}
