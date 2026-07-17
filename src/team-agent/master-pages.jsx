@@ -953,8 +953,6 @@ function MasterPlansPage({ onToast }) {
 function MasterSettlementPage({ onToast }) {
   const emptyFilters = { agent: '', site: '', billNo: '', billType: '', billDate: '', state: '' }
   const [filters, setFilters] = useState(emptyFilters)
-  const [editingCommission, setEditingCommission] = useState(null)
-  const [commissionForm, setCommissionForm] = useState({ amount: '', reason: '' })
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
   const formatAmount = (value) => Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const initialSettlementRows = [
@@ -969,22 +967,7 @@ function MasterSettlementPage({ onToast }) {
     { id: 'SET-20260706-SITE', agentName: '站点分润', site: '旺财体育', agentType: '—', agentIdentity: '—', rebateRate: '—', billType: '站点账单', parentAgent: '—', period: '2026-07-06 ~ 2026-07-12', memberProfit: 1944, memberCommission: 1555.2, state: '待结算', action: '结算' },
     { id: 'SET-20260706-001', agentName: 'gaodashang', site: '旺财体育', agentType: '团队代理', agentIdentity: '团队负责人', rebateRate: '65.00%', billType: '代理账单', parentAgent: '—', period: '2026-07-06 ~ 2026-07-12', memberProfit: 0, memberCommission: 120000, distributableAmount: 120000, state: '待确认', action: '确认' },
   ]
-  const [settlementRows, setSettlementRows] = useState(initialSettlementRows)
-  function openCommissionEditor(row) {
-    setEditingCommission(row)
-    setCommissionForm({ amount: String(row.memberCommission ?? row.distributableAmount ?? 0), reason: row.adjustmentReason || '团队代理佣金发放金额调整' })
-  }
-  function saveCommissionEdit() {
-    const amount = Number(commissionForm.amount)
-    const maxAmount = Number(editingCommission?.distributableAmount || 0)
-    if (!editingCommission || Number.isNaN(amount)) return onToast('请输入有效的发放佣金金额', 'error')
-    if (amount < 0) return onToast('发放佣金最低可调整为 0，不能小于 0', 'error')
-    if (amount > maxAmount) return onToast('发放佣金不能超过团队代理可发放金额', 'error')
-    setSettlementRows((current) => current.map((row) => row.id === editingCommission.id ? { ...row, memberCommission: amount, adjustmentReason: commissionForm.reason || '团队代理佣金发放金额调整' } : row))
-    onToast(`${editingCommission.agentName} 发放佣金已调整为 ¥${formatAmount(amount)}`)
-    setEditingCommission(null)
-  }
-  const rows = settlementRows.filter((row) => (!filters.agent || row.agentName.toLowerCase().includes(filters.agent.toLowerCase())) && (!filters.site || row.site === filters.site) && (!filters.billNo || row.id.toLowerCase().includes(filters.billNo.toLowerCase())) && (!filters.billType || row.billType === filters.billType) && (!filters.billDate || row.period.includes(filters.billDate)) && (!filters.state || row.state === filters.state))
+  const rows = initialSettlementRows.filter((row) => (!filters.agent || row.agentName.toLowerCase().includes(filters.agent.toLowerCase())) && (!filters.site || row.site === filters.site) && (!filters.billNo || row.id.toLowerCase().includes(filters.billNo.toLowerCase())) && (!filters.billType || row.billType === filters.billType) && (!filters.billDate || row.period.includes(filters.billDate)) && (!filters.state || row.state === filters.state))
   const columns = [
     { key: 'agentName', label: '代理名称' },
     { key: 'site', label: '所属站点' },
@@ -996,7 +979,7 @@ function MasterSettlementPage({ onToast }) {
     { key: 'period', label: '账期范围' },
     { key: 'memberProfit', label: '代理直属会员盈亏', render: formatAmount },
     { key: 'memberCommission', label: '直属会员佣金', render: formatAmount },
-    { key: 'action', label: '操作', render: (value, row) => <div className="ta-table-actions"><button className="settlement-action-btn" onClick={() => onToast(`${row.agentName} ${value}操作已触发`)}>{value}</button>{row.agentType === '团队代理' && <ActionLink onClick={() => openCommissionEditor(row)}><EditOutlined /> 修改</ActionLink>}</div> },
+    { key: 'action', label: '操作', render: (value, row) => <button className="settlement-action-btn" onClick={() => onToast(`${row.agentName} ${value}操作已触发`)}>{value}</button> },
   ]
   return <>
   <section className="settlement-legacy-screen">
@@ -1015,18 +998,6 @@ function MasterSettlementPage({ onToast }) {
       <DataTable className="settlement-legacy-table" minWidth={1240} columns={columns} rows={rows} />
     </section>
   </section>
-  <Modal open={!!editingCommission} title="修改团队代理发放佣金" description="仅团队代理可调整本次发放佣金，金额可调至 0，但不能超过团队代理可发放金额。" onClose={() => setEditingCommission(null)} onConfirm={saveCommissionEdit} confirmText="保存修改" width={760}>
-    {editingCommission && <div className="ta-stack">
-      <DescriptionGrid columns={2} items={[
-        { label: '代理账号 / 身份', value: `${editingCommission.agentName} / ${editingCommission.agentIdentity}` },
-        { label: '账期范围', value: editingCommission.period },
-        { label: '团队代理可发放金额', value: <Money value={editingCommission.distributableAmount} /> },
-        { label: '当前发放佣金', value: <Money value={editingCommission.memberCommission} /> },
-      ]} />
-      <FormGrid><Field label="本次发放佣金" required help={`可填写 0 ~ ${formatAmount(editingCommission.distributableAmount)}，超出上限会阻止保存。`}><Input type="number" min="0" max={editingCommission.distributableAmount} step="0.01" value={commissionForm.amount} onChange={(amount) => setCommissionForm({ ...commissionForm, amount })} /></Field><Field label="调整说明"><Input value={commissionForm.reason} onChange={(reason) => setCommissionForm({ ...commissionForm, reason })} placeholder="请输入调整原因" /></Field></FormGrid>
-      <Alert title="调整规则" tone="warning">本原型只演示发放金额调整逻辑：团队代理可发放金额是上限，运营可将本次发放佣金下调到 0；非团队代理不展示修改入口。</Alert>
-    </div>}
-  </Modal>
   </>
 }
 
