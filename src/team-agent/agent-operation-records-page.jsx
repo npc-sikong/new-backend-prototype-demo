@@ -15,7 +15,7 @@ import {
   Toolbar,
 } from './ui'
 
-const FILTER_DEFAULTS = { teamName: '', teamType: '', agentId: '', agentAccount: '', createdFrom: '', createdTo: '' }
+const FILTER_DEFAULTS = { teamName: '', agentIdentity: '', agentId: '', agentAccount: '', createdFrom: '', createdTo: '' }
 const ROLE_ACCOUNTS = { main: 'gaodashang', secondary: 'WC002', independent: 'dailiwc001' }
 
 const unique = (rows, key) => Array.from(new Set(rows.map((row) => row[key]).filter(Boolean)))
@@ -25,13 +25,16 @@ const inDateRange = (value, from, to) => (!from || String(value || '').slice(0, 
 function buildOperationRows(data) {
   return [...(data.teamOperations || [])]
     .sort((left, right) => String(right.createdAt || '').localeCompare(String(left.createdAt || '')))
-    .map((item, index) => ({
+    .map((item, index) => {
+      const mainAgent = data.agents.find((agent) => agent.account === item.mainAccount)
+      return {
       ...item,
       index: index + 1,
       site: item.site || data.teams.find((team) => team.id === item.teamId)?.site || '旺财体育',
-      mainId: item.mainId || data.agents.find((agent) => agent.account === item.mainAccount)?.id || '—',
+      mainId: item.mainId || mainAgent?.id || '—',
+      agentIdentity: mainAgent?.teamAgentType === '官方代理' ? '官方代理' : '普通代理',
       secondaryAccounts: item.secondaryAccounts || '—',
-    }))
+    }})
 }
 
 function SecondaryAccounts({ value }) {
@@ -53,7 +56,7 @@ export function AgentOperationRecordsPage({ onToast, portal = 'master', role = '
   const [filters, setFilters] = useState(FILTER_DEFAULTS)
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
   const rows = allRows.filter((row) => (!filters.teamName || row.teamName === filters.teamName)
-    && (!filters.teamType || row.teamType === filters.teamType)
+    && (!filters.agentIdentity || row.agentIdentity === filters.agentIdentity)
     && contains(row.mainId, filters.agentId)
     && (!filters.agentAccount || contains(`${row.mainAccount}${row.secondaryAccounts}`, filters.agentAccount))
     && inDateRange(row.createdAt, filters.createdFrom, filters.createdTo))
@@ -61,7 +64,7 @@ export function AgentOperationRecordsPage({ onToast, portal = 'master', role = '
   const columns = [
     { key: 'index', label: '序号' },
     { key: 'teamName', label: '团队名称', render: (value) => <b className="ta-primary-text">{value}</b> },
-    { key: 'teamType', label: '团队类型', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
+    { key: 'agentIdentity', label: '代理身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
     { key: 'mainId', label: '主线编号' },
     { key: 'mainAccount', label: '主线账号' },
     { key: 'secondaryAccounts', label: '副线账号', render: (value) => <SecondaryAccounts value={value} /> },
@@ -77,7 +80,7 @@ export function AgentOperationRecordsPage({ onToast, portal = 'master', role = '
     {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '当前页面固定展示旺财体育本站记录，不提供跨站点数据。' : '当前页面仅展示与当前代理身份有关的操作记录，并隐藏后台操作人字段。'}</Alert>}
     <FilterBar onSearch={() => onToast(`已查询 ${rows.length} 条代理操作记录`)} onReset={reset}>
       <Field label="团队名称"><Select value={filters.teamName} onChange={(value) => setFilter('teamName', value)} placeholder="全部团队" options={unique(allRows, 'teamName')} /></Field>
-      <Field label="团队类型"><Select value={filters.teamType} onChange={(value) => setFilter('teamType', value)} placeholder="全部类型" options={unique(allRows, 'teamType')} /></Field>
+      <Field label="代理身份"><Select value={filters.agentIdentity} onChange={(value) => setFilter('agentIdentity', value)} placeholder="全部身份" options={unique(allRows, 'agentIdentity')} /></Field>
       <Field label="代理编号"><Input value={filters.agentId} onChange={(value) => setFilter('agentId', value)} placeholder="主线编号" /></Field>
       <Field label="代理账号"><Input value={filters.agentAccount} onChange={(value) => setFilter('agentAccount', value)} placeholder="主线或副线账号" /></Field>
       <Field label="创建时间起"><Input type="date" value={filters.createdFrom} onChange={(value) => setFilter('createdFrom', value)} /></Field>

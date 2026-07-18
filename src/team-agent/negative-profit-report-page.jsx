@@ -18,7 +18,7 @@ import {
   Toolbar,
 } from './ui'
 
-const FILTER_DEFAULTS = { cycle: '', teamType: '', commissionState: '', auditState: '', keyword: '' }
+const FILTER_DEFAULTS = { cycle: '', agentIdentity: '', commissionState: '', auditState: '', keyword: '' }
 const MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment', 'commission']
 
 const COLUMN_DEFS = [
@@ -27,7 +27,7 @@ const COLUMN_DEFS = [
   { key: 'teamName', label: '团队名称' },
   { key: 'agentId', label: '代理编号' },
   { key: 'agentAccount', label: '代理账号' },
-  { key: 'teamType', label: '团队类型' },
+  { key: 'agentIdentity', label: '代理身份' },
   { key: 'parentAccount', label: '上级账号' },
   { key: 'teamMembers', label: '团队人数' },
   { key: 'subAgentCount', label: '下级人数' },
@@ -97,7 +97,7 @@ function buildRows(data) {
         teamName: bill.unitName || team?.name || agent.unit || '—',
         agentId: agent.id || bill.agentId || '—',
         agentAccount: bill.payee,
-        teamType: bill.teamType || team?.teamType || (bill.type === '单线代理佣金' ? '单线代理' : '—'),
+        agentIdentity: agent.teamAgentType === '官方代理' || bill.agentType === '官方代理' ? '官方代理' : '普通代理',
         parentAccount: agent.parent || bill.recommender || '—',
         teamMembers: bill.teamMembers ?? team?.lines?.length ?? (bill.type === '单线代理佣金' ? 1 : 0),
         subAgentCount: bill.subAgentCount ?? agent.subAgents ?? 0,
@@ -192,7 +192,7 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
   }), [portal])
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
   const rows = allRows.filter((row) => (!filters.cycle || row.cycle === filters.cycle)
-    && (!filters.teamType || row.teamType === filters.teamType)
+    && (!filters.agentIdentity || row.agentIdentity === filters.agentIdentity)
     && (!filters.commissionState || row.commissionState === filters.commissionState)
     && (!filters.auditState || row.auditState === filters.auditState)
     && (!filters.keyword || `${row.teamName}${row.agentId}${row.agentAccount}${row.parentAccount}`.toLowerCase().includes(filters.keyword.toLowerCase())))
@@ -220,7 +220,7 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
     {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '数据固定为旺财体育本站，不展示其他站点记录。' : '团队负责人只查看本人团队账单，副线不承接平台账单，单线代理只查看本人单线账单；审核人员、审核时间、维护人和调整原因不向代理端展示。'}</Alert>}
     <FilterBar onSearch={() => onToast(`已查询 ${rows.length} 条负盈利代理记录`)} onReset={resetFilters}>
       <Field label="佣金周期"><Select value={filters.cycle} onChange={(value) => setFilter('cycle', value)} placeholder="全部周期" options={unique(allRows, 'cycle')} /></Field>
-      <Field label="团队类型"><Select value={filters.teamType} onChange={(value) => setFilter('teamType', value)} placeholder="全部类型" options={unique(allRows, 'teamType')} /></Field>
+      <Field label="代理身份"><Select value={filters.agentIdentity} onChange={(value) => setFilter('agentIdentity', value)} placeholder="全部身份" options={unique(allRows, 'agentIdentity')} /></Field>
       <Field label="佣金状态"><Select value={filters.commissionState} onChange={(value) => setFilter('commissionState', value)} placeholder="全部状态" options={unique(allRows, 'commissionState')} /></Field>
       {portal !== 'agent' && <Field label="审核状态"><Select value={filters.auditState} onChange={(value) => setFilter('auditState', value)} placeholder="全部状态" options={unique(allRows, 'auditState')} /></Field>}
       <Field label="字段筛选"><FieldColumnFilter columns={availableColumns} visibleKeys={visibleKeys} onChange={setVisibleKeys} /></Field>
