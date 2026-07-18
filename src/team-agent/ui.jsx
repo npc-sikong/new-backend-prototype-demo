@@ -101,9 +101,19 @@ export function Percent({ value }) {
   return <span>{(Number(value || 0) * 100).toFixed(2)}%</span>
 }
 
+const DEFAULT_PAGE_SIZE = 20
+const PAGE_SIZE_OPTIONS = [20, 50, 100, 200]
+const MAX_PAGE_SIZE = Math.max(...PAGE_SIZE_OPTIONS)
+
+function normalizePageSize(value) {
+  const numeric = Number(value || DEFAULT_PAGE_SIZE)
+  if (!Number.isFinite(numeric)) return DEFAULT_PAGE_SIZE
+  return Math.min(Math.max(1, numeric), MAX_PAGE_SIZE)
+}
+
 export function DataTable({ columns, rows, rowKey = 'id', minWidth, emptyText = '暂无数据', className = '', paginated = false, footer }) {
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize))
   const safePage = Math.min(page, pageCount)
   const visibleRows = paginated ? rows.slice((safePage - 1) * pageSize, safePage * pageSize) : rows
@@ -114,13 +124,13 @@ export function DataTable({ columns, rows, rowKey = 'id', minWidth, emptyText = 
     <div className={`ta-table-wrap ${className}`}><table className="ta-table" style={{ minWidth }}><thead><tr>{columns.map((column) => <th key={column.key} className={column.className}>{column.label}</th>)}</tr></thead><tbody>
       {visibleRows.length ? visibleRows.map((row, index) => <tr key={typeof rowKey === 'function' ? rowKey(row, index) : row[rowKey] ?? index}>{columns.map((column) => <td key={column.key} className={column.cellClassName}>{column.render ? column.render(row[column.key], row, index) : row[column.key] ?? '—'}</td>)}</tr>) : <tr><td className="ta-empty-cell" colSpan={columns.length}>{emptyText}</td></tr>}
     </tbody>{footer && <tfoot>{footer}</tfoot>}</table></div>
-    {paginated && <Pagination total={rows.length} page={safePage} pageSize={pageSize} onChange={setPage} onPageSizeChange={(value) => setPageSize(Number(value))} />}
+    {paginated && <Pagination total={rows.length} page={safePage} pageSize={pageSize} onChange={setPage} onPageSizeChange={(value) => setPageSize(normalizePageSize(value))} />}
   </>
 }
 
-export function Pagination({ total, page = 1, pageSize = 10, onChange, onPageSizeChange }) {
+export function Pagination({ total, page = 1, pageSize = DEFAULT_PAGE_SIZE, onChange, onPageSizeChange }) {
   const pages = Math.max(1, Math.ceil(total / pageSize))
-  const sizeOptions = [10, 20, 50, 100, 200].map((value) => ({ value: String(value), label: `${value}条/页` }))
+  const sizeOptions = PAGE_SIZE_OPTIONS.map((value) => ({ value: String(value), label: `${value}条/页` }))
   return <div className="ta-pagination"><span>共 {total} 条</span><Select value={String(pageSize)} onChange={onPageSizeChange} options={sizeOptions} /><button disabled={page <= 1} onClick={() => onChange?.(page - 1)}>上一页</button><b>{page}</b><span>/ {pages}</span><button disabled={page >= pages} onClick={() => onChange?.(page + 1)}>下一页</button></div>
 }
 

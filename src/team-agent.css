@@ -386,6 +386,16 @@
 .team-performance-total > span { display: inline-flex; align-items: center; gap: 4px; }
 .team-performance-filter .ta-filter-bar { flex-direction: column; align-items: flex-start; }
 .team-performance-filter .ta-filter-actions { align-self: flex-start; }
+.team-members-modal-toolbar { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; color: #77899c; font-size: 10px; }
+.team-members-modal-content .ta-table-wrap { margin-bottom: 0; }
+.team-overview-sections { grid-template-columns: 1fr; align-items: start; }
+.team-overview-sections .ta-panel { margin-bottom: 0; }
+.team-overview-list { display: grid; grid-template-columns: repeat(var(--overview-columns), minmax(0, 1fr)); gap: 1px; margin: 0; border: 1px solid #e5ebf1; border-radius: 5px; overflow: hidden; background: #e9eef3; }
+.team-overview-list > div { min-width: 0; min-height: 76px; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 11px 13px; background: #fff; }
+.team-overview-list dt { color: #8292a4; font-size: 10px; }
+.team-overview-list dd { min-width: 0; display: flex; align-items: flex-start; flex-direction: column; gap: 5px; margin: 0; color: #344a61; font-size: 11px; font-weight: 700; line-height: 1.45; overflow-wrap: anywhere; }
+.team-overview-list dd small { color: #94a3b3; font-size: 9px; font-weight: 400; line-height: 1.5; }
+.team-overview-grade { color: #2389dc; font-size: 18px; }
 
 .ta-tabs { min-height: 36px; display: flex; align-items: flex-end; gap: 2px; margin: 0 0 11px; padding: 0 8px; border-bottom: 1px solid #dfe6ed; background: #fff; }
 .ta-tabs button { height: 35px; display: inline-flex; align-items: center; gap: 6px; padding: 0 13px; border-bottom: 2px solid transparent; color: #77879a; font-size: 10px; }
@@ -407,6 +417,14 @@
 .ta-alert-warning > .anticon, .ta-alert-warning strong { color: #b88727; }
 .ta-alert-error { border-color: #efc4c8; background: #fff5f6; }
 .ta-alert-error > .anticon, .ta-alert-error strong { color: #d65c67; }
+
+@media (max-width: 900px) {
+  .team-overview-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .team-overview-list { grid-template-columns: 1fr; }
+}
 
 .ta-formula-panel { margin-bottom: 11px; padding: 13px 14px; border-radius: 6px; color: #c9d6e5; background: #172640; }
 .ta-formula-title { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; color: #fff; font-size: 11px; }
@@ -540,24 +558,6 @@
 .cycle-notice-card b, .cycle-notice-card small { display: block; margin: 0 0 13px; color: #b9c6d6; font-size: 13px; }
 .cycle-notice-card strong { display: block; margin-bottom: 22px; color: #3a8bff; font-size: 18px; }
 .cycle-notice-card em { display: block; color: #16d69c; font-size: 18px; font-style: normal; font-weight: 800; }
-
-/* 会员打码流水统计：沿用后台列表密度，仅强化金额入口与明细可读性 */
-.member-turnover-page { min-width: 0; }
-.member-turnover-table .ta-table td { height: 46px; }
-.member-account-cell { display: grid; gap: 4px; }
-.member-account-cell strong { color: #40546c; font-size: 10px; }
-.member-account-cell small { color: #9aa8b7; font-size: 9px; }
-.member-turnover-link { display: inline-flex; align-items: center; gap: 6px; }
-.member-turnover-link .ta-money { color: #2589dc; }
-.member-turnover-link span { color: #79a8cf; font-size: 9px; }
-.profit-unlock-cell { display: grid; gap: 3px; color: #43566d; }
-.profit-unlock-cell small, .profit-unlock-empty { color: #8fa1b3; font-size: 9px; font-weight: 500; white-space: nowrap; }
-.member-turnover-modal .ta-description-grid { margin-bottom: 13px; }
-.member-turnover-modal .ta-table-wrap { margin-bottom: 12px; }
-.member-turnover-modal .ta-table th { height: 38px; font-size: 10px; }
-.member-turnover-modal .ta-table td { height: 47px; font-size: 10px; }
-.member-venue-name { color: #3e526a; font-size: 11px; }
-.member-turnover-modal .ta-alert { margin-bottom: 4px; }
 
 @media (max-width: 1380px) {
   .ta-topbar .breadcrumb { visibility: hidden; }

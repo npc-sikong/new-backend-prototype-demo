@@ -94,7 +94,7 @@ function validateRebateDetails(mode, details) {
   return ''
 }
 
-export function MasterPlansPage({ onToast }) {
+export function MasterPlansPage({ onToast, portal = 'master' }) {
   const { data } = useTeamAgent()
   const [rows, setRows] = useState(() => buildLegacyRebateRows(data.plans))
   const [editing, setEditing] = useState(null)
@@ -134,7 +134,7 @@ export function MasterPlansPage({ onToast }) {
     { key: 'details', label: '方案详情', render: (value, row) => <div className="legacy-rebate-detail-lines">{row.mode === 'team' && <span>活跃会员：{rebateRuleText(row.activeRule)}；新增活跃：{rebateRuleText(row.newActiveRule)}</span>}{value.map((detail) => <span key={`${row.id}-${detail.level}`}>{rebateDetailLabel(row, detail)}</span>)}</div> },
     { key: 'createdAt', label: '创建时间' }, { key: 'operator', label: '最后操作人' }, { key: 'operatedAt', label: '操作时间' },
     { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><ActionLink onClick={() => openEditor(row)}><EditOutlined /> 修改</ActionLink><ActionLink onClick={() => openEditor(row)}><SettingOutlined /> 配置</ActionLink></div> },
-  ]
+  ].filter((column) => portal !== 'agent' || !['operator', 'operatedAt', 'action'].includes(column.key))
   const renderLevelRows = (mode, details, updateDetail, removeLevel, prefix) => details.map((detail, index) => <tr key={`${prefix}-${index}`}>
     <td><Input className="legacy-level-input" type="number" value={detail.level} min="0" step="1" onChange={(value) => updateDetail(index, 'level', value)} /></td>
     {mode === 'team' && <><td><Input className="legacy-level-input" type="number" value={detail.newMembers} min="0" placeholder="不设置" onChange={(value) => updateDetail(index, 'newMembers', value)} /></td><td><Input className="legacy-level-input" type="number" value={detail.activeMembers} min="0" placeholder="不设置" onChange={(value) => updateDetail(index, 'activeMembers', value)} /></td><td><Input className="legacy-level-input" type="number" value={detail.totalWinLoss} min="0" placeholder="不设置" onChange={(value) => updateDetail(index, 'totalWinLoss', value)} /></td></>}
@@ -147,7 +147,7 @@ export function MasterPlansPage({ onToast }) {
   return <>
     <section className="legacy-rebate-screen">
       <SectionHeader title="佣金方案" description="按原返佣方案列表维护代理返佣配置，当前详情页仅保留代理返佣方案列表。" />
-      <Toolbar><Button icon={<PlusOutlined />} onClick={openCreator}>新增代理方案</Button><Button icon={<DownloadOutlined />} variant="warning" onClick={() => onToast?.('返佣方案已导出', 'success')}>导出</Button><Button icon={<FileDoneOutlined />} variant="ghost" disabled>下载文件</Button></Toolbar>
+      <Toolbar>{portal !== 'agent' && <Button icon={<PlusOutlined />} onClick={openCreator}>新增代理方案</Button>}<Button icon={<DownloadOutlined />} variant="warning" onClick={() => onToast?.('返佣方案已导出', 'success')}>导出</Button><Button icon={<FileDoneOutlined />} variant="ghost" disabled>下载文件</Button></Toolbar>
       <DataTable minWidth={1320} columns={rebateColumns} rows={rows} className="legacy-rebate-table" rowKey="id" />
     </section>
     <Modal open={creating} title="新增代理方案" onClose={() => setCreating(false)} onConfirm={saveCreator} confirmDisabled={!createDetails.length} width={1380}>

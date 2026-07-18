@@ -23,16 +23,11 @@ import {
   UserOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
-import { AgentPage, AgentRoleBar } from './team-agent/agent-pages'
-import { AgentBaselinePage } from './team-agent/agent-baseline-pages'
+import { AgentRoleBar } from './team-agent/agent-pages'
 import { TeamAgentProvider, useTeamAgent } from './team-agent/context'
 import { PAGE_NOTES } from './team-agent/data'
 import { H5Withdrawal } from './team-agent/H5Withdrawal'
-import { MemberTurnoverPage } from './member-turnover-page'
 import { MasterPage } from './team-agent/master-pages'
-import { SitePage } from './team-agent/site-pages'
-import { SiteBaselinePage } from './team-agent/site-baseline-pages'
-import { LegacyReportPage } from './team-agent/legacy-report-pages'
 import { NotesDrawer, PageSummary } from './team-agent/ui'
 import { VersionRequirementsPage } from './team-agent/version-page'
 import './team-agent.css'
@@ -52,13 +47,13 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', memberTurnover: '会员打码流水统计表', agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
+    version: '版本需求说明', agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
   },
   site: {
-    agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', cycle: '结算周期设置',
+    agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', cycle: '结算周期设置',
   },
   agent: {
-    agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表',
+    agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', reversal: '冲正统计报表', returns: '冲正回款报表',
   },
 }
 
@@ -66,9 +61,6 @@ const DEFAULT_PAGES = { master: 'teams', site: 'agents', agent: 'agents' }
 
 const MASTER_NAV = [
   { id: 'version', label: '版本需求说明', mark: '新', icon: FileTextOutlined, standalone: true },
-  { id: 'member-group', label: '会员管理', mark: '改', icon: TeamOutlined, children: [
-    { id: 'memberTurnover', label: '会员打码流水统计表', mark: '新', icon: BarChartOutlined },
-  ] },
   { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'negativeProfit', label: '负盈利代理报表', mark: '新', icon: BarChartOutlined },
@@ -91,7 +83,6 @@ const SITE_NAV = [
     { id: 'negativeProfit', label: '负盈利代理报表', mark: '新', icon: BarChartOutlined },
     { id: 'agentOperations', label: '代理操作记录', mark: '新', icon: HistoryOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
-    { id: 'plans', label: '佣金方案', mark: '改', icon: SolutionOutlined },
     { id: 'settlement', label: '代理佣金结算', mark: '改', icon: DollarCircleOutlined },
     { id: 'records', label: '佣金记录', mark: '改', icon: ProfileOutlined },
     { id: 'reversal', label: '冲正统计报表', mark: '改', icon: BarChartOutlined },
@@ -106,15 +97,10 @@ const AGENT_NAV = [
     { id: 'negativeProfit', label: '负盈利代理报表', mark: '新', icon: BarChartOutlined },
     { id: 'agentOperations', label: '代理操作记录', mark: '新', icon: HistoryOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
-    { id: 'plans', label: '佣金方案', mark: '改', icon: SolutionOutlined },
-    { id: 'settlement', label: '代理佣金结算', mark: '改', icon: DollarCircleOutlined },
-    { id: 'records', label: '佣金记录', mark: '改', icon: ProfileOutlined },
     { id: 'reversal', label: '冲正统计报表', mark: '改', icon: BarChartOutlined },
     { id: 'returns', label: '冲正回款报表', mark: '改', icon: FileDoneOutlined },
   ] },
 ]
-
-const SYNCED_REPORT_PAGES = new Set(['records', 'reversal', 'returns'])
 
 function PortalSwitch({ active, onChange }) {
   return <div className="portal-switch" aria-label="后台切换">{PORTALS.map((item) => {
@@ -188,21 +174,9 @@ function PrototypeApp() {
   const portalMeta = PORTAL_META[portal]
   const renderPage = () => {
     if (portal === 'master' && page === 'version') return <VersionRequirementsPage navigateTo={navigateTo} />
-    if (portal === 'master' && page === 'memberTurnover') return <MemberTurnoverPage onToast={notify} />
     if (portal === 'master') return <MasterPage page={page} navigate={(nextPage) => navigateTo('master', nextPage)} onToast={notify} />
-    if (portal === 'site') {
-      if (page === 'agents') return <SiteBaselinePage page="siteAgents" onToast={notify} />
-      if (['negativeProfit', 'agentOperations', 'cycle'].includes(page)) return <MasterPage page={page} portal="site" onToast={notify} />
-      if (SYNCED_REPORT_PAGES.has(page)) return <LegacyReportPage page={page === 'records' ? 'commissionRecords' : page} portal="site" onToast={notify} />
-      return <SitePage page={page} onToast={notify} />
-    }
-    if (page === 'agents') return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><AgentBaselinePage page="downline" role={agentRole} onToast={notify} /></>
-    if (page === 'teams') return <AgentPage page="dashboard" role={agentRole} setRole={setAgentRole} onToast={notify} />
-    if (page === 'plans') return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><AgentBaselinePage page="readonlyPlans" role={agentRole} onToast={notify} /></>
-    if (page === 'settlement') return <AgentPage page="bills" role={agentRole} setRole={setAgentRole} onToast={notify} />
-    if (['negativeProfit', 'agentOperations'].includes(page)) return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><MasterPage page={page} portal="agent" role={agentRole} onToast={notify} /></>
-    if (SYNCED_REPORT_PAGES.has(page)) return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><LegacyReportPage page={page === 'records' ? 'commissionRecords' : page} portal="agent" role={agentRole} onToast={notify} /></>
-    return <AgentPage page="dashboard" role={agentRole} setRole={setAgentRole} onToast={notify} />
+    if (portal === 'site') return <MasterPage page={page} portal="site" onToast={notify} />
+    return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><MasterPage page={page} portal="agent" role={agentRole} onToast={notify} /></>
   }
 
   return <div className="app-shell ta-app-shell">
