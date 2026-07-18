@@ -8,7 +8,6 @@ import {
   FileDoneOutlined,
   FileTextOutlined,
   FullscreenOutlined,
-  HistoryOutlined,
   MenuOutlined,
   MobileOutlined,
   ProfileOutlined,
@@ -47,13 +46,13 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
+    version: '版本需求说明', agents: '代理列表', negativeProfit: '负盈利代理报表', teams: '团队代理管理', teamDetails: '团队详情', plans: '佣金方案', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', revenue: '代理收益看板', cycle: '结算周期设置', relations: '修改代理关系记录',
   },
   site: {
-    agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', cycle: '结算周期设置',
+    agents: '代理列表', negativeProfit: '负盈利代理报表', teams: '团队代理管理', teamDetails: '团队详情', settlement: '代理佣金结算', records: '佣金记录', reversal: '冲正统计报表', returns: '冲正回款报表', cycle: '结算周期设置',
   },
   agent: {
-    agents: '代理列表', negativeProfit: '负盈利代理报表', agentOperations: '代理操作记录', teams: '团队代理管理', reversal: '冲正统计报表', returns: '冲正回款报表',
+    agents: '代理列表', negativeProfit: '负盈利代理报表', teams: '团队代理管理', teamDetails: '团队详情', reversal: '冲正统计报表', returns: '冲正回款报表',
   },
 }
 
@@ -64,8 +63,8 @@ const MASTER_NAV = [
   { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'negativeProfit', label: '负盈利代理报表', mark: '新', icon: BarChartOutlined },
-    { id: 'agentOperations', label: '代理操作记录', mark: '新', icon: HistoryOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
+    { id: 'teamDetails', label: '团队详情', mark: '新', icon: ProfileOutlined },
     { id: 'plans', label: '佣金方案', mark: '改', icon: SolutionOutlined },
     { id: 'settlement', label: '代理佣金结算', mark: '改', icon: DollarCircleOutlined },
     { id: 'records', label: '佣金记录', mark: '改', icon: ProfileOutlined },
@@ -81,8 +80,8 @@ const SITE_NAV = [
   { id: 'site-agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'negativeProfit', label: '负盈利代理报表', mark: '新', icon: BarChartOutlined },
-    { id: 'agentOperations', label: '代理操作记录', mark: '新', icon: HistoryOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
+    { id: 'teamDetails', label: '团队详情', mark: '新', icon: ProfileOutlined },
     { id: 'settlement', label: '代理佣金结算', mark: '改', icon: DollarCircleOutlined },
     { id: 'records', label: '佣金记录', mark: '改', icon: ProfileOutlined },
     { id: 'reversal', label: '冲正统计报表', mark: '改', icon: BarChartOutlined },
@@ -95,8 +94,8 @@ const AGENT_NAV = [
   { id: 'agent-self-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'negativeProfit', label: '负盈利代理报表', mark: '新', icon: BarChartOutlined },
-    { id: 'agentOperations', label: '代理操作记录', mark: '新', icon: HistoryOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
+    { id: 'teamDetails', label: '团队详情', mark: '新', icon: ProfileOutlined },
     { id: 'reversal', label: '冲正统计报表', mark: '改', icon: BarChartOutlined },
     { id: 'returns', label: '冲正回款报表', mark: '改', icon: FileDoneOutlined },
   ] },
@@ -130,6 +129,7 @@ function PrototypeApp() {
   const [portal, setPortal] = useState('master')
   const [lastAdminPortal, setLastAdminPortal] = useState('master')
   const [pages, setPages] = useState({ master: 'teams', site: 'agents', agent: 'agents' })
+  const [teamDetailTargets, setTeamDetailTargets] = useState({ master: null, site: null, agent: null })
   const [agentRole, setAgentRole] = useState('main')
   const [notesOpen, setNotesOpen] = useState(false)
   const [toast, setToast] = useState(null)
@@ -172,11 +172,15 @@ function PrototypeApp() {
   const title = PAGE_META[portal][page]
   const note = PAGE_NOTES[`${portal}:${page}`]
   const portalMeta = PORTAL_META[portal]
+  const navigateFromPage = (nextPage, target) => {
+    if (nextPage === 'teamDetails' && target) setTeamDetailTargets((current) => ({ ...current, [portal]: target }))
+    navigateTo(portal, nextPage)
+  }
   const renderPage = () => {
     if (portal === 'master' && page === 'version') return <VersionRequirementsPage navigateTo={navigateTo} />
-    if (portal === 'master') return <MasterPage page={page} navigate={(nextPage) => navigateTo('master', nextPage)} onToast={notify} />
-    if (portal === 'site') return <MasterPage page={page} portal="site" onToast={notify} />
-    return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><MasterPage page={page} portal="agent" role={agentRole} onToast={notify} /></>
+    if (portal === 'master') return <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.master} onToast={notify} />
+    if (portal === 'site') return <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.site} portal="site" onToast={notify} />
+    return <><AgentRoleBar role={agentRole} setRole={setAgentRole} /><MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.agent} portal="agent" role={agentRole} onToast={notify} /></>
   }
 
   return <div className="app-shell ta-app-shell">

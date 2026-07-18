@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { DownOutlined, DownloadOutlined, FolderOpenOutlined } from '@ant-design/icons'
+import { DownOutlined, DownloadOutlined, FolderOpenOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { useTeamAgent } from './context'
 import {
   Alert,
@@ -30,7 +30,7 @@ const COLUMN_DEFS = [
   { key: 'agentIdentity', label: '代理身份' },
   { key: 'parentAccount', label: '上级账号' },
   { key: 'teamMembers', label: '团队人数' },
-  { key: 'subAgentCount', label: '下级人数' },
+  { key: 'subAgentCount', label: '下级会员' },
   { key: 'registeredCount', label: '注册人数' },
   { key: 'firstDepositCount', label: '首存人数' },
   { key: 'activeCount', label: '活跃人数' },
@@ -74,11 +74,111 @@ const unique = (rows, key) => Array.from(new Set(rows.map((row) => row[key]).fil
 const formatDate = (value) => String(value || '—').slice(0, 16)
 const sumRows = (rows, key) => rows.reduce((sum, row) => sum + Number(row[key] || 0), 0)
 
+function distributeTotal(total, weights, precision = 2) {
+  const scale = 10 ** precision
+  const totalUnits = Math.round(Number(total || 0) * scale)
+  const normalizedWeights = weights.map((value) => Math.abs(Number(value || 0)))
+  const weightTotal = normalizedWeights.reduce((sum, value) => sum + value, 0)
+  const effectiveWeights = weightTotal ? normalizedWeights : normalizedWeights.map(() => 1)
+  const effectiveTotal = effectiveWeights.reduce((sum, value) => sum + value, 0) || 1
+  let allocatedUnits = 0
+  return effectiveWeights.map((weight, index) => {
+    const units = index === effectiveWeights.length - 1 ? totalUnits - allocatedUnits : Math.round(totalUnits * weight / effectiveTotal)
+    allocatedUnits += units
+    return units / scale
+  })
+}
+
 function auditStateOf(bill) {
   if (bill.state === '审核退回') return '审核退回'
   if (['待审核', '待提交'].includes(bill.state)) return '待审核'
   if (bill.reviewer && bill.reviewer !== '—') return '已审核'
   return '待审核'
+}
+
+function buildTeamMemberRows(data, bill, team) {
+  if (bill.type !== '团队佣金' || !team?.lines?.length) return []
+  const teamLeader = data.agents.find((item) => item.account === team.mainAgent || item.account === bill.payee) || {}
+  const teamAgentIdentity = teamLeader.teamAgentType === '官方代理' || bill.agentType === '官方代理' ? '官方代理' : '普通代理'
+  const members = team.lines.map((line) => ({
+    line,
+    agent: data.agents.find((item) => item.account === line.agent) || {},
+    isTeamLeader: line.agent === team.mainAgent || line.identity === '主线',
+  }))
+  const weights = (reader) => members.map((member) => reader(member))
+  const performanceWeights = weights(({ line, agent }) => agent.totalWinLoss ?? line.netWinLoss ?? 0)
+  const allocations = {
+    teamMembers: distributeTotal(bill.teamMembers ?? members.length, weights(() => 1), 0),
+    subAgentCount: distributeTotal(bill.subAgentCount ?? teamLeader.subAgents ?? 0, weights(({ agent }) => agent.subAgents), 0),
+    registeredCount: distributeTotal(bill.registeredCount ?? teamLeader.members ?? 0, weights(({ agent }) => agent.members), 0),
+    firstDepositCount: distributeTotal(bill.firstDepositCount ?? 0, weights(({ line }) => line.firstDepositCount), 0),
+    activeCount: distributeTotal(bill.activeCount ?? teamLeader.activeMembers ?? 0, weights(({ line, agent }) => line.activeMembers ?? agent.activeMembers), 0),
+    newActiveCount: distributeTotal(bill.newActiveCount ?? teamLeader.newActiveMembers ?? 0, weights(({ line, agent }) => line.newActive ?? agent.newActiveMembers), 0),
+    depositAmount: distributeTotal(bill.depositAmount ?? teamLeader.depositAmount ?? 0, weights(({ agent }) => agent.depositAmount)),
+    withdrawalAmount: distributeTotal(bill.withdrawalAmount ?? teamLeader.withdrawalAmount ?? 0, weights(({ agent }) => agent.withdrawalAmount)),
+    totalWinLoss: distributeTotal(bill.totalWinLoss ?? teamLeader.totalWinLoss ?? 0, performanceWeights),
+    venueFee: distributeTotal(bill.venueFee ?? 0, performanceWeights),
+    memberBonus: distributeTotal(bill.memberBonus ?? 0, performanceWeights),
+    memberRebate: distributeTotal(bill.memberRebate ?? 0, performanceWeights),
+    accountAdjustment: distributeTotal(bill.accountAdjustment ?? 0, performanceWeights),
+    depositFee: distributeTotal(bill.depositFee ?? 0, performanceWeights),
+    withdrawalFee: distributeTotal(bill.withdrawalFee ?? 0, performanceWeights),
+    manualOrderWinLoss: distributeTotal(bill.manualOrderWinLoss ?? 0, performanceWeights),
+    netWinLossRaw: distributeTotal(bill.netWinLossRaw ?? 0, performanceWeights),
+    lastBalance: distributeTotal(bill.lastBalance ?? 0, performanceWeights),
+    correctedNet: distributeTotal(bill.correctedNet ?? 0, performanceWeights),
+    commissionAdjustment: distributeTotal(bill.commissionAdjustment ?? 0, performanceWeights),
+    commission: distributeTotal(bill.payable ?? 0, performanceWeights),
+  }
+  return members.map(({ line, agent, isTeamLeader }, memberIndex) => {
+    const valueOf = (key) => allocations[key][memberIndex]
+    return {
+        id: `${bill.id}-${line.lineId}`,
+        parentId: bill.id,
+        rowType: 'member',
+        expandable: false,
+        site: bill.site || agent.site || team.site || '—',
+        index: `${memberIndex + 1}`,
+        cycle: bill.cycle,
+        teamName: team.name,
+        agentId: agent.id || '—',
+        agentAccount: line.agent,
+        agentIdentity: teamAgentIdentity,
+        parentAccount: isTeamLeader ? agent.parent || bill.recommender || '—' : team.mainAgent || agent.parent || '—',
+        teamMembers: valueOf('teamMembers'),
+        subAgentCount: valueOf('subAgentCount'),
+        registeredCount: valueOf('registeredCount'),
+        firstDepositCount: valueOf('firstDepositCount'),
+        activeCount: valueOf('activeCount'),
+        newActiveCount: valueOf('newActiveCount'),
+        depositAmount: valueOf('depositAmount'),
+        withdrawalAmount: valueOf('withdrawalAmount'),
+        totalWinLoss: valueOf('totalWinLoss'),
+        venueFee: valueOf('venueFee'),
+        memberBonus: valueOf('memberBonus'),
+        memberRebate: valueOf('memberRebate'),
+        accountAdjustment: valueOf('accountAdjustment'),
+        depositFee: valueOf('depositFee'),
+        withdrawalFee: valueOf('withdrawalFee'),
+        manualOrderWinLoss: valueOf('manualOrderWinLoss'),
+        netWinLossRaw: valueOf('netWinLossRaw'),
+        lastBalance: valueOf('lastBalance'),
+        correctedNet: valueOf('correctedNet'),
+        rate: bill.rate ?? 0,
+        commissionAdjustment: valueOf('commissionAdjustment'),
+        commission: valueOf('commission'),
+        commissionState: '随团队结算',
+        becameAgentAt: formatDate(agent.registeredAt),
+        joinedAt: formatDate(team.joinedAt || agent.effectiveCycle),
+        issuedBy: '—',
+        issuedAt: '—',
+        reviewer: '—',
+        reviewedAt: '—',
+        auditState: '随团队审核',
+        maintainer: agent.developer || team.developer || '—',
+        adjustmentReason: `${isTeamLeader ? '团队负责人' : '副线'}明细（不独立发放）`,
+    }
+  })
 }
 
 function buildRows(data) {
@@ -89,8 +189,12 @@ function buildRows(data) {
       const team = data.teams.find((item) => item.id === bill.unitId || item.name === bill.unitName)
       const isNegativeMode = agent.model === '负盈利模式' || Number(bill.correctedNet || 0) < 0
       if (!isNegativeMode) return null
+      const memberRows = buildTeamMemberRows(data, bill, team)
       return {
         id: bill.id,
+        rowType: bill.type === '团队佣金' ? 'team' : 'single',
+        expandable: memberRows.length > 0,
+        memberRows,
         site: bill.site || agent.site || '—',
         index: 0,
         cycle: bill.cycle,
@@ -162,6 +266,7 @@ function FieldColumnFilter({ columns, visibleKeys, onChange }) {
 }
 
 function renderTotalCell(column, rows) {
+  if (column.key === 'expand') return null
   if (column.key === 'index') return <b>总计</b>
   if (column.key === 'cycle') return <span>当前筛选 {rows.length} 条</span>
   if (COUNT_KEY_SET.has(column.key)) return <b>{sumRows(rows, column.key)}</b>
@@ -186,33 +291,53 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
   const availableKeys = availableColumns.map((column) => column.key)
   const [filters, setFilters] = useState(FILTER_DEFAULTS)
   const [visibleKeys, setVisibleKeys] = useState(() => availableKeys)
+  const [expandedTeamIds, setExpandedTeamIds] = useState([])
   useEffect(() => setVisibleKeys((current) => {
     const allowed = current.filter((key) => availableKeys.includes(key))
     return allowed.length ? allowed : availableKeys
   }), [portal])
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
-  const rows = allRows.filter((row) => (!filters.cycle || row.cycle === filters.cycle)
+  const rootRows = allRows.filter((row) => (!filters.cycle || row.cycle === filters.cycle)
     && (!filters.agentIdentity || row.agentIdentity === filters.agentIdentity)
     && (!filters.commissionState || row.commissionState === filters.commissionState)
     && (!filters.auditState || row.auditState === filters.auditState)
     && (!filters.keyword || `${row.teamName}${row.agentId}${row.agentAccount}${row.parentAccount}`.toLowerCase().includes(filters.keyword.toLowerCase())))
-  const columns = availableColumns
+  const rows = rootRows.flatMap((row) => {
+    if (!row.expandable || !expandedTeamIds.includes(row.id)) return [row]
+    return [row, ...row.memberRows.map((member, memberIndex) => ({ ...member, index: `${row.index}.${memberIndex + 1}` }))]
+  })
+  const toggleTeam = (row) => setExpandedTeamIds((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])
+  const expandColumn = {
+    key: 'expand',
+    label: '',
+    className: 'negative-expand-column',
+    cellClassName: 'negative-expand-cell',
+    render: (_, row) => row.expandable ? <button
+      type="button"
+      className="negative-expand-button"
+      aria-label={`${expandedTeamIds.includes(row.id) ? '收起' : '展开'} ${row.teamName} 团队成员`}
+      title={`${expandedTeamIds.includes(row.id) ? '收起' : '展开'}团队成员`}
+      onClick={() => toggleTeam(row)}
+    >{expandedTeamIds.includes(row.id) ? <MinusOutlined /> : <PlusOutlined />}</button> : null,
+  }
+  const columns = [expandColumn, ...availableColumns
     .filter((column) => visibleKeys.includes(column.key))
     .map((column) => ({
       ...column,
-      render: (value) => {
+      render: (value, row) => {
         if (MONEY_KEYS.includes(column.key)) return <Money value={value} signed={['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment'].includes(column.key)} />
         if (column.key === 'rate') return <Percent value={value} />
         if (column.key === 'commissionState') return <StatusTag>{value}</StatusTag>
         if (column.key === 'auditState') return <StatusTag>{value}</StatusTag>
-        if (column.key === 'agentAccount') return <b className="ta-primary-text">{value}</b>
+        if (column.key === 'agentAccount') return <b className={`ta-primary-text ${row.rowType === 'member' ? 'negative-member-account' : ''}`}>{value}</b>
         return value
       },
-    }))
+    }))]
   const tableMinWidth = Math.max(1480, columns.length * 118)
   const resetFilters = () => {
     setFilters(FILTER_DEFAULTS)
     setVisibleKeys(availableKeys)
+    setExpandedTeamIds([])
   }
 
   return <section className="ta-stack negative-profit-report-screen">
@@ -226,8 +351,8 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
       <Field label="字段筛选"><FieldColumnFilter columns={availableColumns} visibleKeys={visibleKeys} onChange={setVisibleKeys} /></Field>
       <Field label="代理/团队"><Input value={filters.keyword} onChange={(value) => setFilter('keyword', value)} placeholder="代理账号、编号、团队或上级" /></Field>
     </FilterBar>
-    <Panel title="负盈利代理明细" description="字段较多时可通过字段筛选多选需要展示的明细字段。">
-      <DataTable className="negative-profit-report-table" minWidth={tableMinWidth} columns={columns} rows={rows} paginated footer={<NegativeReportTotalRow columns={columns} rows={rows} />} />
+    <Panel title="负盈利代理明细" description="默认展示团队主记录和单线代理；点击团队行前的“+”可逐行查看团队负责人及其副线。">
+      <DataTable className="negative-profit-report-table" minWidth={tableMinWidth} columns={columns} rows={rows} rowClassName={(row) => row.rowType === 'member' ? 'negative-profit-member-row' : ''} paginated footer={<NegativeReportTotalRow columns={columns} rows={rootRows} />} />
     </Panel>
     <FormulaPanel title="负盈利代理报表口径" items={[
       { label: '净输赢', formula: '总输赢 - 场馆费 - 红利 - 返水 + 账户调整 - 存款手续费 - 提款手续费 + 补单输赢' },

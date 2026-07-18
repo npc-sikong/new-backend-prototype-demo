@@ -1,48 +1,37 @@
 # Design QA
 
-## Comparison Target
+## Verification Target
 
-- Source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-0844d026-536f-441d-a3cb-0baf38cd28f2.png`
-- Implementation screenshot path: `/Users/sikon/Projects/新后台原型/design-qa-team-management-list-viewport.png`
-- Interaction screenshot path: `/Users/sikon/Projects/新后台原型/design-qa-team-management-secondary-modal-viewport.png`
-- Full-view comparison evidence: `/Users/sikon/Projects/新后台原型/design-qa-team-management-comparison.png`
-- Local URL: `http://127.0.0.1:5173/`
-- Viewport: browser default wide desktop viewport.
-- State: 总控后台 / 代理列表 / 团队代理管理，默认列表；另验证列表操作列“开副线”弹窗状态。
+- Local URL: `http://127.0.0.1:5174/`
+- State: 总控后台与代理后台 / 团队代理管理 / 团队详情。
+- Scope: 独立菜单、列表跳转、团队切换、三个切页和角色范围。
 
 ## Findings
 
-- No actionable P0/P1/P2 differences remain for the requested scoped change.
-- Accepted context difference: the source screenshot shows the previous state with four top metric cards and `团队副线/单线`; the user request explicitly asked to remove those elements, so their absence in the implementation is intentional.
-- Layout and spacing: the filter bar now follows the page header directly, matching the requested compact management-page density after removing the four large top labels.
-- Table structure: the list no longer contains `团队副线/单线`; `团队人数` has been renamed to `团队成员`; `团队成员` and `会员人数` remain clickable detail entries.
-- Interaction: clicking the list-row `开副线` action opens the add-secondary modal for that team and does not switch the page into `团队详情`.
-- Typography, colors and tokens: the page continues to use the existing prototype table, button, tag and modal styling, keeping density and visual language consistent with the rest of the backend prototype.
-- Image assets: no raster assets were needed; all visible icons continue to use the existing Ant Design icon set.
-- Console errors checked: none.
+- No actionable P0/P1/P2 issues remain.
+- 三后台左侧“代理管理”均保留“团队详情(新)”入口，并已移除重复的独立“代理操作记录(新)”入口。
+- 团队代理管理只显示团队列表、筛选、创建、编辑、开副线及人数明细，不再显示内嵌详情切页。
+- 列表“团队详情”操作可进入独立模块，并正确定位所点团队。
+- 独立团队详情保留“团队概况”“团队业绩查看”，并新增“代理操作记录”第三切页。
+- 顶部切换团队后，团队编号、负责人、状态和操作记录同步切换。
+- gaodashang01部操作记录切页只显示该团队 2 条记录；切换 apppay01部 后只显示该团队 1 条记录，没有混入其他团队。
+- 代理后台团队详情隐藏开副线、换主线、冻结和解散管理操作，只显示当前演示身份授权团队。
 
 ## Interaction Evidence
 
-- Browser-rendered page opened at `http://127.0.0.1:5173/`.
-- DOM verification confirmed old metric labels `代理部数量`、`生效中团队`、`主副线总数`、`待处理变更` are absent.
-- DOM verification confirmed table headers include `团队成员` and do not include `团队人数` or `团队副线/单线`.
-- Clicking the first row `开副线` opened `为 gaodashang01部 开设副线`; the list stayed visible behind the modal and `团队详情` did not appear.
-- Build checked with `npm run build`.
-
-## Comparison History
-
-- Initial implementation after code change passed the required structural checks.
-- One screenshot pass was repeated with a normal viewport screenshot because the full-page screenshot made the modal evidence hard to read.
-- Post-fix visual evidence is recorded in the list, modal and comparison screenshots above.
+- 从总控团队列表第一行点击“团队详情”后，页签标题与左侧激活菜单均切换为“团队详情”。
+- 三个业务切页均可切换，团队概况完整保留原资金、基础资料、规模、返佣等级和结算口径。
+- 当前团队代理操作记录仍可筛选、重置、导出、下载和分页。
+- `npm run build` 与 `git diff --check` 均通过。
+- `master-pages.jsx` 为 1133 行，符合单文件不超过 1200 行规则。
 
 ## Implementation Checklist
 
-- [x] Removed the four large top metric cards from 总控后台团队代理管理列表.
-- [x] Removed the `团队副线/单线` list column.
-- [x] Renamed `团队人数` to `团队成员` and updated the member detail modal title.
-- [x] Fixed list-row `开副线` so it opens the add-secondary modal without entering team details.
-- [x] Updated the page business note and modification record.
-- [x] Updated the version requirements page.
-- [x] Ran build and browser verification.
+- [x] 移除团队代理管理内嵌团队详情。
+- [x] 新增三后台独立团队详情菜单与页面。
+- [x] 保留团队概况、团队业绩查看切页。
+- [x] 新增按当前团队过滤的代理操作记录切页。
+- [x] 移除三后台独立代理操作记录菜单，只保留团队详情内切页。
+- [x] 同步业务说明、相对原后台说明、版本需求说明和项目规则。
 
 final result: passed
