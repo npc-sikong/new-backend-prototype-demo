@@ -79,14 +79,14 @@ export function TeamAgentProvider({ children }) {
 
   function createSingle(payload) {
     const owner = String(payload.owner || '').trim()
-    if (!owner) return { ok: false, message: '请填写独立线主' }
+    if (!owner) return { ok: false, message: '请填写单线代理' }
     const occupied = data.singles.some((single) => single.owner === owner && single.status !== '已终止') || data.teams.some((team) => team.lines.some((line) => line.agent === owner && !['已退出', '已关闭'].includes(line.status)))
-    if (occupied) return { ok: false, message: '该代理当前已归属团队或独立单线' }
+    if (occupied) return { ok: false, message: '该代理当前已归属团队或单线代理' }
     const index = data.singles.length + 1
     const single = {
-      id: `SINGLE-${String(index).padStart(3, '0')}`, code: `SL-${String(index).padStart(3, '0')}`, name: payload.name || `${owner} 独立单线`, owner,
-      site: '旺财体育', currency: 'CNY', source: payload.source || '站点直接创建', recommender: payload.recommender || '—', plan: payload.plan || '独立单线月结方案',
-      rewardPlan: payload.recommender ? '推荐奖励10%方案' : '未绑定', status: '待生效', startCycle: payload.startCycle || '2026-08', scope: '线主本人代理节点',
+      id: `SINGLE-${String(index).padStart(3, '0')}`, code: `SL-${String(index).padStart(3, '0')}`, name: payload.name || `${owner} 单线代理`, owner,
+      site: '旺财体育', currency: 'CNY', source: payload.source || '站点直接创建', recommender: payload.recommender || '—', plan: payload.plan || '单线代理月结方案',
+      rewardPlan: payload.recommender ? '推荐奖励10%方案' : '未绑定', status: '待生效', startCycle: payload.startCycle || '2026-08', scope: '单线代理本人节点',
       metrics: { newActive: 0, activeMembers: 0, currentNet: 0, previousNegative: 0, assessmentNet: 0, grade: '待计算', rate: 0, payable: 0 },
     }
     setData((current) => ({ ...current, singles: [...current.singles, single] }))
@@ -98,9 +98,9 @@ export function TeamAgentProvider({ children }) {
     if (!applicant) return { ok: false, message: '缺少申请人' }
     const duplicate = data.requests.some((request) => request.type === payload.type && request.applicant === applicant && ['待站点复核', '待补充资料'].includes(request.status))
     if (duplicate) return { ok: false, message: '已存在相同类型的待处理申请' }
-    const balanceHandling = payload.balanceHandling || (payload.type === '独立单线加入团队' || payload.type === '开设副线'
+    const balanceHandling = payload.balanceHandling || (payload.type === '单线代理加入团队' || payload.type === '开设副线'
       ? '加入团队当月结余随代理带入新团队'
-      : payload.type === '副线转独立单线' || payload.type === '终止独立单线'
+      : payload.type === '副线转单线代理' || payload.type === '终止单线代理'
         ? '移出团队当月结余留在原团队'
         : '团队当月结余继续归属原团队')
     const request = {
@@ -122,17 +122,17 @@ export function TeamAgentProvider({ children }) {
       if (approved && request.type === '开设副线') {
         teams = teams.map((team) => ({ ...team, lines: team.lines.map((line) => request.targetUnit.includes(line.lineId) ? { ...line, status: '待生效' } : line) }))
       }
-      if (approved && request.type === '副线转独立单线') {
+      if (approved && request.type === '副线转单线代理') {
         teams = teams.map((team) => ({ ...team, lines: team.lines.map((line) => line.agent === request.applicant ? { ...line, status: '待退出', endCycle: request.effectiveCycle } : line) }))
         singles = singles.map((single) => single.owner === request.applicant ? { ...single, status: '待生效', startCycle: request.effectiveCycle } : single)
       }
-      if (approved && request.type === '独立单线加入团队') {
+      if (approved && request.type === '单线代理加入团队') {
         const targetName = request.targetUnit.split('/')[0].trim()
         const lineCount = teams.reduce((sum, team) => sum + team.lines.length, 0)
-        teams = teams.map((team) => team.name === targetName && !team.lines.some((line) => line.agent === request.applicant) ? { ...team, lines: [...team.lines, { lineId: `LINE-${String.fromCharCode(65 + lineCount)}`, identity: '副线', agent: request.applicant, scope: `${request.applicant} 原独立单线范围`, newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: request.effectiveCycle }] } : team)
+        teams = teams.map((team) => team.name === targetName && !team.lines.some((line) => line.agent === request.applicant) ? { ...team, lines: [...team.lines, { lineId: `LINE-${String.fromCharCode(65 + lineCount)}`, identity: '副线', agent: request.applicant, scope: `${request.applicant} 原单线代理范围`, newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: request.effectiveCycle }] } : team)
         singles = singles.map((single) => single.owner === request.applicant ? { ...single, status: '生效中·待转入' } : single)
       }
-      if (approved && request.type === '终止独立单线') singles = singles.map((single) => single.owner === request.applicant ? { ...single, status: '待终止' } : single)
+      if (approved && request.type === '终止单线代理') singles = singles.map((single) => single.owner === request.applicant ? { ...single, status: '待终止' } : single)
       if (approved && request.type === '团队换主线') {
         const targetName = request.currentUnit.split('/')[0].trim()
         const pendingMain = request.targetUnit.split('/').at(-1).trim()
@@ -227,7 +227,7 @@ export function TeamAgentProvider({ children }) {
     const plan = {
       id: sequence('PLAN', data.plans), type: payload.type || '团队佣金方案', name, site: '旺财体育', effectiveCycle: payload.effectiveCycle || '2026-08', status: '待生效',
       levels: payload.type === '推荐奖励方案' ? undefined : [{ grade: '一星', newActive: 5, activeMembers: 20, netWinLoss: 50000, rate: 0.3 }],
-      ...(payload.type === '推荐奖励方案' ? { rewardRate: Number(payload.rewardRate || 0.1), rewardBase: '独立单线已审核应付佣金', deductedFromSingle: false } : {}),
+      ...(payload.type === '推荐奖励方案' ? { rewardRate: Number(payload.rewardRate || 0.1), rewardBase: '单线代理已审核应付佣金', deductedFromSingle: false } : {}),
     }
     setData((current) => ({ ...current, plans: [...current.plans, plan] }))
     return { ok: true, message: `${name} 已保存为待生效版本` }

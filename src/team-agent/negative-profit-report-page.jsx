@@ -83,7 +83,7 @@ function auditStateOf(bill) {
 
 function buildRows(data) {
   return data.bills
-    .filter((bill) => ['团队佣金', '独立单线佣金'].includes(bill.type))
+    .filter((bill) => ['团队佣金', '单线代理佣金'].includes(bill.type))
     .map((bill) => {
       const agent = data.agents.find((item) => item.account === bill.payee) || {}
       const team = data.teams.find((item) => item.id === bill.unitId || item.name === bill.unitName)
@@ -97,9 +97,9 @@ function buildRows(data) {
         teamName: bill.unitName || team?.name || agent.unit || '—',
         agentId: agent.id || bill.agentId || '—',
         agentAccount: bill.payee,
-        teamType: bill.teamType || team?.teamType || (bill.type === '独立单线佣金' ? '独立单线' : '—'),
+        teamType: bill.teamType || team?.teamType || (bill.type === '单线代理佣金' ? '单线代理' : '—'),
         parentAccount: agent.parent || bill.recommender || '—',
-        teamMembers: bill.teamMembers ?? team?.lines?.length ?? (bill.type === '独立单线佣金' ? 1 : 0),
+        teamMembers: bill.teamMembers ?? team?.lines?.length ?? (bill.type === '单线代理佣金' ? 1 : 0),
         subAgentCount: bill.subAgentCount ?? agent.subAgents ?? 0,
         registeredCount: bill.registeredCount ?? agent.members ?? 0,
         firstDepositCount: bill.firstDepositCount ?? 0,
@@ -217,7 +217,7 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
 
   return <section className="ta-stack negative-profit-report-screen">
     <SectionHeader title="负盈利代理报表" description={portal === 'master' ? '按佣金周期汇总负盈利模式代理及负向结余账单，集中核对人数、收支、成本、结余、佣金和审核发放信息。' : portal === 'site' ? '同步总控负盈利代理口径，仅查看旺财体育本站的代理及负向结余账单。' : '同步总控负盈利代理口径，仅查看当前演示身份本人可见的负向结余账单。'} actions={<Toolbar><Button icon={<DownloadOutlined />} variant="slate" onClick={() => onToast(`负盈利代理报表已导出 ${rows.length} 条`)}>导出</Button><Button icon={<FolderOpenOutlined />} variant="ghost" onClick={() => onToast('负盈利代理报表文件已下载')}>下载文件</Button></Toolbar>} />
-    {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '数据固定为旺财体育本站，不展示其他站点记录。' : '团队负责人只查看本人团队账单，副线不承接平台账单，独立代理只查看本人单线账单；审核人员、审核时间、维护人和调整原因不向代理端展示。'}</Alert>}
+    {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '数据固定为旺财体育本站，不展示其他站点记录。' : '团队负责人只查看本人团队账单，副线不承接平台账单，单线代理只查看本人单线账单；审核人员、审核时间、维护人和调整原因不向代理端展示。'}</Alert>}
     <FilterBar onSearch={() => onToast(`已查询 ${rows.length} 条负盈利代理记录`)} onReset={resetFilters}>
       <Field label="佣金周期"><Select value={filters.cycle} onChange={(value) => setFilter('cycle', value)} placeholder="全部周期" options={unique(allRows, 'cycle')} /></Field>
       <Field label="团队类型"><Select value={filters.teamType} onChange={(value) => setFilter('teamType', value)} placeholder="全部类型" options={unique(allRows, 'teamType')} /></Field>

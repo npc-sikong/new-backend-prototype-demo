@@ -62,14 +62,14 @@ const AGENT_SCOPES = {
     account: 'dailiwc001',
     directAgent: 'apppay',
     teamId: 'SINGLE-001',
-    team: '独立单线01',
-    teamName: '独立单线01',
+    team: '单线代理01',
+    teamName: '单线代理01',
     lineId: 'SINGLE-001',
-    settlementMode: '独立单线',
-    settlementIdentity: '独立线主',
-    identity: '独立线主',
-    settlementUnit: '独立单线01',
-    unit: '独立单线01',
+    settlementMode: '单线代理',
+    settlementIdentity: '单线代理',
+    identity: '单线代理',
+    settlementUnit: '单线代理01',
+    unit: '单线代理01',
     effectiveCycle: '2026-07',
     cycle: '2026-07',
   },
@@ -236,7 +236,7 @@ export const LEGACY_STATE = {
       id: 'TRF-WC-20260715-005', transferNo: 'TR202607150005', orderNo: 'TR202607150005', transferType: '代理额度转会员',
       from: 'dailiwc001', fromAccount: 'dailiwc001', fromId: '1749', fromBeforeAmount: 68903.14, fromChangeAmount: -10000, fromAfterAmount: 68903.14,
       to: 'wc_dream_01', toAccount: 'wc_dream_01', toId: '20174901', toBeforeAmount: 21860, toChangeAmount: 10000, toAfterAmount: 21860, type: '代理额度转会员', amount: 10000, fee: 0,
-      operatorName: 'dailiwc001', operatorIdentity: '独立线主', transferTime: '2026-07-15 10:02', createdAt: '2026-07-15 10:02', status: '已取消', failureReason: '代理主动取消', voucher: '—',
+      operatorName: 'dailiwc001', operatorIdentity: '单线代理', transferTime: '2026-07-15 10:02', createdAt: '2026-07-15 10:02', status: '已取消', failureReason: '代理主动取消', voucher: '—',
     }),
   ],
 
@@ -269,7 +269,7 @@ export const LEGACY_STATE = {
       id: 'APAY-WC-20260715-005', agentPayOrderNo: 'AP202607150005', orderNo: 'AP202607150005', code: 'AP202607150005', apiTransferNo: 'DP202607150005',
       depositId: 'DEP-WC-20260715-005', depositOrderNo: 'DP202607150005', accountChangeId: 'ACHG-WC-20260715-005', accountChangeNo: 'AC202607150005',
       member: 'wc_dream_01', payee: 'wc_dream_01', memberId: '20174901', memberAccount: 'wc_dream_01', memberName: '周女士', type: '额度代存', payType: '额度代存', transactionType: '额度代存', agentPayType: 'AGENT_BALANCE', method: '代理预付金', amount: 6000, agentPayAmount: 6000,
-      turnoverMultiple: 1, requiredTurnover: 6000, status: '审核成功', agentPayStatus: 22, applicant: 'dailiwc001', remark: '独立线主额度代存', userRemark: '独立线主额度代存', submittedAt: '2026-07-15 08:49', appliedAt: '2026-07-15 08:49', createTime: '2026-07-15 08:49', createdAt: '2026-07-15 08:49', reviewedAt: '2026-07-15 08:51', reviewer: '站点财务',
+      turnoverMultiple: 1, requiredTurnover: 6000, status: '审核成功', agentPayStatus: 22, applicant: 'dailiwc001', remark: '单线代理额度代存', userRemark: '单线代理额度代存', submittedAt: '2026-07-15 08:49', appliedAt: '2026-07-15 08:49', createTime: '2026-07-15 08:49', createdAt: '2026-07-15 08:49', reviewedAt: '2026-07-15 08:51', reviewer: '站点财务',
     }),
   ],
 
@@ -296,7 +296,7 @@ export const LEGACY_STATE = {
     }),
     legacyRecord('dailiwc001', {
       id: 'VFEE-WC-202607-005', feeOrderNo: 'VF202607005', periodStart: '2026-07-01', periodEnd: '2026-07-15', periodRange: '2026-07-01 ~ 2026-07-15',
-      parentAgentName: 'apppay', agentName: 'dailiwc001', agentLevelLabel: '独立线主', profitShareRate: 0.4, profitShareRateText: '40%', venueCode: 'OB', venueName: 'OB体育', venueCount: 1,
+      parentAgentName: 'apppay', agentName: 'dailiwc001', agentLevelLabel: '单线代理', profitShareRate: 0.4, profitShareRateText: '40%', venueCode: 'OB', venueName: 'OB体育', venueCount: 1,
       turnover: 375000, grossWinLoss: 82000, venueFeeRate: 0.05, directShareFee: 4100, levelShareFee: 0, totalShareFee: 4100, status: '已确认', confirmedAt: '2026-07-15 02:15',
     }),
   ],
@@ -343,7 +343,7 @@ export const LEGACY_STATE = {
     }),
     legacyRecord('dailiwc001', {
       id: 'PPA-WC-1749', openingBalance: 25000, increaseAmount: 10000, usedAmount: 4200, available: 30800, prepaidBalance: 30800, frozen: 6000, totalBalance: 36800,
-      lastChange: 10000, debtAmount: 0, status: '生效中', updatedAt: '2026-07-15 10:05', remark: '独立线主预付金账户',
+      lastChange: 10000, debtAmount: 0, status: '生效中', updatedAt: '2026-07-15 10:05', remark: '单线代理预付金账户',
     }),
   ],
 
@@ -387,7 +387,7 @@ export const LEGACY_STATE = {
       debtorCount: 0, outstandingAmount: 0, reversalRecordNos: ['CZ531'], status: '已结清', updatedAt: '2026-07-15 02:30',
     }),
     legacyRecord('dailiwc001', {
-      id: 'REVSTAT-WC-202607-004', statStart: '2026-07-01', statEnd: '2026-07-15', agentName: 'dailiwc001', agentLevelLabel: '独立线主', paidBorrowerCount: 2,
+      id: 'REVSTAT-WC-202607-004', statStart: '2026-07-01', statEnd: '2026-07-15', agentName: 'dailiwc001', agentLevelLabel: '单线代理', paidBorrowerCount: 2,
       advanceBalanceAmount: 94.34, advanceLevelCommissionAmount: 0, advanceDirectGrossAmount: 6600, advanceDirectCommissionAmount: 1200,
       debtorCount: 1, outstandingAmount: 1840, reversalRecordNos: ['CZ492', 'CZ533'], status: '部分回款', updatedAt: '2026-07-15 02:30',
     }),
@@ -412,7 +412,7 @@ export const LEGACY_STATE = {
     }),
     legacyRecord('dailiwc001', {
       id: 'REVRETURN-WC-20260710-005', reversalStatId: 'REVSTAT-WC-202607-004', reversalRecordNo: 'CZ492', debtType: 'BALANCE', debtTypeLabel: '余额',
-      direction: 'REPAYMENT', directionLabel: '回款', amount: 94.34, gapAmount: 0, occurredAt: '2026-07-10 23:07', status: '已结清', remark: '独立线主余额冲正回款',
+      direction: 'REPAYMENT', directionLabel: '回款', amount: 94.34, gapAmount: 0, occurredAt: '2026-07-10 23:07', status: '已结清', remark: '单线代理余额冲正回款',
     }),
     legacyRecord('dailiwc001', {
       id: 'REVRETURN-WC-20260714-006', reversalStatId: 'REVSTAT-WC-202607-004', reversalRecordNo: 'CZ533', debtType: 'DIRECT_GROSS', debtTypeLabel: '直属会员盈利',

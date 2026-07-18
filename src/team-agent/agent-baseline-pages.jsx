@@ -25,7 +25,7 @@ import {
 const ROLE_META = {
   main: { account: 'gaodashang', label: '团队负责人', identity: '团队负责人', unit: 'gaodashang01部', lineId: 'LINE-A' },
   secondary: { account: 'WC002', label: '副线', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-B' },
-  independent: { account: 'dailiwc001', label: '独立代理', identity: '独立代理', unit: '独立单线01', lineId: 'SINGLE-001' },
+  independent: { account: 'dailiwc001', label: '单线代理', identity: '单线代理', unit: '单线代理01', lineId: 'SINGLE-001' },
 }
 
 function Link({ children, onClick }) {
@@ -80,7 +80,7 @@ function DownlinePage({ role, onToast, onNavigate }) {
   const histories = selected ? relationshipRows(data, selected.account) : []
   return <>
     <SectionHeader title="代理列表" description={`${meta.label} ${meta.account} 仅查看本人及授权下级的代理树、经营归属和关系版本。`} actions={onNavigate ? <Button icon={<SwapOutlined />} variant="ghost" onClick={() => onNavigate('requests')}>关系与模式申请</Button> : null} />
-    {role !== 'main' && <Alert title="查看范围">当前身份仅显示本人节点及直属下级，不展示其他副线或其他独立单线数据。</Alert>}
+    {role !== 'main' && <Alert title="查看范围">当前身份仅显示本人节点及直属下级，不展示其他副线或其他单线代理数据。</Alert>}
     <FilterBar onSearch={() => onToast?.(`已查询到 ${rows.length} 条代理记录`)} onReset={() => setFilters({ keyword: '', status: '', model: '' })} onExport={() => onToast?.(`已生成 ${rows.length} 条下级代理导出演示`)}>
       <Field label="代理账号"><Input value={filters.keyword} onChange={(keyword) => setFilters({ ...filters, keyword })} placeholder="代理ID、账号或上级" /></Field>
       <Field label="代理状态"><Select value={filters.status} onChange={(status) => setFilters({ ...filters, status })} placeholder="全部状态" options={['启用', '停用']} /></Field>
@@ -110,7 +110,7 @@ function DownlinePage({ role, onToast, onNavigate }) {
 function ReadonlyPlansPage({ role }) {
   const { data } = useTeamAgent()
   const meta = ROLE_META[role] || ROLE_META.main
-  const type = role === 'independent' ? '独立单线方案' : '团队佣金方案'
+  const type = role === 'independent' ? '单线代理方案' : '团队佣金方案'
   const rows = data.plans.filter((item) => item.type === type || (role === 'independent' && item.type === '推荐奖励方案'))
   const [selected, setSelected] = useState(null)
   const columns = [
@@ -129,7 +129,7 @@ function ReadonlyPlansPage({ role }) {
       ]} rows={[...data.activityDefinitions, ...data.agentCosts]} rowKey="id" />
     </Panel>
     <Modal open={!!selected} title={`${selected?.name || ''} · 方案详情`} description="查看当前方案等级门槛或推荐奖励口径。" onClose={() => setSelected(null)} onConfirm={() => setSelected(null)} confirmText="关闭" showCancel={false} width={900}>
-      {selected?.type === '推荐奖励方案' ? <DescriptionGrid columns={2} items={[{ label: '奖励基数', value: selected.rewardBase }, { label: '奖励比例', value: <Percent value={selected.rewardRate} /> }, { label: '是否扣减线主佣金', value: selected.deductedFromSingle ? '是' : '否' }, { label: '生效周期', value: selected.effectiveCycle }]} /> : <DataTable columns={[
+      {selected?.type === '推荐奖励方案' ? <DescriptionGrid columns={2} items={[{ label: '奖励基数', value: selected.rewardBase }, { label: '奖励比例', value: <Percent value={selected.rewardRate} /> }, { label: '是否扣减单线代理佣金', value: selected.deductedFromSingle ? '是' : '否' }, { label: '生效周期', value: selected.effectiveCycle }]} /> : <DataTable columns={[
         { key: 'grade', label: '等级' }, { key: 'newActive', label: '新增活跃会员' }, { key: 'firstDepositMembers', label: '首充人数' }, { key: 'firstDepositAmount', label: '首充额度', render: (value) => <Money value={value} /> }, { key: 'activeMembers', label: '活跃会员' }, { key: 'netWinLoss', label: '当月结余门槛', render: (value) => <Money value={value} /> }, { key: 'rate', label: '佣金比例', render: (value) => <Percent value={value} /> },
       ]} rows={selected?.levels || []} />}
     </Modal>
