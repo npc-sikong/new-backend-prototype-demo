@@ -206,7 +206,7 @@ function withCurrentOption(options, value) {
 
 function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' }) {
   const { data, addAgent, updateAgent } = useTeamAgent()
-  const emptyFilters = { id: '', account: '', site: '', status: '', google: '', registeredFrom: '' }
+  const emptyFilters = { id: '', account: '', site: '', agentType: '', status: '', google: '', registeredFrom: '' }
   const defaultAgentForm = { account: '', password: '', site: '旺财体育', agentType: '多层级代理', teamAgentType: '官方代理', identity: '团队负责人', plan: '多层级返佣方案', carryAllFees: '否', status: '启用', remark: '' }
   const [filters, setFilters] = useState(emptyFilters)
   const [showAdd, setShowAdd] = useState(false)
@@ -228,6 +228,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     return inPortalScope(agent, portal, role) && (!filters.id || String(agent.id).includes(filters.id))
       && (!filters.account || agent.account.toLowerCase().includes(filters.account.toLowerCase()))
       && (!filters.site || agent.site === filters.site)
+      && (!filters.agentType || normalizeAgentType(agent) === filters.agentType)
       && (!filters.status || agent.status === filters.status)
       && (!filters.registeredFrom || registeredDate >= filters.registeredFrom)
   }), [data.agents, filters, portal, role])
@@ -353,6 +354,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
         <Field label="代理ID"><Input value={filters.id} onChange={(value) => setFilter('id', value)} placeholder="请输入代理ID" /></Field>
         <Field label="代理账号"><Input value={filters.account} onChange={(value) => setFilter('account', value)} placeholder="请输入代理账号" /></Field>
         {portal === 'master' && <Field label="站点编码"><Select value={filters.site} onChange={(value) => setFilter('site', value)} placeholder="请选择站点" options={SITE_OPTIONS} /></Field>}
+        <Field label="代理类型"><Select value={filters.agentType} onChange={(value) => setFilter('agentType', value)} placeholder="全部类型" options={AGENT_TYPE_OPTIONS} /></Field>
         <Field label="代理状态"><Select value={filters.status} onChange={(value) => setFilter('status', value)} placeholder="代理状态" options={[{ value: '启用', label: '正常' }, { value: '停用', label: '停用' }]} /></Field>
         <Field label="谷歌验证"><Select value={filters.google} onChange={(value) => setFilter('google', value)} placeholder="全部状态" options={['未绑定']} /></Field>
         <Field label="代理注册时间"><Input type="date" value={filters.registeredFrom} onChange={(value) => setFilter('registeredFrom', value)} /></Field>
@@ -1121,10 +1123,8 @@ export function MasterPage({ page, navigate, onToast, portal = 'master', role = 
   if (page === 'teams') return <MasterTeamsPage navigate={navigate} onToast={onToast} portal={portal} role={role} />
   if (page === 'teamDetails') return <TeamDetailPage target={detailTarget} onToast={onToast} portal={portal} role={role} />
   if (page === 'plans') return <MasterPlansPageV2 onToast={onToast} portal={portal} role={role} />
-  if (page === 'settlement') return <MasterSettlementPage onToast={onToast} portal={portal} role={role} />
   if (page === 'records') return <MasterRecordsPage onToast={onToast} portal={portal} role={role} />
-  if (page === 'relations') return <MasterRelationsPage onToast={onToast} />
   if (page === 'cycle') return <MasterCyclePage portal={portal} onToast={onToast} />
-  if (['reversal', 'returns', 'revenue'].includes(page)) return <MasterReportPage kind={page} onToast={onToast} portal={portal} role={role} />
+  if (page === 'revenue') return <MasterReportPage kind={page} onToast={onToast} portal={portal} role={role} />
   return <MasterAgentsPage navigate={navigate} onToast={onToast} portal={portal} role={role} />
 }

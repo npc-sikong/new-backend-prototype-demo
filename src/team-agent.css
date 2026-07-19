@@ -127,9 +127,15 @@
 .negative-profit-report-table .ta-table { width: max-content; min-width: 100%; }
 .negative-profit-report-table .negative-expand-column, .negative-profit-report-table .negative-expand-cell { position: sticky; left: 0; z-index: 3; width: 42px; min-width: 42px; max-width: 42px; padding: 0; text-align: center; background: #f8fafc; }
 .negative-profit-report-table .negative-expand-column { z-index: 5; }
+.negative-profit-report-table .negative-agent-name-column, .negative-profit-report-table .negative-agent-name-cell { position: sticky; left: 42px; z-index: 3; min-width: 132px; background: #f8fafc; box-shadow: 8px 0 14px rgba(49, 73, 99, .06); }
+.negative-profit-report-table .negative-agent-name-column { z-index: 5; }
+.negative-profit-report-table .negative-operation-column, .negative-profit-report-table .negative-operation-cell { position: sticky; right: 0; z-index: 3; min-width: 164px; background: #fff; box-shadow: -8px 0 14px rgba(49, 73, 99, .07); }
+.negative-profit-report-table .negative-operation-column { z-index: 5; background: #f8fafc; }
 .negative-profit-report-table .negative-profit-member-row td { border-top-color: #c9def2; background: #e6f2ff; }
 .negative-profit-report-table .negative-profit-member-row .negative-expand-cell { background: #e6f2ff; }
+.negative-profit-report-table .negative-profit-member-row .negative-agent-name-cell, .negative-profit-report-table .negative-profit-member-row .negative-operation-cell { background: #e6f2ff; }
 .negative-profit-report-table .negative-profit-member-row:hover td, .negative-profit-report-table .negative-profit-member-row:hover .negative-expand-cell { background: #d9ebfd; }
+.negative-profit-report-table .negative-profit-member-row:hover .negative-agent-name-cell, .negative-profit-report-table .negative-profit-member-row:hover .negative-operation-cell { background: #d9ebfd; }
 .negative-expand-button { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 1px solid #69aee5; border-radius: 3px; color: #2588d8; background: #fff; font-size: 10px; cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease; }
 .negative-expand-button:hover { border-color: #2588d8; color: #126faf; background: #edf7ff; }
 .negative-expand-button:focus-visible { outline: 2px solid rgba(43,152,241,.3); outline-offset: 1px; }

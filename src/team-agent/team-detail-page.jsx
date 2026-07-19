@@ -40,8 +40,17 @@ function portalTeams(data, portal, role) {
 
 export function TeamDetailPage({ onToast, portal = 'master', role = 'main', target }) {
   const { data, addSecondary, setTeamStatus, changeMain } = useTeamAgent()
-  const visibleTeams = useMemo(() => portalTeams(data, portal, role), [data, portal, role])
-  const [selectedId, setSelectedId] = useState(() => target?.teamId || visibleTeams[0]?.id || '')
+  const scopedTeams = useMemo(() => portalTeams(data, portal, role), [data, portal, role])
+  const [teamFilters, setTeamFilters] = useState({ site: '', keyword: '', mainAgent: '' })
+  const visibleTeams = useMemo(() => scopedTeams.filter((item) => {
+    const keyword = teamFilters.keyword.trim().toLowerCase()
+    const mainAgent = teamFilters.mainAgent.trim().toLowerCase()
+    return (!teamFilters.site || item.site === teamFilters.site)
+      && (!keyword || `${item.name}${item.code}`.toLowerCase().includes(keyword))
+      && (!mainAgent || item.mainAgent.toLowerCase().includes(mainAgent))
+  }), [scopedTeams, teamFilters])
+  const siteOptions = useMemo(() => [...new Set(scopedTeams.map((item) => item.site))], [scopedTeams])
+  const [selectedId, setSelectedId] = useState(() => target?.teamId || scopedTeams[0]?.id || '')
   const [tab, setTab] = useState(() => target?.tab || 'overview')
   const [modal, setModal] = useState(null)
   const [secondaryForm, setSecondaryForm] = useState({ agent: '', scope: '', startCycle: '2026-08' })
@@ -58,7 +67,17 @@ export function TeamDetailPage({ onToast, portal = 'master', role = 'main', targ
   }, [selectedId, visibleTeams])
 
   const team = visibleTeams.find((item) => item.id === selectedId)
-  if (!team) return <Panel title="团队详情" description="当前身份暂无可查看团队。"><div className="ta-empty-cell">暂无数据</div></Panel>
+  const resetTeamFilters = () => {
+    setTeamFilters({ site: '', keyword: '', mainAgent: '' })
+    setSelectedId(scopedTeams[0]?.id || '')
+    setTab('overview')
+  }
+  const teamFiltersBar = <FilterBar onSearch={() => onToast(`已查询 ${visibleTeams.length} 个团队`)} onReset={resetTeamFilters}>
+    {portal !== 'agent' && <Field label="所属站点"><Select value={teamFilters.site} onChange={(value) => setTeamFilters({ ...teamFilters, site: value })} placeholder="全部站点" options={siteOptions} /></Field>}
+    <Field label="团队搜索"><Input value={teamFilters.keyword} onChange={(value) => setTeamFilters({ ...teamFilters, keyword: value })} placeholder="团队名称或编号" /></Field>
+    <Field label="团队负责人搜索"><Input value={teamFilters.mainAgent} onChange={(value) => setTeamFilters({ ...teamFilters, mainAgent: value })} placeholder="负责人账号" /></Field>
+  </FilterBar>
+  if (!team) return <section className="ta-stack team-detail-module-screen"><SectionHeader title="团队详情" description="独立查看团队概况、团队业绩和代理操作记录，不再占用团队代理管理列表页面。" />{teamFiltersBar}<Panel title="暂无匹配团队" description="请调整站点、团队或团队负责人筛选条件后重新查询。"><div className="ta-empty-cell">暂无数据</div></Panel></section>
 
   const statDates = ['2026-07-17', '2026-07-16', '2026-07-15']
   const commissionRows = buildTeamCommissionRows(team)
@@ -108,12 +127,7 @@ export function TeamDetailPage({ onToast, portal = 'master', role = 'main', targ
 
   return <section className="ta-stack team-detail-module-screen">
     <SectionHeader title="团队详情" description="独立查看团队概况、团队业绩和代理操作记录，不再占用团队代理管理列表页面。" actions={portal !== 'agent' && <><Button icon={<UserAddOutlined />} onClick={openSecondary}>开设副线</Button><Button icon={<SwapOutlined />} variant="ghost" onClick={() => setModal('main')}>更换主线</Button><Button icon={<LockOutlined />} variant="warning" onClick={() => showResult(setTeamStatus(team.id, team.status === '冻结' ? '生效中' : '冻结'), onToast)}>{team.status === '冻结' ? '解冻' : '冻结'}</Button><Button icon={<StopOutlined />} variant="danger" onClick={() => showResult(setTeamStatus(team.id, '已解散'), onToast)}>解散</Button></>} />
-    <FilterBar onSearch={() => onToast(`已切换至 ${team.name}`)} onReset={() => { setSelectedId(visibleTeams[0]?.id || ''); setTab('overview') }}>
-      <Field label="选择团队"><Select value={selectedId} onChange={(value) => { setSelectedId(value); setPerformanceFilters(EMPTY_PERFORMANCE_FILTERS) }} options={visibleTeams.map((item) => ({ value: item.id, label: `${item.name} / ${item.mainAgent}` }))} /></Field>
-      <Field label="团队编号"><Input value={team.code} disabled /></Field>
-      {portal === 'master' && <Field label="所属站点"><Input value={team.site} disabled /></Field>}
-      <Field label="团队负责人"><Input value={team.mainAgent} disabled /></Field>
-    </FilterBar>
+    {teamFiltersBar}
     <div className="team-detail-current"><b>{team.name}</b><span>{team.code}</span><span>{team.site} / {team.currency}</span><StatusTag>{team.status}</StatusTag></div>
     <Tabs items={tabs} active={tab} onChange={setTab} />
     {tab === 'overview' && <TeamOverviewList team={team} data={data} />}
