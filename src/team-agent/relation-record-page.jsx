@@ -107,8 +107,8 @@ export function MasterRelationsPage({ onToast }) {
         <Field label="迁移本期未结算费用"><Select value={filters.migrateFee} onChange={(value) => setFilter('migrateFee', value)} placeholder="全部" options={['是', '否']} /></Field>
         <Field label="变更状态"><Select value={filters.changeStatus} onChange={(value) => setFilter('changeStatus', value)} placeholder="全部状态" options={['已生效', '待生效', '已取消', '已失败']} /></Field>
         <Field label="迁移状态"><Select value={filters.migrateStatus} onChange={(value) => setFilter('migrateStatus', value)} placeholder="全部状态" options={['无需迁移', '待处理', '已完成', '失败']} /></Field>
-        <Field label="操作日期"><Input value={filters.operatedAt} onChange={(value) => setFilter('operatedAt', value)} placeholder="YYYY-MM-DD" /></Field>
-        <Field label="新代理生效日（按日匹配）"><Input value={filters.effectDate} onChange={(value) => setFilter('effectDate', value)} placeholder="YYYY-MM-DD" /></Field>
+        <Field label="操作日期"><Input type="date" value={filters.operatedAt} onChange={(value) => setFilter('operatedAt', value)} /></Field>
+        <Field label="新代理生效日（按日匹配）"><Input type="date" value={filters.effectDate} onChange={(value) => setFilter('effectDate', value)} /></Field>
       </div>
       <div className="relation-filter-actions">
         <Button icon={<ReloadOutlined />} variant="ghost" onClick={resetFilters}>重置条件</Button>

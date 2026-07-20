@@ -7,13 +7,10 @@ import {
   FullscreenOutlined,
   MenuOutlined,
   MobileOutlined,
-  ProfileOutlined,
   ReloadOutlined,
   SafetyCertificateOutlined,
   SearchOutlined,
   SendOutlined,
-  SettingOutlined,
-  SolutionOutlined,
   TeamOutlined,
   UserOutlined,
   WalletOutlined,
@@ -42,13 +39,13 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', teamDetails: '团队详情', plans: '佣金方案', records: '佣金记录', revenue: '代理收益看板', cycle: '结算周期设置',
+    version: '版本需求说明', agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', revenue: '代理收益看板',
   },
   site: {
-    agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', teamDetails: '团队详情', records: '佣金记录', cycle: '结算周期设置',
+    agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理',
   },
   agent: {
-    agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', teamDetails: '团队详情',
+    agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理',
   },
 }
 
@@ -60,11 +57,7 @@ const MASTER_NAV = [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
-    { id: 'teamDetails', label: '团队详情', mark: '新', icon: ProfileOutlined },
-    { id: 'plans', label: '佣金方案', mark: '改', icon: SolutionOutlined },
-    { id: 'records', label: '佣金记录', mark: '改', icon: ProfileOutlined },
     { id: 'revenue', label: '代理收益看板', mark: '改', icon: WalletOutlined },
-    { id: 'cycle', label: '结算周期设置', mark: '改', icon: SettingOutlined },
   ] },
 ]
 
@@ -73,9 +66,6 @@ const SITE_NAV = [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
-    { id: 'teamDetails', label: '团队详情', mark: '新', icon: ProfileOutlined },
-    { id: 'records', label: '佣金记录', mark: '改', icon: ProfileOutlined },
-    { id: 'cycle', label: '结算周期设置', mark: '改', icon: SettingOutlined },
   ] },
 ]
 
@@ -84,7 +74,6 @@ const AGENT_NAV = [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
-    { id: 'teamDetails', label: '团队详情', mark: '新', icon: ProfileOutlined },
   ] },
 ]
 
@@ -161,7 +150,7 @@ function PrototypeApp() {
   const portalMeta = PORTAL_META[portal]
   const navigateFromPage = (nextPage, target) => {
     if (nextPage === 'teamDetails' && target) setTeamDetailTargets((current) => ({ ...current, [portal]: target }))
-    navigateTo(portal, nextPage)
+    navigateTo(portal, nextPage === 'teamDetails' ? 'teams' : nextPage)
   }
   const renderPage = () => {
     if (portal === 'master' && page === 'version') return <VersionRequirementsPage navigateTo={navigateTo} />

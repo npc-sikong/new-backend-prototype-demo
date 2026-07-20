@@ -60,22 +60,38 @@ const ROLE_SYNC_ITEMS = {
   ],
 }
 
-const MASTER_TEAM_REVISIONS = {
-  teams: ['teams', '团队代理管理', '代理部列表与管理操作', '团队代理管理不再内嵌团队详情，仅保留团队列表、成员和会员人数下钻，以及创建、编辑和开副线操作；列表中的团队详情进入左侧独立模块并定位当前团队。', '列表页可完成团队管理与人数下钻；点击团队详情后页面和菜单切换到独立团队详情模块。'],
+const MERGED_ITEMS = {
+  master: {
+    agents: ['agents', '代理列表', '代理资料、取款密码与结算周期', '代理列表新增重置取款密码，默认 qq123456 并可手动输入；结算周期设置保留原配置内容并合并为本页切页，独立菜单移除；日期筛选统一为年月日。', '可重置取款密码、切换代理列表与结算周期设置，并分别保存普通代理和团队代理周期。'],
+    negativeProfit: ['negativeProfit', '负盈利代理佣金结算', '负盈利账单、佣金方案与佣金记录', '负盈利结算宽表内容保持不变，佣金方案和佣金记录合并为本页切页并移除独立菜单；修改发放弹窗删除“转入下期结余”展示，仍只允许减少发放金额并填写备注。', '三个切页可切换且原报表内容完整；修改发放金额不能超过当前可发放金额。'],
+    teams: ['teams', '团队代理管理', '团队列表与团队详情', '团队详情完整合并为团队代理管理切页，独立菜单移除；列表点击团队详情后直接切换并定位对应团队。', '可在团队列表与团队详情间切换，详情中的概况、业绩和操作记录保持可用。'],
+  },
+  site: {
+    agents: ['agents', '代理列表', '本站代理资料与结算周期', '在旺财体育本站范围内新增重置取款密码，并将结算周期设置合并为代理列表切页。', '可维护本站代理取款密码并分别保存普通代理和团队代理周期。'],
+    negativeProfit: ['negativeProfit', '负盈利代理佣金结算', '本站负盈利账单与佣金记录', '佣金记录合并为负盈利代理佣金结算切页，两个报表内容保持不变。', '可处理本站负盈利账单并切换查询佣金记录。'],
+    teams: ['teams', '团队代理管理', '本站团队列表与详情', '团队详情合并为团队代理管理切页，列表可定位进入对应团队。', '只在旺财体育范围内切换查看团队列表、概况、业绩和操作记录。'],
+  },
+  agent: {
+    teams: ['teams', '团队代理管理', '本人授权团队列表与详情', '团队详情合并为团队代理管理切页，按当前身份保留只读或授权范围。', '团队负责人、副线和单线代理只能查看本人授权团队与详情。'],
+  },
 }
-const MASTER_TEAM_DETAIL_ITEM = ['teamDetails', '团队详情', '团队概况、业绩与操作流水', '从团队代理管理中独立为左侧菜单模块，保留团队概况、团队业绩查看和代理操作记录切页；顶部支持所属站点筛选、团队名称或编号搜索、团队负责人搜索，筛选结果统一驱动三个切页。', '可从左侧菜单直接进入或从团队列表定位进入；可按站点、团队或负责人快速定位，并核对概况、业绩总计及当前团队操作流水。']
+
+const REMOVED_AFTER_MERGE = {
+  master: new Set(['plans', 'records', 'cycle', 'teamDetails']),
+  site: new Set(['records', 'cycle', 'teamDetails']),
+  agent: new Set(['teamDetails']),
+}
 
 const VERSION_2_GROUPS = VERSION_2_GROUPS_BASE.map((group) => {
-  if (ROLE_SYNC_ITEMS[group.portal]) return { ...group, items: ROLE_SYNC_ITEMS[group.portal] }
-  if (group.portal !== 'master') return group
-  const revised = group.items.map((item) => MASTER_TEAM_REVISIONS[item[0]] || item)
-  const teamIndex = revised.findIndex((item) => item[0] === 'teams')
-  revised.splice(teamIndex + 1, 0, MASTER_TEAM_DETAIL_ITEM)
-  return { ...group, items: revised }
+  const source = ROLE_SYNC_ITEMS[group.portal] || group.items
+  const items = source
+    .filter((item) => !REMOVED_AFTER_MERGE[group.portal]?.has(item[0]))
+    .map((item) => MERGED_ITEMS[group.portal]?.[item[0]] || item)
+  return { ...group, items }
 })
 
 const VERSION_1_GROUPS = [
-  { portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [['h5', 'H5 前端切换与提现页', '后台到会员端演示入口', '在详情页顶部保留 H5 前端切换入口；H5 提现页按手机端窄屏样式展示，选择提现方式后展开账户、金额和资金密码，并在提现金额标题下方展示可提现、锁定及“解锁条件”弹层。', '可从后台进入 H5、以手机端比例查看钱包概览、切换隐藏无余额场馆、选择提现方式、查看可提/锁定金额，并在解锁条件弹层内按“类型 / 锁定额度 / 还需解锁流水”合并核对场馆流水、充值流水和彩金流水；弹层不展示已解锁记录和盈利解锁额度行。', 'h5']] },
+  { portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [['h5', 'H5 前端切换与提现页', '后台到会员端演示入口', '在详情页顶部保留 H5 前端切换入口；H5 提现页按手机端窄屏样式展示，选择提现方式后展开账户、金额和资金密码，并在提现金额标题下方展示可提现、锁定及“解锁条件”弹层。解锁条件底部以两条编号说明提示流水同步延迟，以及充值或活动盈利金额在所有提现流水完成后一并解锁。', '可从后台进入 H5、以手机端比例查看钱包概览、切换隐藏无余额场馆、选择提现方式、查看可提/锁定金额，并在解锁条件弹层内按“类型 / 锁定额度 / 还需解锁流水”合并核对场馆流水、充值流水和彩金流水；弹层底部两条提示完整显示且不遮挡列表。', 'h5']] },
   { portal: 'site', title: '站点后台', icon: <BankOutlined />, items: [] },
   { portal: 'agent', title: '代理后台', icon: <TeamOutlined />, items: [] },
 ]

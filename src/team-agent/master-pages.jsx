@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ApartmentOutlined,
   AuditOutlined,
@@ -83,7 +83,7 @@ const SINGLE_PLAN_OPTIONS = ['单线代理月结方案']
 const REVERSAL_AGENT_TYPE_OPTIONS = ['团队代理', '星级代理', '层级代理']
 const REVERSAL_FILTER_DEFAULTS = { cycle: '', site: '', agentType: '', keyword: '' }
 const RETURN_FILTER_DEFAULTS = { date: '', site: '', type: '', agentType: '', flow: '', keyword: '' }
-const REVENUE_FILTER_DEFAULTS = { site: '', account: '', range: '2026-07-17 00: 至 2026-07-17 03:' }
+const REVENUE_FILTER_DEFAULTS = { site: '', account: '', dateFrom: '2026-07-17', dateTo: '2026-07-17' }
 const REVENUE_MODULE_TABS = ['全站运营数据看板', '代理管理', '代理佣金结算', '佣金记录', '冲正统计报表', '冲正回款报表', '代理收益看板']
 const REVENUE_SUB_TABS = ['全站运营数据看板', '代理收益看板']
 const REVENUE_TABLE_LABELS = ['所属站点', '代理编号', '代理账号', '上级代理', '账期范围', '本期佣金预计净收益', '当前余额', '总推广佣金', '已结算佣金', '总充值', '总提现', '总投注', '有效投注', '总盈亏', '该代理欠款', '未收回欠款', '会员VIP福利', '活动福利', '会员推广福利', '充提手续费运营费', '代理总人数', '新增代理', '活跃代理', '会员总数', '新增会员', '活跃会员', '付费会员', '新增付费', '代理推广会员', '会员推广会员', '30天未登录会员数']
@@ -216,6 +216,8 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
   const [form, setForm] = useState(defaultAgentForm)
   const [editForm, setEditForm] = useState({})
   const [passwordForm, setPasswordForm] = useState({ password: '', confirm: '' })
+  const [withdrawPassword, setWithdrawPassword] = useState('qq123456')
+  const [pageTab, setPageTab] = useState('list')
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
   const teamPlanOptions = data.plans.filter((plan) => plan.type === '团队佣金方案').map((plan) => plan.name)
   const addPlanOptions = planOptionsForAgentType(form.agentType, teamPlanOptions)
@@ -269,6 +271,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
       })
     }
     if (type === 'password') setPasswordForm({ password: '', confirm: '' })
+    if (type === 'withdrawPassword') setWithdrawPassword('qq123456')
   }
 
   function closeModal() {
@@ -344,9 +347,12 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     { key: 'rate', label: '代理返佣比例', render: (_, row) => rateDisplay(row) },
     { key: 'balance', label: '代理钱包余额', render: (value) => Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
     { key: 'lastLogin', label: '最后登录', render: (value) => value || '-' },
-    { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><ActionLink onClick={() => openModal('edit', row)}><EditOutlined /> 修改</ActionLink><ActionLink onClick={() => openModal('password', row)}><LockOutlined /> 修改密码</ActionLink></div> },
+    { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><ActionLink onClick={() => openModal('edit', row)}><EditOutlined /> 修改</ActionLink><ActionLink onClick={() => openModal('password', row)}><LockOutlined /> 修改密码</ActionLink><ActionLink onClick={() => openModal('withdrawPassword', row)}><LockOutlined /> 重置取款密码</ActionLink></div> },
   ].filter((column) => portal === 'master' || column.key !== 'site').filter((column) => portal !== 'agent' || !['select', 'google', 'action'].includes(column.key))
+  const pageTabs = portal === 'agent' ? [{ value: 'list', label: '代理列表' }] : [{ value: 'list', label: '代理列表' }, { value: 'cycle', label: '结算周期设置' }]
+  if (pageTab === 'cycle' && portal !== 'agent') return <section className="ta-stack merged-module-page"><Tabs items={pageTabs} active={pageTab} onChange={setPageTab} /><MasterCyclePage portal={portal} onToast={onToast} /></section>
   return <>
+    {portal !== 'agent' && <Tabs items={pageTabs} active={pageTab} onChange={setPageTab} className="module-page-tabs" />}
     <div className="agent-manage-screen">
       <SectionHeader title="代理列表" />
       <div className="agent-count-pill"><span>数量</span><b>{rows.length}</b></div>
@@ -419,13 +425,16 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     <Modal open={modal === 'password'} title={`${selected?.account || ''} · 修改密码`} description="仅演示密码校验和操作反馈，不展示原密码。" onClose={closeModal} onConfirm={() => showResult({ ok: passwordForm.password.length >= 6 && passwordForm.password === passwordForm.confirm, message: passwordForm.password.length < 6 ? '新密码至少 6 位' : passwordForm.password !== passwordForm.confirm ? '两次密码输入不一致' : '代理密码已修改' }, onToast, closeModal)}>
       <FormGrid><Field label="新密码" required><Input type="password" value={passwordForm.password} onChange={(value) => setPasswordForm({ ...passwordForm, password: value })} /></Field><Field label="确认密码" required><Input type="password" value={passwordForm.confirm} onChange={(value) => setPasswordForm({ ...passwordForm, confirm: value })} /></Field></FormGrid>
     </Modal>
+    <Modal open={modal === 'withdrawPassword'} title={`${selected?.account || ''} · 重置取款密码`} description="你是否要重置密码？重置后密码将为：qq123456（也可手动输入）。" onClose={closeModal} onConfirm={() => showResult({ ok: withdrawPassword.length >= 6, message: withdrawPassword.length < 6 ? '取款密码至少 6 位' : `取款密码已重置为：${withdrawPassword}` }, onToast, closeModal)} confirmText="确认重置">
+      <FormGrid columns={1}><Field label="重置后密码" required help="默认密码为 qq123456，可直接确认或手动修改。"><Input value={withdrawPassword} onChange={setWithdrawPassword} placeholder="请输入新的取款密码" /></Field></FormGrid>
+    </Modal>
     <Modal open={modal === 'subAgents'} title={`${selected?.account || ''} · 下级代理详情`} description="展示下级代理编号、账号和注册时间。" onClose={closeModal} onConfirm={closeModal} confirmText="关闭" showCancel={false} width={720}>
       <DataTable columns={[{ key: 'id', label: '代理编号' }, { key: 'account', label: '代理账号' }, { key: 'registeredAt', label: '注册时间' }]} rows={selected?.subAgentDetails || []} />
     </Modal>
   </>
 }
 
-function MasterTeamsPage({ onToast, portal = 'master', role = 'main', navigate }) {
+function MasterTeamsListPage({ onToast, portal = 'master', role = 'main', navigate }) {
   const { data, createTeam, addSecondary, updateTeamPreferences } = useTeamAgent()
   const [modal, setModal] = useState(null)
   const [secondaryTeamId, setSecondaryTeamId] = useState(null)
@@ -948,7 +957,7 @@ function MasterSettlementPage({ onToast, portal = 'master', role = 'main' }) {
       {portal === 'master' && <Field label="站点"><Select value={filters.site} onChange={(value) => setFilter('site', value)} placeholder="全部站点" options={['旺财体育', '财神客栈']} /></Field>}
       <Field label="编号"><Input value={filters.billNo} onChange={(value) => setFilter('billNo', value)} placeholder="请输入账单周期编号" /></Field>
       <Field label="账单类型"><Select value={filters.billType} onChange={(value) => setFilter('billType', value)} placeholder="全部" options={['站点账单', '代理账单']} /></Field>
-      <Field label="账单日期"><Input value={filters.billDate} onChange={(value) => setFilter('billDate', value)} placeholder="YYYY-MM-DD" /></Field>
+      <Field label="账单日期"><Input type="date" value={filters.billDate} onChange={(value) => setFilter('billDate', value)} /></Field>
       <Field label="状态"><Select value={filters.state} onChange={(value) => setFilter('state', value)} placeholder="全部" options={['待结算', '待确认', '已确认', '已转结余']} /></Field>
       <div className="settlement-filter-actions"><Button onClick={() => onToast(`已查询 ${rows.length} 条未发放账单`)}>搜索</Button><Button variant="ghost" onClick={() => { setFilters(emptyFilters); onToast('筛选条件已重置') }}>重置</Button></div>
     </div>
@@ -977,7 +986,7 @@ function MasterRecordsPage({ onToast, portal = 'master', role = 'main' }) {
       <Field label="代理账号"><Input value={filters.account} onChange={(value) => setFilters({ ...filters, account: value })} placeholder="请输入代理账号" /></Field>
       {portal === 'master' && <Field label="站点名称"><Input value={filters.site} onChange={(value) => setFilters({ ...filters, site: value })} placeholder="请输入站点名称" /></Field>}
       <Field label="代理类型"><Select value={filters.agentType} onChange={(value) => setFilters({ ...filters, agentType: value })} placeholder="全部类型" options={['团队代理', '星级代理', '层级代理']} /></Field>
-      <Field label="发放时间"><Input value={filters.issuedAt} onChange={(value) => setFilters({ ...filters, issuedAt: value })} placeholder="YYYY-MM-DD" /></Field>
+      <Field label="发放日期"><Input type="date" value={filters.issuedAt} onChange={(value) => setFilters({ ...filters, issuedAt: value })} /></Field>
     </FilterBar>
     <DataTable minWidth={1950} className="commission-record-table" columns={columns} rows={rows} paginated />
     <Alert title="对账边界" tone="warning">本页仅展示平台佣金发放记录，不再展示副线内部结算记录。</Alert>
@@ -1082,7 +1091,8 @@ function MasterReportPage({ kind, onToast, portal = 'master', role = 'main' }) {
       <FilterBar onSearch={() => onToast(`已查询 ${rows.length} 条代理收益数据`)} onReset={() => { setRevenueFilters(REVENUE_FILTER_DEFAULTS); onToast('筛选条件已重置') }}>
         <Field label="所属站点"><Select value={revenueFilters.site} onChange={(value) => setRevenueFilter('site', value)} placeholder="全部站点" options={['旺财体育', '财神客栈']} /></Field>
         <Field label="代理账号"><Input value={revenueFilters.account} onChange={(value) => setRevenueFilter('account', value)} placeholder="账号/名称" /></Field>
-        <Field label="查询日期" className="revenue-date-field"><Input value={revenueFilters.range} onChange={(value) => setRevenueFilter('range', value)} /></Field>
+        <Field label="查询日期起" className="revenue-date-field"><Input type="date" value={revenueFilters.dateFrom} onChange={(value) => setRevenueFilter('dateFrom', value)} /></Field>
+        <Field label="查询日期止" className="revenue-date-field"><Input type="date" value={revenueFilters.dateTo} onChange={(value) => setRevenueFilter('dateTo', value)} /></Field>
       </FilterBar>
       <div className="revenue-table-shell">
         <DataTable className="revenue-report-table" minWidth={2680} columns={columns} rows={rows} emptyText="" />
@@ -1117,14 +1127,56 @@ function MasterCyclePage({ onToast, portal = 'master' }) {
   </section>
 }
 
+function MasterTeamsPage({ onToast, portal = 'master', role = 'main', detailTarget }) {
+  const [pageTab, setPageTab] = useState(detailTarget ? 'details' : 'list')
+  const [activeTarget, setActiveTarget] = useState(detailTarget || null)
+
+  useEffect(() => {
+    if (!detailTarget) return
+    setActiveTarget(detailTarget)
+    setPageTab('details')
+  }, [detailTarget])
+
+  const openTeamDetails = (nextPage, target) => {
+    if (nextPage !== 'teamDetails') return
+    setActiveTarget(target || null)
+    setPageTab('details')
+  }
+
+  return <section className="ta-stack merged-module-page">
+    <Tabs items={[{ value: 'list', label: '团队代理管理' }, { value: 'details', label: '团队详情' }]} active={pageTab} onChange={setPageTab} className="module-page-tabs" />
+    {pageTab === 'list'
+      ? <MasterTeamsListPage navigate={openTeamDetails} onToast={onToast} portal={portal} role={role} />
+      : <TeamDetailPage target={activeTarget} onToast={onToast} portal={portal} role={role} />}
+  </section>
+}
+
+function NegativeProfitHub({ onToast, portal = 'master', role = 'main' }) {
+  const items = [
+    { value: 'report', label: '负盈利代理佣金结算' },
+    ...(portal === 'master' ? [{ value: 'plans', label: '佣金方案' }] : []),
+    ...(portal !== 'agent' ? [{ value: 'records', label: '佣金记录' }] : []),
+  ]
+  const [pageTab, setPageTab] = useState('report')
+
+  useEffect(() => {
+    if (!items.some((item) => item.value === pageTab)) setPageTab('report')
+  }, [portal, pageTab])
+
+  return <section className="ta-stack merged-module-page">
+    {items.length > 1 && <Tabs items={items} active={pageTab} onChange={setPageTab} className="module-page-tabs" />}
+    {pageTab === 'plans'
+      ? <MasterPlansPageV2 onToast={onToast} portal={portal} role={role} />
+      : pageTab === 'records'
+        ? <MasterRecordsPage onToast={onToast} portal={portal} role={role} />
+        : <NegativeProfitReportPage portal={portal} role={role} onToast={onToast} />}
+  </section>
+}
+
 export function MasterPage({ page, navigate, onToast, portal = 'master', role = 'main', detailTarget }) {
   if (page === 'agents') return <MasterAgentsPage navigate={navigate} onToast={onToast} portal={portal} role={role} />
-  if (page === 'negativeProfit') return <NegativeProfitReportPage portal={portal} role={role} onToast={onToast} />
-  if (page === 'teams') return <MasterTeamsPage navigate={navigate} onToast={onToast} portal={portal} role={role} />
-  if (page === 'teamDetails') return <TeamDetailPage target={detailTarget} onToast={onToast} portal={portal} role={role} />
-  if (page === 'plans') return <MasterPlansPageV2 onToast={onToast} portal={portal} role={role} />
-  if (page === 'records') return <MasterRecordsPage onToast={onToast} portal={portal} role={role} />
-  if (page === 'cycle') return <MasterCyclePage portal={portal} onToast={onToast} />
+  if (page === 'negativeProfit') return <NegativeProfitHub portal={portal} role={role} onToast={onToast} />
+  if (page === 'teams') return <MasterTeamsPage detailTarget={detailTarget} onToast={onToast} portal={portal} role={role} />
   if (page === 'revenue') return <MasterReportPage kind={page} onToast={onToast} portal={portal} role={role} />
   return <MasterAgentsPage navigate={navigate} onToast={onToast} portal={portal} role={role} />
 }

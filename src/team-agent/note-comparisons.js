@@ -574,3 +574,45 @@ NOTE_COMPARISONS['master:version'] = {
   updatedAt: ROLE_MODULE_SYNC_AT,
   record: `修改时间：${ROLE_MODULE_SYNC_AT}；修改说明：收窄站点后台和代理后台同步模块；修改内容：站点后台移除佣金方案，代理后台移除佣金方案、代理佣金结算和佣金记录，其余页面继续按角色复用总控同名页面。`,
 }
+
+const MODULE_MERGE_UPDATED_AT = '2026-07-20 17:19'
+
+NOTE_COMPARISONS['master:agents'] = {
+  ...NOTE_COMPARISONS['master:agents'],
+  additions: {
+    ...NOTE_COMPARISONS['master:agents'].additions,
+    views: [...NOTE_COMPARISONS['master:agents'].additions.views, '结算周期设置切页', '重置取款密码确认弹窗'],
+    actions: [...NOTE_COMPARISONS['master:agents'].additions.actions, '重置取款密码为 qq123456 或手动输入新密码', '切换并保存普通代理或团队代理结算周期'],
+    rules: [...NOTE_COMPARISONS['master:agents'].additions.rules, '日期筛选统一使用年月日', '结算周期设置不再作为独立菜单'],
+  },
+  updatedAt: MODULE_MERGE_UPDATED_AT,
+  record: `修改时间：${MODULE_MERGE_UPDATED_AT}；修改说明：集中代理资料与结算周期配置；修改内容：新增结算周期设置切页和重置取款密码弹窗，独立结算周期菜单移除，日期筛选统一为年月日。`,
+}
+
+NOTE_COMPARISONS['master:negativeProfit'] = {
+  ...NOTE_COMPARISONS['master:negativeProfit'],
+  additions: {
+    ...NOTE_COMPARISONS['master:negativeProfit'].additions,
+    views: [...NOTE_COMPARISONS['master:negativeProfit'].additions.views, '佣金方案切页', '佣金记录切页'],
+    rules: [...NOTE_COMPARISONS['master:negativeProfit'].additions.rules, '佣金方案和佣金记录保留原内容并合并为切页', '修改发放弹窗不展示转入下期结余字段'],
+  },
+  updatedAt: MODULE_MERGE_UPDATED_AT,
+  record: `修改时间：${MODULE_MERGE_UPDATED_AT}；修改说明：集中佣金结算相关页面；修改内容：佣金方案和佣金记录合并为切页，移除独立菜单；修改发放弹窗删除转入下期结余展示。`,
+}
+
+NOTE_COMPARISONS['master:teams'] = {
+  ...NOTE_COMPARISONS['master:teams'],
+  additions: {
+    ...NOTE_COMPARISONS['master:teams'].additions,
+    views: [...NOTE_COMPARISONS['master:teams'].additions.views, '团队详情切页'],
+    actions: [...NOTE_COMPARISONS['master:teams'].additions.actions, '从团队列表直接切换并定位团队详情'],
+    rules: [...NOTE_COMPARISONS['master:teams'].additions.rules, '团队详情不再作为独立菜单，原内容保持不变并合并为切页'],
+  },
+  updatedAt: MODULE_MERGE_UPDATED_AT,
+  record: `修改时间：${MODULE_MERGE_UPDATED_AT}；修改说明：集中团队管理和详情入口；修改内容：团队详情并入团队代理管理切页，移除独立菜单，列表操作继续定位所选团队。`,
+}
+
+;['site:agents', 'site:negativeProfit', 'site:teams', 'agent:teams'].forEach((key) => {
+  const sourceKey = key.endsWith(':agents') ? 'master:agents' : key.endsWith(':negativeProfit') ? 'master:negativeProfit' : 'master:teams'
+  NOTE_COMPARISONS[key] = { ...NOTE_COMPARISONS[sourceKey], baseline: NOTE_COMPARISONS[key]?.baseline || NOTE_COMPARISONS[sourceKey].baseline }
+})

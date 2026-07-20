@@ -13,7 +13,8 @@ export function Button({ children, icon, variant = 'primary', size = 'default', 
 }
 
 export function Input({ value, onChange, placeholder, type = 'text', min, max, step, disabled = false, className = '' }) {
-  return <input className={`ta-input ${className}`} type={type} value={value ?? ''} placeholder={placeholder} min={min} max={max} step={step} disabled={disabled} onChange={(event) => onChange?.(event.target.value)} />
+  const normalizedType = type === 'datetime-local' ? 'date' : type
+  return <input className={`ta-input ${normalizedType === 'date' ? 'ta-date-input' : ''} ${className}`} type={normalizedType} lang={normalizedType === 'date' ? 'zh-CN' : undefined} data-date-format={normalizedType === 'date' ? 'YYYY-MM-DD' : undefined} value={value ?? ''} placeholder={placeholder} min={min} max={max} step={step} disabled={disabled} onChange={(event) => onChange?.(event.target.value)} />
 }
 
 export function Select({ value, onChange, options, placeholder, disabled = false, className = '' }) {

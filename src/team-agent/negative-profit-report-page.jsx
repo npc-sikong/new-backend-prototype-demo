@@ -396,8 +396,8 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
       { label: '冲正后净输赢', formula: '净输赢 + 上月结余' },
       { label: '佣金', formula: 'MAX(0，冲正后净输赢 × 佣金比例 + 佣金调整)' },
     ]} warning="报表展示负盈利模式代理及冲正后净输赢为负的账单记录；刷新演示数据后恢复初始模拟数据。" />
-    <Modal open={!!adjusting} title="修改发放佣金" description="只能减少本次发放金额，减少部分转入下期结余。" onClose={() => setAdjusting(null)} onConfirm={saveAdjust} confirmText="保存修改">
-      {adjusting && <FormGrid><Field label="代理名称"><Input value={adjusting.agentAccount} disabled /></Field><Field label="当前可发放"><Input value={Number(adjusting.commission || 0).toFixed(2)} disabled /></Field><Field label="本次发放"><Input type="number" min="0" max={adjusting.commission} value={adjustForm.amount} onChange={(value) => setAdjustForm({ ...adjustForm, amount: value })} /></Field><Field label="转入下期结余"><Input value={Math.max(0, Number(adjusting.commission || 0) - Number(adjustForm.amount || 0)).toFixed(2)} disabled /></Field><Field label="备注说明" className="ta-field-full"><textarea className="ta-input agent-remark" value={adjustForm.remark} onChange={(event) => setAdjustForm({ ...adjustForm, remark: event.target.value })} placeholder="请输入调整原因" /></Field></FormGrid>}
+    <Modal open={!!adjusting} title="修改发放佣金" description="只能减少本次发放金额，并补充调整备注。" onClose={() => setAdjusting(null)} onConfirm={saveAdjust} confirmText="保存修改">
+      {adjusting && <FormGrid><Field label="代理名称"><Input value={adjusting.agentAccount} disabled /></Field><Field label="当前可发放"><Input value={Number(adjusting.commission || 0).toFixed(2)} disabled /></Field><Field label="本次发放"><Input type="number" min="0" max={adjusting.commission} value={adjustForm.amount} onChange={(value) => setAdjustForm({ ...adjustForm, amount: value })} /></Field><Field label="备注说明" className="ta-field-full"><textarea className="ta-input agent-remark" value={adjustForm.remark} onChange={(event) => setAdjustForm({ ...adjustForm, remark: event.target.value })} placeholder="请输入调整原因" /></Field></FormGrid>}
     </Modal>
   </section>
 }

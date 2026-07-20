@@ -56,7 +56,10 @@ export function H5Withdrawal({ onBack, onOpenNotes, onToast }) {
       <div className="h5-unlock-table"><div className="h5-unlock-row head"><span>类型</span><span>锁定额度</span><span>还需解锁流水</span></div>
         {visibleUnlockRows.map((row) => <div className="h5-unlock-row" key={row.id}><span>{row.type}</span><b>{money(row.locked, '¥')}</b><strong>{typeof row.remaining === 'number' ? money(row.remaining, '¥') : row.remaining}</strong>{row.status && <em>{row.status}</em>}</div>)}
       </div>
-      <p>投注流水同步可能存在延迟，如当前解锁额度与实际情况不符，请稍后刷新并重新查看。</p>
+      <ol className="h5-unlock-notes">
+        <li>投注流水同步可能存在延迟，如当前解锁额度与实际情况不符，请稍后刷新并重新查看。</li>
+        <li>充值或活动的盈利金额会在所有提现流水完成后一并解锁。</li>
+      </ol>
     </section>
   </div>
 
