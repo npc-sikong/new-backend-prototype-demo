@@ -2,6 +2,7 @@ import { useState } from 'react'
 import {
   ApartmentOutlined,
   BankOutlined,
+  BarChartOutlined,
   FileDoneOutlined,
   PlusOutlined,
   SendOutlined,
@@ -37,6 +38,7 @@ const ROLES = {
   main: { label: '团队负责人', account: 'gaodashang', subtitle: 'gaodashang01部唯一平台收款方', icon: <ApartmentOutlined /> },
   secondary: { label: '副线', account: 'WC002', subtitle: 'gaodashang01部 / LINE-B', icon: <TeamOutlined /> },
   independent: { label: '单线代理', account: 'dailiwc001', subtitle: '单线代理01', icon: <BankOutlined /> },
+  multiLevel: { label: '多层级代理', account: 'gaodashang', subtitle: '9级代理 / 站点 2222', icon: <BarChartOutlined /> },
 }
 
 function show(result, onToast, onSuccess) {

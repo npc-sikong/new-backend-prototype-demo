@@ -1,0 +1,540 @@
+.ml-screen {
+  display: grid;
+  gap: 16px;
+  color: #4f5b6b;
+  font-size: 14px;
+}
+
+.ml-card,
+.ml-filter-surface,
+.ml-report-hero,
+.ml-report-metrics article {
+  background: #fff;
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgb(43 66 92 / 5%);
+}
+
+.ml-card {
+  overflow: hidden;
+}
+
+.ml-screen-toolbar,
+.ml-section-title,
+.ml-list-toolbar,
+.ml-finance-search,
+.ml-finance-overview,
+.ml-report-hero,
+.ml-inline-filters,
+.ml-table-actions,
+.ml-filter-actions {
+  display: flex;
+  align-items: center;
+}
+
+.ml-screen-toolbar,
+.ml-section-title,
+.ml-finance-search,
+.ml-report-hero {
+  justify-content: space-between;
+}
+
+.ml-compact-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.ml-compact-tabs button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid #dce5f0;
+  border-radius: 5px;
+  background: #fff;
+  color: #637082;
+}
+
+.ml-compact-tabs button.active {
+  border-color: #409eff;
+  background: #409eff;
+  color: #fff;
+}
+
+.ml-dashboard-screen {
+  gap: 10px;
+}
+
+.ml-dashboard-group h2 {
+  margin: 4px 0 8px;
+  padding-left: 10px;
+  border-left: 4px solid #3578f6;
+  color: #334155;
+  font-size: 16px;
+}
+
+.ml-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--ml-columns), minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ml-dashboard-card {
+  min-height: 92px;
+  padding: 14px 16px;
+  border: 1px solid #dce7f7;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.ml-dashboard-card:first-child {
+  background: #eef5ff;
+}
+
+.ml-dashboard-card > div,
+.ml-dashboard-card footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ml-dashboard-card > div span,
+.ml-dashboard-card small {
+  color: #708096;
+}
+
+.ml-dashboard-card > div i {
+  display: inline-grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  border: 1px solid #b8c5d6;
+  border-radius: 50%;
+  color: #8da0b6;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.ml-dashboard-card strong {
+  display: block;
+  margin: 7px 0 4px;
+  color: #293447;
+  font-size: 25px;
+}
+
+.ml-dashboard-card footer em,
+.ml-dashboard-card footer button {
+  border: 0;
+  background: none;
+  color: #3b82f6;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.ml-tone-green strong,
+.ml-positive { color: #18a667 !important; }
+.ml-tone-orange strong,
+.ml-orange { color: #f59e0b !important; }
+.ml-tone-red strong,
+.ml-negative { color: #f0445e !important; }
+.ml-tone-blue strong { color: #3478f6 !important; }
+
+.ml-profile-layout {
+  grid-template-columns: minmax(300px, 36%) minmax(520px, 1fr);
+  align-items: start;
+}
+
+.ml-card > header {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  border-bottom: 1px solid #e7edf5;
+}
+
+.ml-card > header h2,
+.ml-section-title h1,
+.ml-finance-search h1 {
+  margin: 0;
+  color: #253044;
+  font-size: 20px;
+}
+
+.ml-profile-avatar {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.ml-profile-avatar img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 8px 20px rgb(33 65 100 / 14%);
+}
+
+.ml-profile-card dl {
+  margin: 0;
+  padding: 0 24px 26px;
+}
+
+.ml-profile-card dl > div {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e7edf5;
+}
+
+.ml-profile-card dt {
+  color: #4c596b;
+}
+
+.ml-profile-card dt svg {
+  margin-right: 6px;
+}
+
+.ml-profile-card dd {
+  margin: 0;
+  color: #768396;
+}
+
+.ml-profile-card dd button {
+  border: 0;
+  background: none;
+  color: #409eff;
+}
+
+.ml-profile-form-card .ta-tabs {
+  margin: 12px 24px 0;
+}
+
+.ml-profile-form-card .ta-form-grid {
+  padding: 26px 34px 8px;
+}
+
+.ml-radio-row {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 26px;
+}
+
+.ml-radio-row label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ml-profile-actions {
+  display: flex;
+  gap: 10px;
+  padding: 12px 34px 30px;
+}
+
+.ml-profile-actions .ta-btn-danger {
+  border-color: #ff5d68;
+  background: #ff5d68;
+  color: #fff;
+}
+
+.ml-profile-actions .ta-btn-danger:hover {
+  border-color: #ff7a83;
+  background: #ff7a83;
+}
+
+.ml-security-list {
+  display: grid;
+  gap: 12px;
+  padding: 28px 34px;
+}
+
+.ml-security-list > div {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #e6edf7;
+  border-radius: 8px;
+}
+
+.ml-security-list svg {
+  color: #409eff;
+  font-size: 20px;
+}
+
+.ml-security-list span {
+  display: grid;
+  gap: 4px;
+}
+
+.ml-security-list small {
+  color: #8a98aa;
+}
+
+.ml-finance-search {
+  gap: 12px;
+}
+
+.ml-finance-search .ta-input {
+  max-width: 430px;
+  margin-left: auto;
+}
+
+.ml-finance-overview {
+  align-items: stretch;
+  gap: 16px;
+}
+
+.ml-balance-card {
+  flex: 1;
+  min-width: 0;
+  padding: 26px;
+  border-radius: 18px;
+  background: #0b2a67;
+  color: #dce9ff;
+  box-shadow: 0 12px 30px rgb(12 42 103 / 18%);
+}
+
+.ml-balance-card > span,
+.ml-balance-card > small {
+  display: block;
+}
+
+.ml-balance-card > strong {
+  display: block;
+  margin: 16px 0 8px;
+  color: #62a3ff;
+  font-size: 52px;
+}
+
+.ml-balance-card > div {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.ml-balance-card button {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 11px;
+  background: #203864;
+  color: #fff;
+  font-weight: 700;
+}
+
+.ml-balance-card button:first-child { background: #346ce8; }
+.ml-balance-card button.danger { background: #ef3558; }
+
+.ml-withdraw-account {
+  display: flex;
+  width: 300px;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid #e3eaf3;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.ml-withdraw-account h3 {
+  margin: 0 0 14px;
+  color: #303b4e;
+}
+
+.ml-withdraw-account > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f2f5fa;
+}
+
+.ml-withdraw-account > div button {
+  border: 0;
+  background: none;
+  color: #409eff;
+}
+
+.ml-withdraw-account > div b,
+.ml-withdraw-account > div small {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+
+.ml-withdraw-account p {
+  margin: auto 0 0;
+  color: #9aa7b9;
+  font-size: 12px;
+}
+
+.ml-finance-records > header {
+  align-items: flex-end;
+}
+
+.ml-inline-filters {
+  gap: 10px;
+}
+
+.ml-inline-filters .ta-field {
+  min-width: 170px;
+}
+
+.ml-filter-surface {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  padding: 18px 20px;
+}
+
+.ml-filter-grid {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 14px 18px;
+}
+
+.ml-filter-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.ml-list-toolbar {
+  gap: 10px;
+}
+
+.ml-section-title {
+  min-height: 42px;
+}
+
+.ml-section-title > div {
+  display: flex;
+  gap: 10px;
+}
+
+.ml-table-actions {
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.ml-table-actions button,
+.ml-card .ta-table-link {
+  border: 0;
+  background: none;
+  color: #409eff;
+}
+
+.ml-table-actions svg {
+  margin-right: 3px;
+}
+
+.ml-card .ta-table-wrap {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.ml-card .ta-table th {
+  background: #f4f7fb;
+  color: #5a677a;
+}
+
+.ml-card .ta-table td,
+.ml-card .ta-table th {
+  height: 52px;
+  border-color: #e6ecf4;
+  font-size: 13px;
+}
+
+.ml-report-hero {
+  min-height: 90px;
+  padding: 18px 22px;
+}
+
+.ml-report-hero.blue { background: #f7faff; }
+.ml-report-hero.green { background: #f2fbf7; }
+
+.ml-report-hero > div,
+.ml-report-hero > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ml-report-hero i {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 10px;
+  background: #3675f5;
+  color: #fff;
+  font-size: 24px;
+}
+
+.ml-report-hero.green i { background: #13ad7b; }
+
+.ml-report-hero h1,
+.ml-report-hero p {
+  margin: 0;
+}
+
+.ml-report-hero h1 {
+  color: #243149;
+  font-size: 22px;
+}
+
+.ml-report-hero p {
+  margin-top: 6px;
+  color: #8997aa;
+}
+
+.ml-report-metrics {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ml-report-metrics article {
+  display: grid;
+  gap: 10px;
+  min-height: 92px;
+  padding: 16px;
+}
+
+.ml-report-metrics article span { color: #7f8da0; }
+.ml-report-metrics article strong { color: #273348; font-size: 23px; }
+.ml-report-metrics article.blue strong { color: #3478f6; }
+.ml-report-metrics article.green strong { color: #18a667; }
+.ml-report-metrics article.red strong { color: #f0445e; }
+.ml-report-metrics article.orange strong { color: #f59e0b; }
+
+.ml-card .ta-table tfoot td {
+  background: #f4f7fb;
+  font-weight: 700;
+}
+
+@media (max-width: 1280px) {
+  .ml-filter-grid { grid-template-columns: repeat(3, minmax(150px, 1fr)); }
+  .ml-report-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ml-dashboard-grid[style*="--ml-columns: 4"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ml-profile-layout { grid-template-columns: 1fr; }
+  .ml-finance-overview { align-items: stretch; flex-direction: column; }
+  .ml-withdraw-account { width: auto; }
+}
+
+@media (max-width: 900px) {
+  .ml-filter-surface { align-items: stretch; flex-direction: column; }
+  .ml-filter-grid { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+  .ml-dashboard-grid { grid-template-columns: 1fr !important; }
+  .ml-balance-card > div { grid-template-columns: repeat(2, 1fr); }
+  .ml-balance-card > strong { font-size: 38px; }
+  .ml-report-hero { align-items: flex-start; flex-direction: column; }
+}

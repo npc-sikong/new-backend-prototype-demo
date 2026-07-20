@@ -601,3 +601,15 @@
   .reversal-metric-grid .ta-metric-card { min-height: 76px; padding: 10px 8px; }
   .reversal-metric-grid .ta-metric-card > strong { font-size: 16px; }
 }
+
+/* 会员管理 / 会员锁定流水查询：复用项目现有表格、筛选、说明和弹窗样式 */
+.member-locked-flow-screen { min-width: 0; display: grid; gap: 10px; }
+.member-locked-flow-screen .ta-section-header, .member-locked-flow-screen .ta-filter-bar, .member-locked-flow-screen .ta-alert { margin-bottom: 0; }
+.member-flow-panel, .member-flow-panel .ta-panel-body { min-width: 0; }
+.member-flow-panel { margin-top: 0; }
+.member-flow-link { display: grid; gap: 2px; justify-items: start; }
+.member-flow-modal-content { display: grid; gap: 12px; }
+.member-flow-modal-content .ta-description-grid small { display: block; margin-top: 3px; color: #92a1b1; font-size: 9px; font-weight: 400; }
+.member-flow-type { display: inline-flex; padding: 3px 8px; border: 1px solid; font-weight: 700; }
+.member-flow-type.is-deposit { border-color: #c9e5d9; color: #318364; background: #eff9f4; }
+.member-flow-type.is-bonus { border-color: #f0dbb5; color: #a06a23; background: #fff8eb; }

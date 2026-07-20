@@ -87,7 +87,15 @@ const VERSION_2_GROUPS = VERSION_2_GROUPS_BASE.map((group) => {
   const items = source
     .filter((item) => !REMOVED_AFTER_MERGE[group.portal]?.has(item[0]))
     .map((item) => MERGED_ITEMS[group.portal]?.[item[0]] || item)
-  return { ...group, items }
+  const nextItems = group.portal === 'master' ? [
+    ['memberLockedFlow', '会员锁定流水查询', '会员锁定余额与提现流水下钻', '总控后台新增“会员管理(新)”一级模块及“会员锁定流水查询(新)”子模块。页面按站点、代理和会员账号或ID查询充值额度、总余额、可提现余额、锁定余额、场馆提现流水和充值提现流水；两类流水均支持查看明细。场馆弹窗按场馆展示锁定额度、目标流水、完成与待确认进度；充值弹窗按发生时间展示充值和系统发放彩金的FIFO解锁记录及盈利解锁额度。', '菜单与页面跳转可用；查询、重置、导出可操作；member_10086可打开两类明细弹窗并核对金额、状态和FIFO顺序；站点后台与代理后台不出现本模块。'],
+    ...items,
+  ] : group.portal === 'agent' ? [
+    ['h5Agent', 'H5代理后台', '面向四种代理身份的移动经营后台', '在现有“H5 前端”右侧新增第五个顶部入口“H5代理后台”，以暗夜金融风重新排版现有代理后台。支持团队负责人、副线、单线代理和多层级代理四种身份；各身份的模块、功能、筛选、字段、状态、数据口径和操作权限均与桌面代理后台对应页面一致，只将宽表改为手机卡片、详情抽屉或容器内横向核对模式。H5 身份、页面和资金演示状态与桌面代理后台隔离，原总控后台、站点后台、桌面代理后台和原 H5 前端页面保持不变。', '顶部第五入口可进入独立 H5 代理后台；四种身份均可切换并按授权范围查看与桌面端完全相同的业务功能和完整字段；390×844 与 430×932 尺寸无页面级横向溢出，筛选、分页、详情、财务操作、团队展开和报表核对可操作；未出现桌面端不存在的字段或功能，退出后原四门户与原 H5 前端状态、页面和样式不受影响。', 'h5Agent'],
+    ['mlDashboard', '多层级代理后台模块', '多层级代理经营模块及四身份共用原有页面', '代理后台身份切换新增“多层级代理”，切换后展示12个截图还原页面；其中个人中心、财务中心、会员列表、投注记录、账变流水报表、会员资金记录和三方场馆代理费用明细属于原代理后台已有模块，已同步加入团队负责人、副线和单线代理菜单，菜单名称不显示“(新)”或“(改)”。', '第四身份可切换；多层级代理12个页面均可演示；前三种身份可进入7个共用原有页面且菜单无括号标识，资料、余额和列表数据随身份范围变化。'],
+    ...items,
+  ] : items
+  return { ...group, items: nextItems }
 })
 
 const VERSION_1_GROUPS = [
@@ -98,11 +106,13 @@ const VERSION_1_GROUPS = [
 
 const JULY_17_PAGES = new Set(['teams', 'plans', 'settlement', 'records', 'commissionRecords', 'reversal', 'returns', 'revenue', 'relations', 'cycle', 'readonlyPlans', 'bills'])
 const JULY_18_PAGES = new Set(['agents', 'negativeProfit', 'siteAgents', 'downline', 'teams', 'teamDetails'])
+const JULY_20_PAGES = new Set(['memberLockedFlow'])
+const JULY_21_PAGES = new Set(['mlDashboard', 'h5Agent'])
 
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>
     {group.items.length ? <div className="ta-version-modules">{group.items.map(([page, title, module, change, acceptance, targetPortal]) => <article className="ta-version-module" key={`${group.portal}-${page}`}>
-      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
+      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
       <div className="ta-version-content"><div><b>模块说明</b><p>{module}</p></div><div><b>修改说明</b><p>{change}</p></div><div><b>功能验收</b><p>{acceptance}</p></div></div>
     </article>)}</div> : <div className="ta-version-empty">本版本该后台无新增业务模块。</div>}
   </section>
@@ -112,7 +122,7 @@ export function VersionRequirementsPage({ navigateTo }) {
   const [version, setVersion] = useState('2.0')
   const groups = version === '2.0' ? VERSION_2_GROUPS : VERSION_1_GROUPS
   return <div className="ta-version-page">
-    <div className="ta-version-hero"><div><span>{version} 版本 · {version === '2.0' ? '原第 27 周需求' : '原第 26 周需求'}</span><h1>{version === '2.0' ? '业务运营与团队代理演示原型' : 'H5 提现与后台切换演示'}</h1><p>{version === '2.0' ? '站点后台和代理后台按角色复用总控代理管理的同名页面；页面仅保留当前演示需要的代理资料、团队与佣金记录模块，并按本站或当前身份收窄范围。会员管理模块已整体移除。' : '保留后台到 H5 前端的切换入口，以及手机端比例的钱包概览、提现方式、取款账户和金额输入演示。'}</p></div><div className="ta-version-seal">{version === '2.0' ? <ApartmentOutlined /> : <MobileOutlined />}<strong>{version}</strong><span>{version === '2.0' ? 'P0 业务演示' : '需求归档'}</span></div></div>
+    <div className="ta-version-hero"><div><span>{version} 版本 · {version === '2.0' ? '原第 27 周需求' : '原第 26 周需求'}</span><h1>{version === '2.0' ? '业务运营与团队代理演示原型' : 'H5 提现与后台切换演示'}</h1><p>{version === '2.0' ? '总控后台保留会员锁定流水查询；代理后台支持四种身份，并新增独立第五入口“H5代理后台”，以暗夜金融风将现有代理业务完整适配为移动端体验，原四门户与原 H5 前端保持不变。' : '保留后台到 H5 前端的切换入口，以及手机端比例的钱包概览、提现方式、取款账户和金额输入演示。'}</p></div><div className="ta-version-seal">{version === '2.0' ? <ApartmentOutlined /> : <MobileOutlined />}<strong>{version}</strong><span>{version === '2.0' ? 'P0 业务演示' : '需求归档'}</span></div></div>
     <Tabs items={[{ value: '2.0', label: '2.0 · 第 27 周' }, { value: '1.0', label: '1.0 · 第 26 周' }]} active={version} onChange={setVersion} />
     <div className="ta-version-groups">{groups.map((group) => <VersionGroup key={`${version}-${group.portal}`} group={group} navigateTo={navigateTo} />)}</div>
     {version === '2.0' && <section className="ta-version-roadmap"><h2>后续增强能力</h2><p>以下能力只作为后续路线图，不计入本次已完成验收：批量开副线、内部结算模板、主线自有资金提前结算、方案计算预演、阶梯奖励和历史余额移交。</p></section>}

@@ -568,11 +568,14 @@ NOTE_COMPARISONS['master:version'] = {
   ...NOTE_COMPARISONS['master:version'],
   additions: {
     ...NOTE_COMPARISONS['master:version'].additions,
-    views: [...NOTE_COMPARISONS['master:version'].additions.views, '站点后台与代理后台同步页面清单'],
-    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置只下发站点后台'],
+    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理身份', '移动端验收尺寸'],
+    types: [...NOTE_COMPARISONS['master:version'].additions.types, 'H5代理后台需求'],
+    views: [...NOTE_COMPARISONS['master:version'].additions.views, '站点后台与代理后台同步页面清单', 'H5代理后台版本模块卡片'],
+    actions: [...NOTE_COMPARISONS['master:version'].additions.actions, '从版本说明跳转至 H5代理后台'],
+    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置只下发站点后台', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5身份与页面状态不改变原四门户和原H5前端'],
   },
-  updatedAt: ROLE_MODULE_SYNC_AT,
-  record: `修改时间：${ROLE_MODULE_SYNC_AT}；修改说明：收窄站点后台和代理后台同步模块；修改内容：站点后台移除佣金方案，代理后台移除佣金方案、代理佣金结算和佣金记录，其余页面继续按角色复用总控同名页面。`,
+  updatedAt: '2026-07-21 18:30',
+  record: '修改时间：2026-07-21 18:30；修改说明：补充面向代理的移动经营后台版本归档；修改内容：新增 H5代理后台模块卡片、第五入口跳转、四种身份和移动端验收说明，并明确原四门户与原 H5 前端保持不变。',
 }
 
 const MODULE_MERGE_UPDATED_AT = '2026-07-20 17:19'
@@ -615,4 +618,47 @@ NOTE_COMPARISONS['master:teams'] = {
 ;['site:agents', 'site:negativeProfit', 'site:teams', 'agent:teams'].forEach((key) => {
   const sourceKey = key.endsWith(':agents') ? 'master:agents' : key.endsWith(':negativeProfit') ? 'master:negativeProfit' : 'master:teams'
   NOTE_COMPARISONS[key] = { ...NOTE_COMPARISONS[sourceKey], baseline: NOTE_COMPARISONS[key]?.baseline || NOTE_COMPARISONS[sourceKey].baseline }
+})
+
+NOTE_COMPARISONS['master:memberLockedFlow'] = created(
+  '原总控后台 / 会员管理',
+  '原后台无对应的会员锁定余额与两类提现流水集中查询页面。',
+  {
+    fields: ['站点', '代理账号', '会员账号或ID', '币种', '充值额度', '总余额', '可提现余额', '锁定余额', '场馆提现流水', '充值提现流水', '盈利解锁额度'],
+    filters: ['站点', '代理账号', '会员账号或ID'],
+    views: ['会员锁定流水统计表', '场馆提现流水明细弹窗', '充值提现流水明细弹窗'],
+    actions: ['查询', '重置', '导出', '查看场馆提现流水明细', '查看充值提现流水明细', '关闭明细弹窗'],
+    rules: ['总余额等于可提现余额加锁定余额', '场馆还需解锁流水按目标流水减已完成有效流水且不小于零', '待确认流水不提前释放锁定余额', '充值与系统发放彩金独立记账并按发生时间FIFO解锁', '盈利金额在本轮所有充值提现流水完成后一并解锁', '当前仅新增总控后台入口'],
+  },
+  {
+    updatedAt: '2026-07-20 22:41',
+    record: '修改时间：2026-07-20 22:41；修改说明：为运营提供会员锁定余额与解锁流水集中核对入口；修改内容：新增会员锁定流水主表、场馆提现流水弹窗和充值提现流水弹窗，并提供查询、重置和导出演示。',
+  },
+)
+
+const MULTI_LEVEL_UPDATED_AT = '2026-07-21 16:10'
+const SHARED_EXISTING_AGENT_PAGES = new Set(['mlProfile', 'mlFinance', 'mlMembers', 'mlBetRecords', 'mlAccountChanges', 'mlMemberFunds', 'mlVenueFees'])
+const MULTI_LEVEL_PAGES = {
+  mlDashboard: ['代理数据看板', ['本期佣金预估', '佣金余额', '资金流水', '代理数据', '会员数据'], ['日期范围'], ['指标卡片分组'], ['查看费用明细', '刷新统计'], ['仅统计当前多层级代理及其授权下级范围']],
+  mlProfile: ['个人中心', ['头像', '用户名称', '所属角色', '推广码', '创建日期', 'App下载链接', '昵称', '手机号', '邮箱', '性别'], [], ['基本资料', '修改密码', '安全设置'], ['保存资料', '修改密码', '复制下载链接'], ['资料修改仅作用于当前前端演示状态']],
+  mlFinance: ['财务中心', ['当前可用额度', '站点编码', '提现账号', '近期收支流水'], ['创建时间'], ['充值、提现、转账、红包弹窗'], ['快速充值', '余额提现', '内部转账', '发放红包', '导出报表'], ['资金操作只更新当前演示余额与流水']],
+  mlAgents: ['代理列表', ['代理ID', '代理账号', '代理模型', '星级级别', '层级级别', '站点编码', '代理状态', '下属代理', '下属会员', '佣金方案', '最后登录'], ['代理ID', '代理账号', '代理状态'], ['新增代理', '修改代理', '修改密码'], ['新增', '修改', '修改密码', '查询', '重置'], ['只展示多层级代理体系的授权下级代理']],
+  mlMembers: ['会员列表', ['会员ID', 'VIP等级', '会员账号', '有效投注', '输赢', '钱包余额', '会员或代理', '上级代理', '充值及入金'], ['会员ID', '会员账号', '上级代理', '状态', '会员或代理'], ['会员宽表'], ['查询', '重置', '导出Excel', '下载文件'], ['列表默认20条每页，最高200条每页']],
+  mlBetRecords: ['投注记录', ['注单号', '会员账号', '上级代理', '场馆类型', '场馆名称', '游戏信息', '下注详情', '下注金额', '有效投注', '赔率', '订单状态'], ['会员账号', '注单号', '场馆', '订单状态', '下注金额', '下注日期'], ['投注记录宽表'], ['查询', '重置', '导出', '下载文件'], ['仅展示当前多层级代理授权会员的投注记录']],
+  mlAccountChanges: ['账变流水报表', ['会员账号', '会员名', '账变类型', '账变金额', '时间', '记录编号', '总计'], ['会员名', '账变类型', '账变时间'], ['账变明细表'], ['查询', '重置'], ['总计随当前筛选结果计算']],
+  mlMemberFunds: ['会员资金记录', ['单号', '会员账号', '交易类型', '币种', '金额', '状态', '创建时间', '备注'], ['单号', '会员账号', '备注', '交易类型', '状态', '创建时间'], ['会员资金记录表'], ['查询', '重置'], ['正负金额与交易状态使用独立语义色']],
+  mlReversalStats: ['冲正统计报表', ['垫付人数', '欠款人数', '垫付总计', '回款总计', '剩余金额', '欠款总计'], ['统计周期', '代理账号或ID'], ['指标卡与空状态宽表'], ['查询', '重置'], ['仅统计多层级代理冲正责任范围']],
+  mlReversalRepayment: ['冲正回款报表', ['站点', '代理名称', '代理ID', '代理等级', '类型', '垫付或回款', '额度', '额度缺口', '冲正账目ID', '时间'], ['日期', '类型', '垫付或回款', '代理'], ['冲正回款宽表'], ['查询', '重置', '导出明细', '下载文件'], ['额度缺口随对应冲正账目的回款累计减少']],
+  mlVenueFees: ['三方场馆代理费用明细', ['统计周期', '站点', '上级代理', '代理名称', '代理级别', '返佣', '场馆数量', '直属费用', '级差费用', '总费用'], ['代理名称', '站点', '时间'], ['场馆费用明细与总计'], ['查询', '重置', '导出报表', '下载文件'], ['总费用等于直属承担费用加级差承担费用']],
+  mlActivities: ['活动列表', ['活动编码', '活动名称', '活动类型', '活动对象', '开始时间', '结束时间', '排序', '状态'], ['活动名称', '活动类型', '站点', '查询日期'], ['活动列表', '活动详情弹窗'], ['查询', '重置', '查看详情'], ['仅展示当前代理可见的站点活动']],
+}
+
+Object.entries(MULTI_LEVEL_PAGES).forEach(([page, [title, fields, filters, views, actions, rules]]) => {
+  const shared = SHARED_EXISTING_AGENT_PAGES.has(page)
+  NOTE_COMPARISONS[`agent:${page}`] = changed(
+    `原代理后台 / ${title}`,
+    `原代理后台已有${title}页面，本原型按截图恢复其字段、密度和主要操作。`,
+    { fields, types: shared ? ['团队负责人', '副线', '单线代理', '多层级代理'] : ['多层级代理'], filters, views, actions, rules: [...rules, shared ? '四种代理身份均复用同一页面结构并按当前身份收窄数据' : '仅多层级代理身份展示'] },
+    { updatedAt: MULTI_LEVEL_UPDATED_AT, record: `修改时间：${MULTI_LEVEL_UPDATED_AT}；修改说明：${shared ? `恢复四种代理身份共用的${title}能力` : `恢复多层级代理${title}能力`}；修改内容：按参考截图还原页面主体、筛选、表格和主要前端演示交互${shared ? '，并加入团队负责人、副线和单线代理菜单且不显示新增或修改标识' : ''}。` },
+  )
 })

@@ -26,6 +26,7 @@ import {
 import { LEGACY_REPORT_ROWS } from './data'
 import { useTeamAgent } from './context'
 import { MasterPlansPage as MasterPlansPageV2 } from './master-plans-page'
+import { MemberLockedFlowPage } from './member-locked-flow-page'
 import { NegativeProfitReportPage } from './negative-profit-report-page'
 import { MasterRelationsPage } from './relation-record-page'
 import { TeamMembersTable } from './team-members-table'
@@ -1174,6 +1175,7 @@ function NegativeProfitHub({ onToast, portal = 'master', role = 'main' }) {
 }
 
 export function MasterPage({ page, navigate, onToast, portal = 'master', role = 'main', detailTarget }) {
+  if (page === 'memberLockedFlow' && portal === 'master') return <MemberLockedFlowPage onToast={onToast} />
   if (page === 'agents') return <MasterAgentsPage navigate={navigate} onToast={onToast} portal={portal} role={role} />
   if (page === 'negativeProfit') return <NegativeProfitHub portal={portal} role={role} onToast={onToast} />
   if (page === 'teams') return <MasterTeamsPage detailTarget={detailTarget} onToast={onToast} portal={portal} role={role} />
