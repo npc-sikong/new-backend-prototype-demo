@@ -44,7 +44,7 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', memberLockedFlow: '会员锁定流水查询', agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', revenue: '代理收益看板',
+    version: '版本需求说明', memberLockedFlow: '会员提现流水查询', agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', revenue: '代理收益看板',
   },
   site: {
     agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理',
@@ -60,7 +60,7 @@ const DEFAULT_PAGES = { master: 'teams', site: 'agents', agent: 'agents' }
 const MASTER_NAV = [
   { id: 'version', label: '版本需求说明', mark: '新', icon: FileTextOutlined, standalone: true },
   { id: 'member-group', label: '会员管理', mark: '新', icon: TeamOutlined, children: [
-    { id: 'memberLockedFlow', label: '会员锁定流水查询', mark: '新', icon: FileSearchOutlined },
+    { id: 'memberLockedFlow', label: '会员提现流水查询', mark: '新', icon: FileSearchOutlined },
   ] },
   { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
