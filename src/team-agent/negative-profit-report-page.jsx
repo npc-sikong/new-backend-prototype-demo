@@ -254,6 +254,10 @@ function buildRows(data) {
     .map((row, index) => ({ ...row, index: index + 1 }))
 }
 
+export const NEGATIVE_REPORT_COLUMNS = COLUMN_DEFS
+export const NEGATIVE_REPORT_COMMISSION_EXCLUDED_KEYS = COMMISSION_REPORT_EXCLUDED_KEYS
+export const buildNegativeReportRows = buildRows
+
 function FieldColumnFilter({ columns, visibleKeys, onChange }) {
   const [open, setOpen] = useState(false)
   const toggleKey = (key) => {

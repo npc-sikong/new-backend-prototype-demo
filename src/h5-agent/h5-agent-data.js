@@ -1,6 +1,6 @@
 import { AGENT_ROLE_PROFILES } from '../team-agent/multi-level-agent-data'
 
-export const H5_AGENT_UPDATED_AT = '2026-07-21 18:30'
+export const H5_AGENT_UPDATED_AT = '2026-07-22 06:13'
 
 export const H5_AGENT_ROLES = [
   { id: 'main', label: '团队负责人', account: 'gaodashang', scope: '本人团队及授权下级' },
@@ -11,14 +11,14 @@ export const H5_AGENT_ROLES = [
 
 export const H5_AGENT_PAGE_META = {
   home: { label: '代理中心', shortLabel: '首页', group: 'home' },
+  dashboard: { label: '代理数据看板', shortLabel: '数据看板', group: 'agent' },
   agents: { label: '代理列表', shortLabel: '代理列表', group: 'agent' },
-  teams: { label: '团队代理管理', shortLabel: '团队管理', group: 'agent' },
   members: { label: '会员列表', shortLabel: '会员列表', group: 'member' },
   bets: { label: '投注记录', shortLabel: '投注记录', group: 'member' },
   finance: { label: '财务中心', shortLabel: '财务中心', group: 'finance' },
   accountChanges: { label: '账变流水报表', shortLabel: '账变流水', group: 'finance' },
   memberFunds: { label: '会员资金记录', shortLabel: '会员资金', group: 'finance' },
-  negativeProfit: { label: '负盈利代理佣金结算', shortLabel: '负盈利结算', group: 'finance' },
+  negativeProfitReport: { label: '负盈利代理佣金报表', shortLabel: '负盈利佣金', group: 'finance' },
   reversalStats: { label: '冲正统计报表', shortLabel: '冲正统计', group: 'finance' },
   reversalRepayment: { label: '冲正回款报表', shortLabel: '冲正回款', group: 'finance' },
   venueFees: { label: '三方场馆代理费用明细', shortLabel: '场馆费用', group: 'more' },
@@ -26,20 +26,18 @@ export const H5_AGENT_PAGE_META = {
   activities: { label: '活动列表', shortLabel: '活动列表', group: 'more' },
 }
 
-const COMMON_PAGES = ['home', 'agents', 'members', 'bets', 'finance', 'accountChanges', 'memberFunds', 'venueFees', 'profile']
-
 export const H5_AGENT_ROLE_PAGES = {
-  main: [...COMMON_PAGES, 'teams', 'negativeProfit'],
-  secondary: [...COMMON_PAGES, 'teams', 'negativeProfit'],
-  independent: [...COMMON_PAGES, 'teams', 'negativeProfit'],
-  multiLevel: [...COMMON_PAGES, 'reversalStats', 'reversalRepayment', 'activities'],
+  main: ['home', 'dashboard', 'agents', 'negativeProfitReport', 'reversalStats', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
+  secondary: ['home', 'dashboard', 'agents', 'negativeProfitReport', 'reversalStats', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
+  independent: ['home', 'dashboard', 'agents', 'negativeProfitReport', 'reversalStats', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
+  multiLevel: ['home', 'dashboard', 'profile', 'finance', 'agents', 'members', 'bets', 'accountChanges', 'memberFunds', 'reversalStats', 'reversalRepayment', 'venueFees', 'activities'],
 }
 
 export const H5_AGENT_WORKSPACES = {
   home: ['home'],
-  agent: ['agents', 'teams'],
+  agent: ['dashboard', 'agents'],
   member: ['members', 'bets'],
-  finance: ['finance', 'accountChanges', 'memberFunds', 'negativeProfit', 'reversalStats', 'reversalRepayment'],
+  finance: ['finance', 'negativeProfitReport', 'reversalStats', 'reversalRepayment', 'accountChanges', 'memberFunds'],
   more: ['profile', 'venueFees', 'activities'],
 }
 
@@ -53,6 +51,10 @@ export function roleMeta(role) {
 
 export function pageAllowed(role, page) {
   return (H5_AGENT_ROLE_PAGES[role] || H5_AGENT_ROLE_PAGES.main).includes(page)
+}
+
+export function pagesForRole(role) {
+  return H5_AGENT_ROLE_PAGES[role] || H5_AGENT_ROLE_PAGES.main
 }
 
 export function pagesForWorkspace(role, workspace) {
@@ -88,22 +90,22 @@ export function createFinanceState() {
 
 const NOTE_SPECS = {
   home: {
-    summary: '集中查看当前代理身份已有的可用余额、经营指标、常用模块和本次会话资金流水。',
-    fields: '代理账号、代理身份、可用余额、站点、现有经营看板指标与本次会话资金流水。',
-    logic: '首页仅汇总当前身份已有业务数据；团队负责人按团队、副线按线路、单线代理按本人、多层级代理按授权层级统计。',
-    related: '关联财务中心、代理列表、会员列表、负盈利结算及冲正报表。',
+    summary: '集中查看当前代理身份已有余额、经营摘要、全部桌面端同身份模块入口和本次会话资金流水。',
+    fields: '代理账号、代理身份、可用余额、站点、桌面数据看板既有指标与当前身份全部模块入口。',
+    logic: '首页模块入口严格来自桌面代理后台当前身份菜单；团队负责人、副线和单线代理各显示11个业务模块，多层级代理显示12个业务模块。',
+    related: '关联代理数据看板、代理列表、财务中心、会员列表、负盈利代理佣金报表及冲正统计报表。',
+  },
+  dashboard: {
+    summary: '按当前代理身份查看桌面代理数据看板的原有五组经营指标。',
+    fields: '本期佣金预估或净收益、佣金余额、资金流水、代理数据和会员数据共24项原有指标。',
+    logic: '四种身份复用桌面端同一指标分组；团队负责人按授权团队、副线按本人线路、单线代理按本人、多层级代理按授权下级统计。',
+    related: '关联代理列表、会员列表、财务中心和场馆费用明细。',
   },
   agents: {
     summary: '按当前身份查看本人及授权下级代理资料，多层级代理可演示维护操作。',
     fields: '代理ID、账号、代理身份、代理层级、代理类型、状态、下级代理、下级会员、方案及最后登录。',
     logic: '前三种身份只读；多层级代理保留新增、修改和修改密码，所有操作仅改变前端演示状态。',
-    related: '关联团队代理管理、会员列表、财务中心和代理数据看板。',
-  },
-  teams: {
-    summary: '查看当前身份可见的团队、成员、直属会员、团队概况、业绩和操作记录。',
-    fields: '团队编号、团队名称、负责人、成员、会员、余额、返佣等级、成员业绩及操作记录。',
-    logic: '团队负责人看授权团队；副线仅看本人线路；单线代理无团队时展示空状态。代理后台所有团队管理操作保持只读。',
-    related: '关联代理列表、负盈利结算、会员列表和团队佣金记录。',
+    related: '关联会员列表、财务中心、代理数据看板和负盈利代理佣金报表。',
   },
   members: {
     summary: '按当前代理身份查询授权会员的账户、投注、输赢和资金概况。',
@@ -135,17 +137,17 @@ const NOTE_SPECS = {
     logic: '记录按当前身份范围过滤，正负金额与状态共同说明资金方向及处理结果。',
     related: '关联会员列表、财务中心和账变流水报表。',
   },
-  negativeProfit: {
-    summary: '只读核对当前身份的负盈利团队或单线代理佣金账单。',
-    fields: '周期、团队与代理、人数、存提款、盈亏成本、净输赢、结余、返佣等级、佣金、审核和发放信息。',
-    logic: '团队主记录可展开负责人和副线，成员数值逐列合计等于团队主记录；代理端保留确认、不发放和修改发放三个操作名称，但与桌面端一致保持禁用只读。',
-    related: '关联团队代理管理、佣金记录和账变流水。',
+  negativeProfitReport: {
+    summary: '只读查询当前身份授权范围内的负盈利代理佣金结果。',
+    fields: '代理、周期、统计时间、团队、人数、存提款、盈亏成本、净输赢、上月结余、返佣等级、佣金比例、佣金和代理时间。',
+    logic: '团队负责人可展开团队负责人及副线；副线仅显示本人线路，单线代理仅显示本人。页面不展示操作、佣金状态、发放、审核、维护、调整原因或佣金调整字段。',
+    related: '关联代理列表、代理数据看板和账变流水报表。',
   },
   reversalStats: {
-    summary: '汇总多层级代理冲正垫付、回款、剩余额度和欠款。',
-    fields: '垫付人数、欠款人数、垫付金额、回款金额、剩余金额、欠款及代理明细。',
-    logic: '垫付剩余金额 = 垫付总计 − 回款总计；本页仅对多层级代理开放。',
-    related: '关联冲正回款报表、账变流水和代理列表。',
+    summary: '按当前身份同步桌面端对应的冲正统计口径。',
+    fields: '团队负责人、副线和单线代理展示统计日期、周期、代理、身份、层级、结算单元、line_id、上月欠站点、本期新增欠款、本期已还站点和当前欠站点；多层级代理保留原垫付与欠款统计字段。',
+    logic: '团队负责人和副线查看同一团队周期汇总，单线代理只看本人；当前欠站点 = MAX（0，上月欠站点 + 本期新增欠款 − 本期已还站点）。多层级代理继续沿用原冲正统计。',
+    related: '关联代理列表、负盈利代理佣金报表、账变流水；多层级代理另关联冲正回款报表。',
   },
   reversalRepayment: {
     summary: '逐笔查看多层级代理冲正垫付和后续回款明细。',
@@ -184,7 +186,9 @@ export const H5_AGENT_NOTES = Object.fromEntries(Object.entries(H5_AGENT_PAGE_ME
     requirement: '将现有代理后台对应模块完整 H5 化；模块、功能、筛选、字段、状态、计算口径和操作权限与桌面端逐项一致，只采用暗夜金融风重新组织移动端信息层级。',
     acceptance: '当前身份范围与桌面端一致；桌面端已有筛选、重置、分页、详情和操作均可演示且无新增功能；完整字段可从卡片详情或横向核对模式查看；手机页面无横向溢出。',
     boundary: '纯前端演示，不连接真实接口；资金、密码、导出、下载和保存均不产生真实业务结果；桌面代理后台与原 H5 前端保持不变。',
-    record: `修改时间：${H5_AGENT_UPDATED_AT}；修改说明：新增 H5 代理后台${meta.label}；修改内容：新增暗夜金融移动布局、身份范围、卡片列表、筛选面板、详情展示和前端反馈。`,
+    record: page === 'home'
+      ? `修改时间：${H5_AGENT_UPDATED_AT}；修改说明：首页直接使用完整模块入口，避免重复导航；修改内容：移除财务、会员、报表和全部功能快捷区及分隔线，保留当前身份全部模块完整展开，不改变模块、字段、数据或权限。`
+      : `修改时间：${H5_AGENT_UPDATED_AT}；修改说明：按桌面代理后台最新身份范围同步 H5 ${meta.label}；修改内容：仅重排桌面端现有模块、筛选、字段、数据和操作权限，不新增业务字段或功能。`,
     updatedAt: H5_AGENT_UPDATED_AT,
   }]
 }))

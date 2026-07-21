@@ -19,7 +19,7 @@ import {
 const TEAM_ACCOUNTS = ['gaodashang', 'WC002', 'LGNB']
 const SINGLE_ACCOUNT = 'dailiwc001'
 
-const DEBT_ROWS = [
+export const AGENT_DEBT_ROWS = [
   { id: 'REV-202607-345', date: '2026-07-21', cycle: '2026-07', account: 'gaodashang', openingDebt: 26800, newDebt: 8400, paidToSite: 6000, note: '团队周期欠款' },
   { id: 'REV-202607-373', date: '2026-07-21', cycle: '2026-07', account: 'WC002', openingDebt: 6800, newDebt: 2100, paidToSite: 1800, note: '团队周期欠款' },
   { id: 'REV-202607-374', date: '2026-07-21', cycle: '2026-07', account: 'LGNB', openingDebt: 5100, newDebt: 1350, paidToSite: 1200, note: '团队周期欠款' },
@@ -45,13 +45,13 @@ function decorateRow(row, agents) {
   }
 }
 
-function buildRoleRows(role, agents) {
+export function buildAgentDebtRows(role, agents) {
   if (role === 'independent') {
-    return DEBT_ROWS.filter((row) => row.account === SINGLE_ACCOUNT).map((row) => decorateRow(row, agents))
+    return AGENT_DEBT_ROWS.filter((row) => row.account === SINGLE_ACCOUNT).map((row) => decorateRow(row, agents))
   }
 
   const leader = agents.find((item) => item.account === TEAM_ACCOUNTS[0]) || {}
-  const grouped = DEBT_ROWS.filter((row) => TEAM_ACCOUNTS.includes(row.account)).reduce((result, row) => {
+  const grouped = AGENT_DEBT_ROWS.filter((row) => TEAM_ACCOUNTS.includes(row.account)).reduce((result, row) => {
     const current = result.get(row.cycle) || {
       id: `TEAM-${row.cycle}`,
       date: row.date,
@@ -85,7 +85,7 @@ const moneyColumn = (key, label, signed = false) => ({ key, label, render: (valu
 export function AgentDebtReversalReportPage({ role = 'main', onToast }) {
   const { data } = useTeamAgent()
   const [filters, setFilters] = useState(EMPTY_FILTERS)
-  const allRows = useMemo(() => buildRoleRows(role, data.agents), [data.agents, role])
+  const allRows = useMemo(() => buildAgentDebtRows(role, data.agents), [data.agents, role])
   const rows = allRows.filter((row) => (!filters.startDate || row.date >= filters.startDate)
     && (!filters.endDate || row.date <= filters.endDate)
     && (!filters.cycle || row.cycle === filters.cycle)

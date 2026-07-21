@@ -80,6 +80,7 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-topbar > button.role { justify-self: end; max-width: 92px; height: 32px; overflow: hidden; padding: 0 10px; border: 1px solid var(--ha-border); border-radius: 10px; color: #b7c7de; background: var(--ha-surface); font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 
 .h5-agent-exit { position: absolute; top: 14px; left: 12px; z-index: 24; width: 36px; height: 36px; display: none; place-items: center; border: 1px solid var(--ha-border); border-radius: 12px; color: #d7e4f6; background: rgba(13, 27, 45, .92); }
+.h5-agent-exit.is-home { display: grid; }
 
 .h5-agent-page-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
 .h5-agent-page-intro > div { min-width: 0; }
@@ -94,7 +95,7 @@ body:has(.h5-agent-preview-stage),
 
 /* 首页 */
 .h5-agent-home { min-height: 100%; padding: 24px 18px 94px; background: #06111f; }
-.h5-agent-home-head { min-height: 64px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.h5-agent-home-head { min-height: 64px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding-left: 38px; }
 .h5-agent-home-head h1 { margin: 0; color: #f8faff; font-size: 28px; line-height: 1.2; letter-spacing: .5px; }
 .h5-agent-home-head small { display: block; margin-top: 4px; color: #586980; font-size: 9px; }
 .h5-agent-home-head > div:last-child { display: flex; gap: 7px; }
@@ -122,13 +123,15 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-home-metrics span { color: #687991; font-size: 9px; line-height: 1.15; }
 .h5-agent-home-metrics b { color: #dbe6f6; font-size: 12px; }
 
-.h5-agent-quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 18px 0 20px; }
-.h5-agent-quick-grid button { min-width: 0; display: grid; justify-items: center; gap: 7px; color: #d4deed; }
-.h5-agent-quick-grid button > span { width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid rgba(128, 159, 200, .16); border-radius: 17px; color: #fff; background: #1d4f9e; box-shadow: 0 9px 20px rgba(0, 0, 0, .22); font-size: 21px; }
-.h5-agent-quick-grid button > span.green { background: #188c62; }
-.h5-agent-quick-grid button > span.purple { background: #4544ad; }
-.h5-agent-quick-grid button > span.dark { background: #263347; }
-.h5-agent-quick-grid b { overflow: hidden; max-width: 100%; color: #dce5f2; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.h5-agent-home-modules { margin: 20px 0; }
+.h5-agent-home-modules > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.h5-agent-home-modules h2 { margin: 0; color: #f5f8ff; font-size: 18px; }
+.h5-agent-home-modules > header span { color: #6d7f98; font-size: 9px; }
+.h5-agent-home-modules > div { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.h5-agent-home-modules > div > button { min-width: 0; min-height: 52px; display: grid; grid-template-columns: 32px minmax(0, 1fr) 12px; align-items: center; gap: 8px; padding: 9px; border: 1px solid #21344e; border-radius: 14px; color: #73849d; background: #0d1d30; text-align: left; }
+.h5-agent-home-modules > div > button > span:first-child { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; color: #8bb6f7; background: #12315d; font-size: 14px; }
+.h5-agent-home-modules > div > button > b { min-width: 0; overflow: hidden; color: #dce6f3; font-size: 10px; line-height: 1.35; text-overflow: ellipsis; }
+.h5-agent-home-modules > div > button > .anticon:last-child { font-size: 9px; }
 
 .h5-agent-dashboard-mobile { display: grid; gap: 14px; margin: 0 0 20px; padding-top: 16px; border-top: 1px solid #1b2a3d; }
 .h5-agent-dashboard-mobile > header { display: grid; gap: 9px; }
@@ -151,6 +154,11 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-dashboard-cards footer small { color: #5f718a; font-size: 8px; }
 .h5-agent-dashboard-cards footer em { color: #8fa0b5; font-size: 8px; font-style: normal; }
 .h5-agent-dashboard-cards footer button { justify-self: start; color: #75a8f4; font-size: 8px; }
+.h5-agent-dashboard-toolbar { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 10px; }
+.h5-agent-dashboard-toolbar button { min-height: 34px; padding: 0 11px; border: 1px solid #283d59; border-radius: 10px; color: #8498b5; background: #0e1e31; font-size: 9px; font-weight: 700; }
+.h5-agent-dashboard-toolbar button.active { color: #fff; border-color: #326fd2; background: #1d55ae; }
+.h5-agent-dashboard-toolbar input { grid-column: 1 / -1; width: 100%; height: 40px; padding: 0 11px; border: 1px solid #293d57; border-radius: 11px; color: #dae5f4; background: #0f1e31; color-scheme: dark; }
+.h5-agent-dashboard-module { margin-top: 13px; padding-top: 0; border-top: 0; }
 .h5-agent-home-empty { display: grid; justify-items: center; gap: 5px; padding: 24px 10px 12px; color: #60738d; text-align: center; }
 .h5-agent-home-empty .anticon { font-size: 20px; }
 .h5-agent-home-empty span { color: #90a1b7; font-size: 11px; }
@@ -199,6 +207,7 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-filter-chips span { flex: none; padding: 5px 9px; border: 1px solid #274a7e; border-radius: 12px; color: #91b8ed; background: #0d2447; font-size: 9px; }
 .h5-agent-filter-chips button { flex: none; color: #7d8da4; font-size: 9px; }
 .h5-agent-result-meta, .h5-agent-list-toolbar + .h5-agent-result-meta, .h5-agent-list-toolbar + .h5-agent-stat-strip, .h5-agent-list-toolbar + .h5-agent-list-toolbar { min-height: 28px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; color: #74859e; font-size: 10px; }
+.h5-agent-result-meta > div { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .h5-agent-result-meta button, .h5-agent-list-toolbar button.link, .h5-agent-list-toolbar > button:not(.h5-agent-filter-button):not(.h5-agent-add-button) { color: #77a7ef; font-weight: 700; }
 .h5-agent-card-list { display: grid; gap: 10px; }
 .h5-agent-list-card, .h5-agent-record-card, .h5-agent-record-card, .h5-agent-card { min-width: 0; padding: 14px; border: 1px solid var(--ha-border); border-radius: 17px; color: #d7e1ef; background: var(--ha-surface); box-shadow: 0 9px 22px rgba(0, 0, 0, .14); }
@@ -278,6 +287,17 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-audit-table .h5-agent-audit-total td:first-child { background: #182d47; }
 .h5-agent-audit-table tr:last-child td { border-bottom: 0; }
 .h5-agent-audit-table th:last-child, .h5-agent-audit-table td:last-child { border-right: 0; }
+.h5-agent-formula-panel { display: grid; gap: 10px; margin-top: 14px; }
+.h5-agent-formula-panel h2 { margin: 0; color: #eef3fb; font-size: 14px; }
+.h5-agent-formula-panel > p { margin: 0; }
+.h5-agent-field-filter { display: grid; gap: 9px; }
+.h5-agent-field-filter > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #8ea0b8; font-size: 10px; font-weight: 700; }
+.h5-agent-field-filter > header > div { display: flex; gap: 8px; }
+.h5-agent-field-filter > header button { color: #77a7ef; font-size: 9px; }
+.h5-agent-field-filter > div { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 240px; overflow-y: auto; padding: 8px; border: 1px solid #253951; border-radius: 12px; background: #0d1b2c; }
+.h5-agent-field-filter label { min-width: 0; display: flex; align-items: center; gap: 6px; min-height: 28px; color: #91a2b8; font-size: 9px; }
+.h5-agent-field-filter input { width: 14px; height: 14px; flex: none; accent-color: var(--ha-blue); }
+.h5-agent-field-filter label span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* 团队 */
 .h5-agent-team-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 11px; }
@@ -426,11 +446,6 @@ body:has(.h5-agent-preview-stage),
 @media (max-width: 480px) {
   .h5-agent-preview-stage { height: 100dvh; padding: 0; }
   .h5-agent-phone { width: 100%; height: 100dvh; border: 0; border-radius: 0; box-shadow: none; }
-}
-
-@media (min-width: 481px) {
-  .h5-agent-exit { display: grid; }
-  .h5-agent-home-head { padding-left: 38px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

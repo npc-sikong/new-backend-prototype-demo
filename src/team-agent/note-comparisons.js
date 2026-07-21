@@ -599,14 +599,14 @@ NOTE_COMPARISONS['master:version'] = {
   ...NOTE_COMPARISONS['master:version'],
   additions: {
     ...NOTE_COMPARISONS['master:version'].additions,
-    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理身份', '移动端验收尺寸'],
+    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理身份', '身份模块清单', '移动端验收尺寸'],
     types: [...NOTE_COMPARISONS['master:version'].additions.types, 'H5代理后台需求'],
-    views: [...NOTE_COMPARISONS['master:version'].additions.views, '负盈利代理佣金报表模块卡片', '站点后台与代理后台同步页面清单', 'H5代理后台版本模块卡片'],
+    views: [...NOTE_COMPARISONS['master:version'].additions.views, '负盈利代理佣金报表模块卡片', '站点后台与代理后台同步页面清单', 'H5代理后台版本模块卡片', 'H5首页全部模块入口', 'H5首页重复快捷区移除'],
     actions: [...NOTE_COMPARISONS['master:version'].additions.actions, '从版本说明跳转至负盈利代理佣金报表', '从版本说明跳转至 H5代理后台'],
-    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '负盈利代理佣金报表在总控和代理后台分别按权限提供只读入口，站点后台不下发', '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置在总控和站点代理管理下使用独立入口', '周结频率可选一周、二周或三周', '代理后台三身份冲正统计去除级差、垫付和回款字段', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5身份与页面状态不改变原四门户和原H5前端'],
+    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '负盈利代理佣金报表在总控和代理后台分别按权限提供只读入口，站点后台不下发', '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置在总控和站点代理管理下使用独立入口', '周结频率可选一周、二周或三周', '代理后台三身份冲正统计去除级差、垫付和回款字段', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5首页直接展示当前身份全部桌面模块入口', '团队负责人、副线和单线代理同步11个桌面模块且不展示团队管理和负盈利结算', '多层级代理同步12个桌面模块', 'H5只重排现有字段和功能，不新增或删减业务能力', 'H5身份与页面状态不改变原四门户和原H5前端'],
   },
-  updatedAt: '2026-07-22 04:57',
-  record: '修改时间：2026-07-22 04:57；修改说明：同步负盈利代理佣金只读报表；修改内容：新增报表模块卡片和页面跳转，并记录跨日期查询、去除字段与只读边界。',
+  updatedAt: '2026-07-22 06:13',
+  record: '修改时间：2026-07-22 06:13；修改说明：同步 H5 代理后台最新角色模块范围并精简重复导航；修改内容：版本说明补充首页完整模块入口、移除重复快捷区、三种团队身份11个模块、多层级代理12个模块，以及不新增或删减桌面端字段和功能的验收边界。',
 }
 
 const MODULE_MERGE_UPDATED_AT = '2026-07-20 17:19'

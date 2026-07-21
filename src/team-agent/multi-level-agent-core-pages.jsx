@@ -17,7 +17,7 @@ const toneClass = (tone) => `ml-tone-${tone || 'default'}`
 
 const DASHBOARD_ROLE_ACCOUNTS = { main: 'gaodashang', secondary: 'WC002', independent: 'dailiwc001' }
 
-function dashboardGroupsForRole(data, role) {
+export function dashboardGroupsForRole(data, role) {
   if (role === 'multiLevel') return DASHBOARD_GROUPS
   const account = DASHBOARD_ROLE_ACCOUNTS[role]
   const agent = data.agents.find((item) => item.account === account)

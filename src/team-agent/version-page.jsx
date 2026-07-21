@@ -92,7 +92,7 @@ const VERSION_2_GROUPS = VERSION_2_GROUPS_BASE.map((group) => {
     ['memberLockedFlow', '会员提现流水查询', '会员余额锁定与完整提现流水下钻', '主列表移除“未解锁彩金”，充值额度后直接展示总余额、可提现余额、锁定余额和充值/彩金提现流水。弹窗提现流水列表继续同时展示当前锁定中记录和历史已解锁记录、解锁时间，并提供当前会员完整提现流水CSV导出。', '主表不再出现未解锁彩金；member_10086明细仍可看到锁定中与已解锁状态、开始和解锁时间，历史记录还需解锁流水为0；点击导出可下载5条提现流水；站点后台与代理后台不出现本模块。'],
     ...items,
   ] : group.portal === 'agent' ? [
-    ['h5Agent', 'H5代理后台', '面向四种代理身份的移动经营后台', '在现有“H5 前端”右侧新增第五个顶部入口“H5代理后台”，以暗夜金融风重新排版现有代理后台。支持团队负责人、副线、单线代理和多层级代理四种身份；各身份的模块、功能、筛选、字段、状态、数据口径和操作权限均与桌面代理后台对应页面一致，只将宽表改为手机卡片、详情抽屉或容器内横向核对模式。H5 身份、页面和资金演示状态与桌面代理后台隔离，原总控后台、站点后台、桌面代理后台和原 H5 前端页面保持不变。', '顶部第五入口可进入独立 H5 代理后台；四种身份均可切换并按授权范围查看与桌面端完全相同的业务功能和完整字段；390×844 与 430×932 尺寸无页面级横向溢出，筛选、分页、详情、财务操作、团队展开和报表核对可操作；未出现桌面端不存在的字段或功能，退出后原四门户与原 H5 前端状态、页面和样式不受影响。', 'h5Agent'],
+    ['h5Agent', 'H5代理后台', '面向四种代理身份的移动经营后台', '按桌面代理后台最新菜单重新同步 H5 代理后台：首页直接完整展开当前身份全部模块，并移除与完整模块列表重复的财务、会员、报表和全部功能快捷区。团队负责人、副线和单线代理显示代理数据看板、代理列表、只读负盈利代理佣金报表、简化冲正统计及七个原有共用页面，不再显示团队代理管理或负盈利代理佣金结算；多层级代理显示数据看板、个人与财务、代理与会员、投注与资金报表、冲正统计、冲正回款、场馆费用和活动列表共12个模块。页面仅以暗夜金融风将原有字段、筛选、数据、操作和权限重排为手机卡片、详情抽屉或容器内横向核对模式。', '顶部第五入口可进入独立 H5 代理后台；团队负责人、副线和单线代理各可进入11个与桌面端一致的业务模块，多层级代理可进入12个模块；首页不再出现重复快捷区且可直接进入全部模块，四身份数据范围和操作权限正确；负盈利代理佣金报表无结算操作，三种团队身份冲正统计不出现级差、垫付或回款字段；390×844 与 430×932 尺寸无页面级横向溢出，未出现桌面端不存在的字段或功能。', 'h5Agent'],
     ['mlDashboard', '多层级代理后台模块', '多层级代理经营模块及四身份共用原有页面', '代理后台身份切换支持团队负责人、副线、单线代理和多层级代理。多层级代理的“代理数据看板”已同步到其他三种身份，与个人中心、财务中心、会员列表、投注记录、账变流水报表、会员资金记录和三方场馆代理费用明细一样复用原页面结构，菜单名称不显示“(新)”或“(改)”，数据按当前身份授权范围收窄。', '四种身份均可进入代理数据看板；看板字段、分组和布局一致，团队负责人、副线和单线代理的佣金、余额、资金、代理与会员数据随身份切换。'],
     ...items,
   ] : items
@@ -108,8 +108,8 @@ const VERSION_1_GROUPS = [
 const JULY_17_PAGES = new Set(['teams', 'plans', 'settlement', 'records', 'commissionRecords', 'reversal', 'returns', 'revenue', 'relations', 'cycle', 'readonlyPlans', 'bills'])
 const JULY_18_PAGES = new Set(['agents', 'negativeProfit', 'siteAgents', 'downline', 'teams', 'teamDetails'])
 const JULY_20_PAGES = new Set(['memberLockedFlow'])
-const JULY_21_PAGES = new Set(['negativeProfitModeGuide', 'h5Agent'])
-const JULY_22_PAGES = new Set(['agents', 'plans', 'cycle', 'negativeProfitReport', 'reversal', 'mlDashboard'])
+const JULY_21_PAGES = new Set(['negativeProfitModeGuide'])
+const JULY_22_PAGES = new Set(['agents', 'plans', 'cycle', 'negativeProfitReport', 'reversal', 'mlDashboard', 'h5Agent'])
 
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>
