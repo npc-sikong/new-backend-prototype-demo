@@ -1,77 +1,102 @@
 import {
-  ArrowRightOutlined,
-  CheckCircleOutlined,
-  LockOutlined,
+  ApartmentOutlined,
+  CalculatorOutlined,
+  LineChartOutlined,
   OrderedListOutlined,
-  ReloadOutlined,
+  TeamOutlined,
+  UserOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
 import { Alert, SectionHeader } from './ui'
 
-const FLOW_STEPS = [
-  ['每笔独立建单', '每次充值或获得彩金时，独立记录入账额度和对应的提现投注流水。'],
-  ['按顺序完成', '多笔记录同时存在时，按发生时间顺序优先解锁第一笔，不可跳过。'],
-  ['逐笔释放本金', '某笔流水完成后，仅将该笔尚未亏损的充值本金转入可提现余额。'],
-  ['统一释放盈利', '只有本轮全部提现流水完成后，剩余盈利才从锁定余额转入可提现余额。'],
-  ['结束并重开周期', '全部余额完成解锁后本轮结束；之后再次充值时，重新作为新一轮第一笔记录。'],
+const MODE_SECTIONS = [
+  {
+    icon: <LineChartOutlined />,
+    title: '一、负盈利模式',
+    description: '返佣等级由代理在当前结算周期内的实际运营数据决定。',
+    points: [
+      '返佣比例不是固定给，而是按实际运营数据确定返佣级别；每个返佣级别都有指定条件。',
+      '代理未达到最低等级的返佣条件时，本期收益为 0，盈亏收益计入结余并带到下期；若本期为亏损，则按负数记录。',
+      '负盈利模式升级条件包括：有效活跃人数、新增活跃人数、投注总盈亏。',
+    ],
+  },
+  {
+    icon: <TeamOutlined />,
+    title: '二、团队代理（负盈利模式）',
+    description: '以整个团队的汇总运营数据确定统一返佣等级。',
+    points: [
+      '团队代理可以看成由多个代理组成的星级代理。多个代理组成一个代理团队，以团队内所有代理的总数据确定返佣等级。',
+      '团队设一名团队负责人，其余团队成员称为副线。负责人可在线下或通过转账向副线发放工资，平台不处理团队内部工资分配。',
+      '团队区分官方代理和普通代理；官方代理只能加入官方代理团队，普通代理只能加入普通代理团队。',
+      '奖励可以不发放，也可以在发放时扣减。不发放时，本周期收益转入下个周期的上月结余；少发放时，按实际发放结果扣减对应佣金。',
+      '团队不能直接踢人，可向官方申请移出成员，或申请将副线转为单线代理、团队负责人。',
+    ],
+  },
+  {
+    icon: <UserOutlined />,
+    title: '三、单线代理（负盈利模式）',
+    description: '单线代理独立计算经营数据，上级代理作为推荐人。',
+    points: [
+      '单线代理类似星级代理，但采用负盈利模式；其上级代理即为推荐人。',
+      '单线代理的返佣定级、结余和佣金发放规则与团队代理一致。',
+    ],
+  },
+  {
+    icon: <CalculatorOutlined />,
+    title: '四、结算模式',
+    description: '按周期定级、计算佣金，并将未消化的盈亏带入下期。',
+    points: [
+      '先根据结算周期内的代理运营数据确定返佣等级，再按命中的返佣比例计算佣金。',
+      '负盈利模式代理只有一个层级，因此不产生级差佣金，也不产生级差运营手续费分摊。',
+      '去除垫付和回款功能，改为上月结余。本周期产生负盈利时，以负数计入下个周期的上月结余。',
+      '增加“不发放 / 修改发放”佣金功能。不发放时，本周期盈利计入下个周期的上月结余；少发放时，直接扣减对应佣金。',
+    ],
+  },
 ]
 
-function RuleCard({ icon, title, children, tone = 'blue' }) {
-  return <article className={`negative-mode-rule-card is-${tone}`}>
-    <i>{icon}</i>
-    <div><h3>{title}</h3><p>{children}</p></div>
-  </article>
-}
+const TURNOVER_EXAMPLE = [
+  ['充值', '充值 1,000 元，提现流水倍数为 1 倍，需要完成 1,000 元充值提现流水。'],
+  ['参加真人活动', '从中心钱包转 200 元参加真人场馆首充活动，获得活动彩金 100 元，流水倍数为 10 倍；真人场馆提现流水为（200 + 100）× 10 = 3,000 元。'],
+  ['真人场馆投注', '用户在真人场馆完成 200 元有效流水，真人场馆提现流水减少 200 元，剩余 2,800 元；充值提现流水不减少。'],
+  ['彩票场馆投注', '用户将中心钱包剩余 800 元转入彩票场馆并完成 200 元有效流水，充值提现流水减少 200 元，剩余 800 元；真人场馆首充流水仍为 2,800 元。'],
+]
 
-function Scenario({ number, title, summary, points }) {
-  return <article className="negative-mode-scenario">
-    <header><span>特殊情况 {number}</span><div><h3>{title}</h3><p>{summary}</p></div></header>
+function ModeSection({ icon, title, description, points }) {
+  return <article className="negative-mode-business-card">
+    <header><i>{icon}</i><div><h2>{title}</h2><p>{description}</p></div></header>
     <ol>{points.map((point) => <li key={point}>{point}</li>)}</ol>
   </article>
 }
 
 export function NegativeProfitModeGuidePage() {
   return <section className="negative-mode-guide-screen">
-    <SectionHeader title="负盈利模式说明" description="说明充值、彩金、锁定余额与提现投注流水之间的逐笔解锁规则。" />
+    <SectionHeader title="负盈利模式说明" description="说明负盈利模式的返佣定级、团队与单线代理规则、结算口径及不同类型提现流水的计算方式。" />
 
     <div className="negative-mode-hero">
-      <div className="negative-mode-hero-icon"><LockOutlined /></div>
-      <div><span>提现核心限制</span><h2>只要存在锁定余额，就不能全额提现</h2><p>用户只能提取已完成提现投注流水的充值订单本金；本轮仍有未完成记录时，未解锁充值额度与盈利继续保留在锁定余额。</p></div>
-      <div className="negative-mode-hero-result"><small>全部流水完成后</small><strong><CheckCircleOutlined /> 锁定余额转为可提现</strong></div>
+      <div className="negative-mode-hero-icon"><ApartmentOutlined /></div>
+      <div><span>负盈利模式核心</span><h2>按实际运营数据确定返佣等级，不采用固定返佣比例</h2><p>每个返佣等级配置指定条件。系统按当前结算周期的代理或团队汇总数据命中等级，并将本期未发放收益或负盈利通过上月结余带入下期。</p></div>
+      <div className="negative-mode-hero-result"><small>主要定级条件</small><strong><LineChartOutlined /> 有效活跃 / 新增活跃 / 投注总盈亏</strong></div>
     </div>
 
-    <section className="negative-mode-section">
-      <div className="negative-mode-section-title"><OrderedListOutlined /><div><h2>逐笔统计与解锁顺序</h2><p>每笔充值或彩金都拥有独立的提现流水记录，按发生时间 FIFO 解锁。</p></div></div>
-      <div className="negative-mode-flow">{FLOW_STEPS.map(([title, description], index) => <div className="negative-mode-flow-step" key={title}>
-        <b>{index + 1}</b><div><strong>{title}</strong><span>{description}</span></div>{index < FLOW_STEPS.length - 1 && <ArrowRightOutlined />}
-      </div>)}</div>
+    <div className="negative-mode-business-grid">
+      {MODE_SECTIONS.map((section) => <ModeSection key={section.title} {...section} />)}
+    </div>
+
+    <section className="negative-mode-formula-section">
+      <div className="negative-mode-section-title"><CalculatorOutlined /><div><h2>佣金计算</h2><p>先计算当月净利润，再乘以代理命中的佣金比例。</p></div></div>
+      <div className="negative-mode-formulas">
+        <div><span>代理佣金</span><strong>当月净利润 × 代理佣金比例</strong></div>
+        <div><span>当月净利润</span><strong>结算周期内会员给平台带来的盈利 − 三方场馆费用 − 运营费用 + 上月结余</strong></div>
+      </div>
+      <Alert title="运营费用范围">会员礼金、会员返水、会员推荐会员奖励、会员活动领取奖励，以及充值和提现手续费。</Alert>
     </section>
 
-    <div className="negative-mode-rule-grid">
-      <RuleCard icon={<WalletOutlined />} title="单笔充值单独锁定">每笔充值均记录充值额度和对应的提现投注流水。未达到该笔目标流水时，该笔充值额度保持锁定，不能转入可提现余额。</RuleCard>
-      <RuleCard icon={<OrderedListOutlined />} title="新增资金继续排队">第一笔尚未完成时再次充值，会新增第二笔独立记录；如果之后继续充值或获得彩金，则继续新增第三笔记录，前面的记录不会被覆盖。</RuleCard>
-      <RuleCard icon={<CheckCircleOutlined />} title="已完成记录释放本金" tone="green">第一笔完成后，只释放第一笔尚未亏损的充值本金。第二笔、第三笔未完成时，其对应余额和本轮盈利仍保持锁定。</RuleCard>
-      <RuleCard icon={<ReloadOutlined />} title="盈利最后统一解锁" tone="orange">即使前面的充值本金已转为可提现，只要本轮还有任何一笔提现流水未完成，盈利部分就不能提现；全部记录完成后再一并解锁。</RuleCard>
-    </div>
-
-    <Alert title="金额与流水口径">单笔还需提现投注流水 = MAX（0，单笔目标流水 − 单笔已完成有效流水）；单笔可转本金不超过该笔充值额度，并受用户当前剩余余额限制；本轮全部记录完成前，盈利金额继续计入锁定余额。</Alert>
-
     <section className="negative-mode-section">
-      <div className="negative-mode-section-title"><LockOutlined /><div><h2>特殊场景说明</h2><p>充值次数增加或用户产生输赢时，仍按每笔记录的完成顺序与剩余余额判断可提现金额。</p></div></div>
-      <div className="negative-mode-scenarios">
-        <Scenario number="1" title="多次充值后盈利增加" summary="三笔充值同时存在时，按已完成记录逐笔释放本金，盈利等待全部完成。" points={[
-          '第一笔流水完成后，可将第一笔尚未亏损的充值本金转为可提现余额。',
-          '若只完成第一笔和第二笔，则只释放前两笔尚未亏损的充值本金。',
-          '第三笔充值额度和全部盈利继续锁定，直到第三笔提现投注流水也完成。',
-          '三笔全部完成后，剩余锁定余额与盈利统一转为可提现余额，本轮统计结束。',
-        ]} />
-        <Scenario number="2" title="前序充值已产生亏损" summary="已完成流水不代表一定有同额本金可释放，可转金额还要受当前余额限制。" points={[
-          '第一笔完成后，如第一笔充值资金仅剩一部分，只能释放尚未亏损的部分。',
-          '如果第一笔充值资金已经全部亏损，该笔完成时没有金额可以转入可提现余额。',
-          '剩余余额归属于后续充值记录时，必须完成对应的第二笔或后续提现投注流水后才能提现。',
-          '即使用第二笔资金产生了更多盈利，也必须完成第二笔流水；本轮仍有未完成记录时盈利继续锁定。',
-        ]} />
-      </div>
+      <div className="negative-mode-section-title"><WalletOutlined /><div><h2>充值与场馆活动提现流水示例</h2><p>充值提现流水与场馆活动提现流水按资金实际使用场景分别扣减，互不混算。</p></div></div>
+      <div className="negative-mode-flow is-four-steps">{TURNOVER_EXAMPLE.map(([title, description], index) => <div className="negative-mode-flow-step" key={title}>
+        <b>{index + 1}</b><div><strong>{title}</strong><span>{description}</span></div>
+      </div>)}</div>
+      <Alert title="示例结论">真人场馆内产生的有效流水只扣减真人场馆首充活动流水；彩票场馆内使用充值本金产生的有效流水扣减充值提现流水，不影响真人场馆首充活动剩余流水。</Alert>
     </section>
   </section>
 }

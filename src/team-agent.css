@@ -615,7 +615,7 @@
 .member-flow-detail-toolbar strong { color: #26384b; font-size: 13px; }
 .member-flow-detail-toolbar span { color: #8a99aa; font-size: 10px; }
 
-/* 负盈利模式说明：提现流水与锁定余额业务规则 */
+/* 负盈利模式说明：返佣定级、结算与提现流水口径 */
 .negative-mode-guide-screen { min-width: 0; display: grid; gap: 12px; }
 .negative-mode-guide-screen .ta-section-header { min-height: 38px; margin-bottom: 0; }
 .negative-mode-hero { min-height: 118px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 18px 20px; border: 1px solid #cfe3f7; border-radius: 7px; background: linear-gradient(105deg, #f7fbff 0%, #edf6ff 68%, #f8fbff 100%); }
@@ -631,7 +631,23 @@
 .negative-mode-section-title > .anticon { margin-top: 2px; font-size: 17px; }
 .negative-mode-section-title h2 { margin: 0; color: #2b3f55; font-size: 14px; }
 .negative-mode-section-title p { margin: 4px 0 0; color: #8a9aab; font-size: 10px; }
+.negative-mode-business-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.negative-mode-business-card { min-width: 0; overflow: hidden; border: 1px solid #dfe8f1; border-radius: 7px; background: #fff; }
+.negative-mode-business-card header { display: flex; align-items: flex-start; gap: 11px; padding: 14px 15px; border-bottom: 1px solid #e4ebf2; background: #f6faff; }
+.negative-mode-business-card header > i { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 8px; color: #fff; background: #2b98f1; box-shadow: 0 5px 12px rgba(43,152,241,.18); font-size: 14px; font-style: normal; }
+.negative-mode-business-card h2 { margin: 0; color: #30465d; font-size: 13px; }
+.negative-mode-business-card header p { margin: 5px 0 0; color: #8192a4; font-size: 9px; line-height: 1.55; }
+.negative-mode-business-card ol { display: grid; gap: 9px; margin: 0; padding: 14px 18px 15px 36px; }
+.negative-mode-business-card li { padding-left: 4px; color: #64768a; font-size: 10px; line-height: 1.7; }
+.negative-mode-business-card li::marker { color: #2b98f1; font-weight: 700; }
+.negative-mode-formula-section { padding: 16px; border: 1px solid #d8e7f4; border-radius: 7px; background: linear-gradient(105deg, #f9fcff, #f1f8ff); }
+.negative-mode-formulas { display: grid; grid-template-columns: minmax(220px, .75fr) minmax(0, 1.6fr); gap: 10px; margin-bottom: 10px; }
+.negative-mode-formulas > div { display: grid; gap: 6px; padding: 13px 14px; border: 1px solid #dce9f5; border-radius: 6px; background: #fff; }
+.negative-mode-formulas span { color: #7f91a4; font-size: 9px; }
+.negative-mode-formulas strong { color: #286da9; font-size: 12px; line-height: 1.6; }
+.negative-mode-formula-section .ta-alert, .negative-mode-section .ta-alert { margin: 10px 0 0; }
 .negative-mode-flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
+.negative-mode-flow.is-four-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .negative-mode-flow-step { position: relative; min-width: 0; display: flex; align-items: flex-start; gap: 8px; padding: 12px 11px; border: 1px solid #e4ebf3; border-radius: 5px; background: #f9fbfd; }
 .negative-mode-flow-step > b { width: 23px; height: 23px; flex: none; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #2b98f1; font-size: 10px; }
 .negative-mode-flow-step > div { min-width: 0; display: grid; gap: 5px; }
@@ -660,11 +676,12 @@
   .negative-mode-hero { grid-template-columns: auto minmax(0, 1fr); }
   .negative-mode-hero-result { grid-column: 2; padding: 4px 0 0; border-left: 0; }
   .negative-mode-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .negative-mode-flow.is-four-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .negative-mode-flow-step > .anticon { display: none; }
 }
 @media (max-width: 760px) {
   .negative-mode-hero { grid-template-columns: 1fr; }
   .negative-mode-hero-icon { width: 40px; height: 40px; }
   .negative-mode-hero-result { grid-column: 1; }
-  .negative-mode-flow, .negative-mode-rule-grid, .negative-mode-scenarios { grid-template-columns: 1fr; }
+  .negative-mode-business-grid, .negative-mode-formulas, .negative-mode-flow, .negative-mode-flow.is-four-steps, .negative-mode-rule-grid, .negative-mode-scenarios { grid-template-columns: 1fr; }
 }
