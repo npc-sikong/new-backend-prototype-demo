@@ -36,15 +36,15 @@ export function TeamAgentProvider({ children }) {
     if (data.teams.some((team) => team.mainAgent === mainAgent && team.status !== '已解散')) return { ok: false, message: '该代理已担任其他代理部主线' }
     const id = `TEAM-${String(data.teams.length + 1).padStart(3, '0')}`
     const lineId = `LINE-${String.fromCharCode(65 + data.teams.reduce((sum, team) => sum + team.lines.length, 0))}`
+    const main = data.agents.find((item) => item.account === mainAgent)
     const team = {
-      id, code: `DPT-${String(data.teams.length + 1).padStart(3, '0')}`, name, teamType: payload.teamType || '推广团队', developer: payload.developer || mainAgent, site: payload.site || '旺财体育', currency: 'CNY', mainAgent,
+      id, code: `DPT-${String(data.teams.length + 1).padStart(3, '0')}`, name, teamType: payload.teamType || '推广团队', teamAgentType: main?.teamAgentType || '普通代理', developer: payload.developer || mainAgent, site: payload.site || '旺财体育', currency: 'CNY', mainAgent,
       memberDetailPermission: Boolean(payload.memberDetailPermission), createdAt: timestamp(), joinedAt: payload.startCycle || '2026-08',
-      plan: payload.plan || '旺财团队月结方案', status: '待生效', startCycle: payload.startCycle || '2026-08', endCycle: '长期', previousNegative: 0,
+      plan: payload.plan || 'DW负盈利佣金方案', status: '待生效', startCycle: payload.startCycle || '2026-08', endCycle: '长期', previousNegative: 0,
       cumulativeReceived: 0, successfulTransfers: 0, processingOccupied: 0, otherDeductions: 0,
       metrics: { newActive: 0, activeMembers: 0, memberWinLoss: 0, totalWinLoss: 0, venueFee: 0, memberBonus: 0, memberRebate: 0, accountAdjustment: 0, manualOrderWinLoss: 0, depositFee: 0, withdrawalFee: 0, expenses: 0, adjustment: 0, currentNet: 0, lastBalance: 0, balanceAdjustment: 0, assessmentNet: 0, correctedNet: 0, commissionableNet: 0, commissionAdjustment: 0, grade: '待计算', rate: 0, payable: 0 },
       lines: [{ lineId, identity: '主线', agent: mainAgent, scope: '主线直属代理及会员', newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: payload.startCycle || '2026-08' }],
     }
-    const main = data.agents.find((item) => item.account === mainAgent)
     const operation = { id: sequence('TOP', data.teamOperations), teamId: id, teamName: name, teamType: team.teamType, mainId: main?.id || '—', mainAccount: mainAgent, secondaryAccounts: '—', action: '创建团队', reason: payload.reason || '市场推广代理线归集', operator: '站点运营', createdAt: timestamp() }
     setData((current) => ({ ...current, teams: [...current.teams, team], teamOperations: [operation, ...current.teamOperations] }))
     return { ok: true, message: `${name} 已创建，将于 ${team.startCycle} 生效`, id }
@@ -85,7 +85,7 @@ export function TeamAgentProvider({ children }) {
     const index = data.singles.length + 1
     const single = {
       id: `SINGLE-${String(index).padStart(3, '0')}`, code: `SL-${String(index).padStart(3, '0')}`, name: payload.name || `${owner} 单线代理`, owner,
-      site: '旺财体育', currency: 'CNY', source: payload.source || '站点直接创建', recommender: payload.recommender || '—', plan: payload.plan || '单线代理月结方案',
+      site: '旺财体育', currency: 'CNY', source: payload.source || '站点直接创建', recommender: payload.recommender || '—', plan: payload.plan || 'DW负盈利佣金方案',
       rewardPlan: payload.recommender ? '推荐奖励10%方案' : '未绑定', status: '待生效', startCycle: payload.startCycle || '2026-08', scope: '单线代理本人节点',
       metrics: { newActive: 0, activeMembers: 0, currentNet: 0, previousNegative: 0, assessmentNet: 0, grade: '待计算', rate: 0, payable: 0 },
     }
@@ -259,17 +259,25 @@ export function TeamAgentProvider({ children }) {
     const account = String(payload.account || '').trim()
     if (!account) return { ok: false, message: '请填写代理账号' }
     if (data.agents.some((item) => item.account.toLowerCase() === account.toLowerCase())) return { ok: false, message: '代理账号已存在' }
+    const targetTeam = payload.identity === '副线' ? data.teams.find((team) => team.id === payload.targetTeamId) : null
+    if (payload.identity === '副线' && !targetTeam) return { ok: false, message: '请选择副线要加入的团队' }
+    const targetLeader = targetTeam ? data.agents.find((agent) => agent.account === targetTeam.mainAgent) : null
+    if (targetTeam && (targetTeam.teamAgentType || targetLeader?.teamAgentType) !== payload.teamAgentType) return { ok: false, message: '副线代理身份必须与所选团队一致' }
     const numericIds = data.agents.map((item) => Number(item.id)).filter(Number.isFinite)
     const id = String((numericIds.length ? Math.max(...numericIds) : 1700) + 1)
+    const lineCount = data.teams.reduce((sum, team) => sum + team.lines.length, 0)
+    const lineId = targetTeam ? `LINE-${String.fromCharCode(65 + lineCount)}` : payload.lineId || '—'
     const record = {
       id,
       account,
+      agentName: String(payload.agentName || account).trim(),
       agentType: payload.agentType || '多层级代理',
       registeredAt: timestamp(),
       site: payload.site || '旺财体育',
       status: payload.status || '启用',
-      parent: '无上级代理',
-      parentId: '—',
+      parent: payload.parent || '无上级代理',
+      parentId: payload.parentId || '—',
+      recommender: payload.recommender || '—',
       subAgents: 0,
       members: 0,
       balance: 0,
@@ -277,16 +285,20 @@ export function TeamAgentProvider({ children }) {
       settlementMode: payload.settlementMode || '原代理模式',
       identity: payload.identity || '—',
       teamAgentType: payload.teamAgentType || (payload.agentType === '团队代理' ? '官方代理' : '—'),
-      unit: '—',
-      lineId: '—',
-      effectiveCycle: '—',
+      unit: targetTeam?.name || payload.unit || '—',
+      lineId,
+      effectiveCycle: targetTeam?.startCycle || payload.effectiveCycle || '—',
       plan: payload.plan || (payload.agentType === '星级代理' ? '星级返佣方案' : '多层级返佣方案'),
       carryAllFees: payload.carryAllFees || '否',
       remark: payload.remark || '',
       lastLogin: '—',
     }
-    setData((current) => ({ ...current, agents: [record, ...current.agents] }))
-    return { ok: true, message: `${account} 已新增` }
+    setData((current) => {
+      const teams = targetTeam ? current.teams.map((team) => team.id === targetTeam.id ? { ...team, lines: [...team.lines, { lineId, identity: '副线', agent: account, scope: `${account} 节点及直属会员`, newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: team.startCycle || '2026-08' }] } : team) : current.teams
+      const teamOperations = targetTeam ? [{ id: sequence('TOP', current.teamOperations), teamId: targetTeam.id, teamName: targetTeam.name, teamType: targetTeam.teamType || '推广团队', mainId: current.agents.find((item) => item.account === targetTeam.mainAgent)?.id || '—', mainAccount: targetTeam.mainAgent, secondaryAccounts: [...targetTeam.lines.filter((line) => line.identity === '副线').map((line) => line.agent), account].join('、'), action: '新增副线', reason: '新增代理时加入团队', operator: '总控运营', createdAt: timestamp() }, ...current.teamOperations] : current.teamOperations
+      return { ...current, agents: [record, ...current.agents], teams, teamOperations }
+    })
+    return { ok: true, message: targetTeam ? `${account} 已新增并加入 ${targetTeam.name}` : `${account} 已新增` }
   }
 
   function adjustAgentBalance(agentId, payload) {

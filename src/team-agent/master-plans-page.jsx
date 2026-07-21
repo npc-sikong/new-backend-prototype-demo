@@ -28,7 +28,7 @@ function buildLegacyRebateRows(plans) {
   const teamDetails = (teamPlan?.levels?.length ? teamPlan.levels : [
     { rate: 0.3 }, { rate: 0.35 }, { rate: 0.4 }, { rate: 0.45 }, { rate: 0.5 }, { rate: 0.55 },
   ]).map((level, index) => ({ level: index + 1, newMembers: level.newActive ?? '', activeMembers: level.activeMembers ?? '', totalWinLoss: level.netWinLoss ?? '', rate: level.rate || 0 }))
-  return [...BASE_REBATE_ROWS, { id: 'REBATE-TEAM', sequence: BASE_REBATE_ROWS.length + 1, name: teamPlan?.name || '旺财团队月结方案', createdAt: '2026-07-16 18:18:00', operator: 'codex', operatedAt: '2026-07-16 18:18:00', mode: 'team', details: teamDetails, ...DEFAULT_REBATE_RULES }]
+  return [...BASE_REBATE_ROWS, { id: 'REBATE-TEAM', sequence: BASE_REBATE_ROWS.length + 1, name: teamPlan?.name || 'DW负盈利佣金方案', createdAt: '2026-07-16 18:18:00', operator: 'codex', operatedAt: '2026-07-16 18:18:00', mode: 'team', details: teamDetails, ...DEFAULT_REBATE_RULES }]
 }
 
 function hasRebateCondition(value) {
@@ -94,9 +94,12 @@ function validateRebateDetails(mode, details) {
   return ''
 }
 
-export function MasterPlansPage({ onToast, portal = 'master' }) {
+export function MasterPlansPage({ onToast, portal = 'master', negativeOnly = false }) {
   const { data } = useTeamAgent()
-  const [rows, setRows] = useState(() => buildLegacyRebateRows(data.plans))
+  const [rows, setRows] = useState(() => {
+    const initialRows = buildLegacyRebateRows(data.plans)
+    return negativeOnly ? initialRows.filter((row) => row.name === 'DW负盈利佣金方案') : initialRows
+  })
   const [editing, setEditing] = useState(null)
   const [editName, setEditName] = useState('')
   const [editDetails, setEditDetails] = useState([])
@@ -119,7 +122,7 @@ export function MasterPlansPage({ onToast, portal = 'master' }) {
   const saveEditor = () => {
     const error = validateRebateDetails(editing.mode, editDetails)
     if (error) return onToast?.(error, 'error')
-    setRows((current) => current.map((row) => row.id === editing.id ? { ...row, name: editName || row.name, details: editDetails, ...(editing.mode === 'team' ? editRules : {}), operator: 'codex', operatedAt: `${REBATE_UPDATED_AT}:00` } : row))
+    setRows((current) => current.map((row) => row.id === editing.id ? { ...row, name: negativeOnly ? 'DW负盈利佣金方案' : editName || row.name, details: editDetails, ...(editing.mode === 'team' ? editRules : {}), operator: 'codex', operatedAt: `${REBATE_UPDATED_AT}:00` } : row))
     setEditing(null); onToast?.('佣金方案配置已保存', 'success')
   }
   const saveCreator = () => {
@@ -146,15 +149,15 @@ export function MasterPlansPage({ onToast, portal = 'master' }) {
 
   return <>
     <section className="legacy-rebate-screen">
-      <SectionHeader title="佣金方案" description="按原返佣方案列表维护代理返佣配置，当前详情页仅保留代理返佣方案列表。" />
-      <Toolbar>{portal !== 'agent' && <Button icon={<PlusOutlined />} onClick={openCreator}>新增代理方案</Button>}<Button icon={<DownloadOutlined />} variant="warning" onClick={() => onToast?.('返佣方案已导出', 'success')}>导出</Button><Button icon={<FileDoneOutlined />} variant="ghost" disabled>下载文件</Button></Toolbar>
+      <SectionHeader title={negativeOnly ? '负盈利佣佣金方案' : '佣金方案'} description={negativeOnly ? '仅维护负盈利代理结算使用的 DW负盈利佣金方案。' : '按原返佣方案列表维护代理返佣配置，当前详情页仅保留代理返佣方案列表。'} />
+      <Toolbar>{portal !== 'agent' && !negativeOnly && <Button icon={<PlusOutlined />} onClick={openCreator}>新增代理方案</Button>}<Button icon={<DownloadOutlined />} variant="warning" onClick={() => onToast?.('返佣方案已导出', 'success')}>导出</Button><Button icon={<FileDoneOutlined />} variant="ghost" disabled>下载文件</Button></Toolbar>
       <DataTable minWidth={1320} columns={rebateColumns} rows={rows} className="legacy-rebate-table" rowKey="id" />
     </section>
     <Modal open={creating} title="新增代理方案" onClose={() => setCreating(false)} onConfirm={saveCreator} confirmDisabled={!createDetails.length} width={1380}>
       <div className="legacy-rebate-modal-body"><div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={createName} onChange={setCreateName} placeholder="请输入方案名称" /></div><div className="legacy-rebate-name-row"><span><b>*</b> 方案类型</span><Select value={createType} onChange={changeCreateType} options={REBATE_TYPE_OPTIONS} /></div>{createType === 'team' && renderRuleFields(createRules, setCreateRules)}<Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addCreateLevel}>添加级别</Button>{renderLevelTable(createType, createDetails, updateCreateDetail, removeCreateLevel, 'create')}<div className="legacy-rebate-help"><strong>说明：</strong><p>1、层级代理和星级代理只配置对应级别的返佣比例。</p><p>2、团队代理可配置新增活跃、活跃会员、总输赢条件，并绑定活跃会员与新增活跃判定条件。</p><p>3、返佣比例以百分比填写，高层级已设置值不能低于低层级。</p></div></div>
     </Modal>
     <Modal open={!!editing} title="修改佣金方案" onClose={() => setEditing(null)} onConfirm={saveEditor} width={1380}>
-      <div className="legacy-rebate-modal-body"><div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={editName} onChange={setEditName} /></div>{editing?.mode === 'team' && renderRuleFields(editRules, setEditRules)}<Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addEditLevel}>添加级别</Button>{renderLevelTable(editing?.mode || 'level', editDetails, updateEditDetail, removeEditLevel, 'edit')}<div className="legacy-rebate-help"><strong>说明：</strong><p>1、层级代理和星级代理只配置对应级别的返佣比例。</p><p>2、团队代理可配置新增活跃、活跃会员、总输赢条件，并绑定活跃会员与新增活跃判定条件。</p><p>3、返佣比例以百分比填写，高层级已设置值不能低于低层级。</p></div></div>
+      <div className="legacy-rebate-modal-body"><div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={negativeOnly ? 'DW负盈利佣金方案' : editName} onChange={setEditName} disabled={negativeOnly} /></div>{editing?.mode === 'team' && renderRuleFields(editRules, setEditRules)}<Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addEditLevel}>添加级别</Button>{renderLevelTable(editing?.mode || 'level', editDetails, updateEditDetail, removeEditLevel, 'edit')}<div className="legacy-rebate-help"><strong>说明：</strong><p>1、层级代理和星级代理只配置对应级别的返佣比例。</p><p>2、团队代理可配置新增活跃、活跃会员、总输赢条件，并绑定活跃会员与新增活跃判定条件。</p><p>3、返佣比例以百分比填写，高层级已设置值不能低于低层级。</p></div></div>
     </Modal>
   </>
 }

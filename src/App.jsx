@@ -12,6 +12,7 @@ import {
   SafetyCertificateOutlined,
   SearchOutlined,
   SendOutlined,
+  SettingOutlined,
   TeamOutlined,
   UserOutlined,
   WalletOutlined,
@@ -45,13 +46,13 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', memberLockedFlow: '会员提现流水查询', agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', revenue: '代理收益看板',
+    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', memberLockedFlow: '会员提现流水查询', agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理', revenue: '代理收益看板',
   },
   site: {
-    agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理',
+    agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理',
   },
   agent: {
-    agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理',
+    agents: '代理列表', negativeProfitReport: '负盈利代理佣金报表', reversal: '冲正统计报表',
     mlDashboard: '代理数据看板', mlProfile: '个人中心', mlFinance: '财务中心', mlAgents: '代理列表', mlMembers: '会员列表', mlBetRecords: '投注记录', mlAccountChanges: '账变流水报表', mlMemberFunds: '会员资金记录', mlReversalStats: '冲正统计报表', mlReversalRepayment: '冲正回款报表', mlVenueFees: '三方场馆代理费用明细', mlActivities: '活动列表',
   },
 }
@@ -66,7 +67,9 @@ const MASTER_NAV = [
   ] },
   { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
+    { id: 'cycle', label: '结算周期设置', mark: '改', icon: SettingOutlined },
     { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
+    { id: 'negativeProfitReport', label: '负盈利代理佣金报表', mark: '新', icon: FileTextOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
     { id: 'revenue', label: '代理收益看板', mark: '改', icon: WalletOutlined },
   ] },
@@ -75,17 +78,17 @@ const MASTER_NAV = [
 const SITE_NAV = [
   { id: 'site-agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
+    { id: 'cycle', label: '结算周期设置', mark: '改', icon: SettingOutlined },
     { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
   ] },
 ]
 
 const AGENT_NAV = [
-  { id: 'agent-self-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
-    { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
-    { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
-    { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
-  ] },
+  { id: 'mlDashboard', label: '代理数据看板', icon: BarChartOutlined },
+  { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
+  { id: 'negativeProfitReport', label: '负盈利代理佣金报表', mark: '新', icon: FileTextOutlined },
+  { id: 'reversal', label: '冲正统计报表', mark: '改', icon: BarChartOutlined },
   { id: 'mlProfile', label: '个人中心', icon: UserOutlined },
   { id: 'mlFinance', label: '财务中心', icon: WalletOutlined },
   { id: 'mlMembers', label: '会员列表', icon: TeamOutlined },
@@ -95,7 +98,7 @@ const AGENT_NAV = [
   { id: 'mlVenueFees', label: '三方场馆代理费用明细', icon: BankOutlined },
 ]
 
-const SHARED_AGENT_PAGES = new Set(['mlProfile', 'mlFinance', 'mlMembers', 'mlBetRecords', 'mlAccountChanges', 'mlMemberFunds', 'mlVenueFees'])
+const SHARED_AGENT_PAGES = new Set(['mlDashboard', 'mlProfile', 'mlFinance', 'mlMembers', 'mlBetRecords', 'mlAccountChanges', 'mlMemberFunds', 'mlVenueFees'])
 
 const MULTI_LEVEL_AGENT_NAV = [
   { id: 'mlDashboard', label: '代理数据看板', mark: '改', icon: BarChartOutlined },

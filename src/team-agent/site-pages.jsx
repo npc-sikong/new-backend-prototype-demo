@@ -56,8 +56,8 @@ function getTeamType(team) {
 
 function readSiteCommissionConfig(config = {}) {
   return {
-    team: config.teamPlan || config.team || '旺财团队月结方案',
-    single: config.singlePlan || config.single || '单线代理月结方案',
+    team: config.teamPlan || config.team || 'DW负盈利佣金方案',
+    single: config.singlePlan || config.single || 'DW负盈利佣金方案',
     reward: config.rewardPlan || config.reward || '推荐奖励10%方案',
     cycle: config.effectiveCycle || config.cycle || '2026-08',
   }
@@ -68,7 +68,7 @@ function SiteTeamsPage({ onToast }) {
   const [tab, setTab] = useState('teams')
   const [modal, setModal] = useState(null)
   const [selected, setSelected] = useState(null)
-  const [teamForm, setTeamForm] = useState({ name: '', mainAgent: '', site: SITE_NAME, plan: '旺财团队月结方案', startCycle: '2026-08', teamType: '推广团队' })
+  const [teamForm, setTeamForm] = useState({ name: '', mainAgent: '', site: SITE_NAME, plan: 'DW负盈利佣金方案', startCycle: '2026-08', teamType: '推广团队' })
   const [secondaryForm, setSecondaryForm] = useState({ agent: '', scope: '', startCycle: '2026-08' })
   const [mainForm, setMainForm] = useState({ nextMain: '', effectiveCycle: '2026-08' })
   const [preferenceForm, setPreferenceForm] = useState({ teamType: '推广团队' })
@@ -150,7 +150,7 @@ function SiteTeamsPage({ onToast }) {
 function SiteSinglesPage({ onToast }) {
   const { data, createSingle, requestChange } = useTeamAgent()
   const [showCreate, setShowCreate] = useState(false)
-  const [form, setForm] = useState({ name: '', owner: '', recommender: '', plan: '单线代理月结方案', startCycle: '2026-08', source: '站点直接创建' })
+  const [form, setForm] = useState({ name: '', owner: '', recommender: '', plan: 'DW负盈利佣金方案', startCycle: '2026-08', source: '站点直接创建' })
   const columns = [
     { key: 'code', label: '单线编号' }, { key: 'name', label: '单线代理', render: (value) => <b className="ta-primary-text">{value}</b> }, { key: 'owner', label: '单线代理' }, { key: 'source', label: '创建来源' }, { key: 'recommender', label: '推荐人' }, { key: 'plan', label: '佣金方案' },
     { key: 'startCycle', label: '生效周期' }, { key: 'metrics', label: '当前等级', render: (value) => <StatusTag tone="blue">{value.grade}</StatusTag> }, { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> },
