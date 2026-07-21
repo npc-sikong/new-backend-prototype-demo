@@ -22,6 +22,7 @@ import { PAGE_NOTES } from './team-agent/data'
 import { H5Withdrawal } from './team-agent/H5Withdrawal'
 import { MasterPage } from './team-agent/master-pages'
 import { MultiLevelAgentPage } from './team-agent/multi-level-agent-pages'
+import { NegativeProfitModeGuidePage } from './team-agent/negative-profit-mode-guide-page'
 import { NotesDrawer, PageSummary } from './team-agent/ui'
 import { VersionRequirementsPage } from './team-agent/version-page'
 import { H5AgentBackend } from './h5-agent/H5AgentBackend'
@@ -44,7 +45,7 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', memberLockedFlow: '会员提现流水查询', agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', revenue: '代理收益看板',
+    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', memberLockedFlow: '会员提现流水查询', agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理', revenue: '代理收益看板',
   },
   site: {
     agents: '代理列表', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理',
@@ -59,6 +60,7 @@ const DEFAULT_PAGES = { master: 'teams', site: 'agents', agent: 'agents' }
 
 const MASTER_NAV = [
   { id: 'version', label: '版本需求说明', mark: '新', icon: FileTextOutlined, standalone: true },
+  { id: 'negativeProfitModeGuide', label: '负盈利模式说明', mark: '新', icon: FileTextOutlined },
   { id: 'member-group', label: '会员管理', mark: '新', icon: TeamOutlined, children: [
     { id: 'memberLockedFlow', label: '会员提现流水查询', mark: '新', icon: FileSearchOutlined },
   ] },
@@ -198,6 +200,7 @@ function PrototypeApp() {
   }
   const renderPage = () => {
     if (portal === 'master' && page === 'version') return <VersionRequirementsPage navigateTo={navigateTo} />
+    if (portal === 'master' && page === 'negativeProfitModeGuide') return <NegativeProfitModeGuidePage />
     if (portal === 'master') return <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.master} onToast={notify} />
     if (portal === 'site') return <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.site} portal="site" onToast={notify} />
     return <><AgentRoleBar role={agentRole} setRole={setAgentRole} />{agentRole === 'multiLevel' || SHARED_AGENT_PAGES.has(page) ? <MultiLevelAgentPage page={page} role={agentRole} onToast={notify} /> : <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.agent} portal="agent" role={agentRole} onToast={notify} />}</>

@@ -88,7 +88,8 @@ const VERSION_2_GROUPS = VERSION_2_GROUPS_BASE.map((group) => {
     .filter((item) => !REMOVED_AFTER_MERGE[group.portal]?.has(item[0]))
     .map((item) => MERGED_ITEMS[group.portal]?.[item[0]] || item)
   const nextItems = group.portal === 'master' ? [
-    ['memberLockedFlow', '会员提现流水查询', '会员余额锁定与完整提现流水下钻', '原“会员锁定流水查询”统一改名为“会员提现流水查询”。充值/彩金提现流水弹窗的提现流水列表同时展示当前锁定中记录和历史已解锁记录，新增解锁时间，并提供当前会员完整提现流水CSV导出；场馆活动同一时间最多存在一条，其余按具体活动彩金名称或充值展示。', '菜单、面包屑、页面标题和版本说明均显示会员提现流水查询；member_10086明细可看到锁定中与已解锁状态、开始和解锁时间，历史记录还需解锁流水为0；点击导出可下载5条提现流水；站点后台与代理后台不出现本模块。'],
+    ['negativeProfitModeGuide', '负盈利模式说明', '提现流水、锁定余额与盈利解锁规则', '总控后台在版本需求说明下新增独立业务说明页。每笔充值或彩金独立记录额度与提现投注流水，多笔记录按发生时间 FIFO 解锁；完成一笔仅释放该笔尚未亏损的充值本金，本轮全部记录完成后才统一释放盈利。页面同时说明多次充值后盈利增加及前序充值产生亏损的处理方式。', '菜单与页面跳转可用；页面可查看核心限制、五步解锁顺序、四项关键规则、金额公式及两个特殊场景；站点后台、代理后台和H5不出现该菜单。'],
+    ['memberLockedFlow', '会员提现流水查询', '会员余额锁定与完整提现流水下钻', '主列表移除“未解锁彩金”，充值额度后直接展示总余额、可提现余额、锁定余额和充值/彩金提现流水。弹窗提现流水列表继续同时展示当前锁定中记录和历史已解锁记录、解锁时间，并提供当前会员完整提现流水CSV导出。', '主表不再出现未解锁彩金；member_10086明细仍可看到锁定中与已解锁状态、开始和解锁时间，历史记录还需解锁流水为0；点击导出可下载5条提现流水；站点后台与代理后台不出现本模块。'],
     ...items,
   ] : group.portal === 'agent' ? [
     ['h5Agent', 'H5代理后台', '面向四种代理身份的移动经营后台', '在现有“H5 前端”右侧新增第五个顶部入口“H5代理后台”，以暗夜金融风重新排版现有代理后台。支持团队负责人、副线、单线代理和多层级代理四种身份；各身份的模块、功能、筛选、字段、状态、数据口径和操作权限均与桌面代理后台对应页面一致，只将宽表改为手机卡片、详情抽屉或容器内横向核对模式。H5 身份、页面和资金演示状态与桌面代理后台隔离，原总控后台、站点后台、桌面代理后台和原 H5 前端页面保持不变。', '顶部第五入口可进入独立 H5 代理后台；四种身份均可切换并按授权范围查看与桌面端完全相同的业务功能和完整字段；390×844 与 430×932 尺寸无页面级横向溢出，筛选、分页、详情、财务操作、团队展开和报表核对可操作；未出现桌面端不存在的字段或功能，退出后原四门户与原 H5 前端状态、页面和样式不受影响。', 'h5Agent'],
@@ -107,7 +108,7 @@ const VERSION_1_GROUPS = [
 const JULY_17_PAGES = new Set(['teams', 'plans', 'settlement', 'records', 'commissionRecords', 'reversal', 'returns', 'revenue', 'relations', 'cycle', 'readonlyPlans', 'bills'])
 const JULY_18_PAGES = new Set(['agents', 'negativeProfit', 'siteAgents', 'downline', 'teams', 'teamDetails'])
 const JULY_20_PAGES = new Set(['memberLockedFlow'])
-const JULY_21_PAGES = new Set(['mlDashboard', 'h5Agent'])
+const JULY_21_PAGES = new Set(['negativeProfitModeGuide', 'mlDashboard', 'h5Agent'])
 
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>

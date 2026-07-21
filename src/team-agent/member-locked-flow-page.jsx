@@ -2,14 +2,14 @@ import { useMemo, useState } from 'react'
 import { Alert, Button, DataTable, DescriptionGrid, Field, FilterBar, Input, Modal, Money, Panel, SectionHeader, Select, StatusTag } from './ui'
 
 const MEMBER_FLOW_ROWS = [
-  { id: 1, site: '旺财体育', agent: 'qiaodashang', member: 'member_10086', currency: 'CNY', deposit: 50000, unlockedBonus: 2000, total: 74528.5, withdrawable: 64152.5, locked: 10376, withdrawalFlow: 31320 },
-  { id: 2, site: '旺财体育', agent: 'WC002', member: 'wc_member02', currency: 'CNY', deposit: 30000, unlockedBonus: 1200, total: 26400, withdrawable: 20400, locked: 6000, withdrawalFlow: 15000 },
-  { id: 3, site: '旺财体育', agent: 'qiaodashang', member: 'vip_8821', currency: 'CNY', deposit: 18000, unlockedBonus: 900, total: 20000, withdrawable: 12800, locked: 7200, withdrawalFlow: 9000 },
-  { id: 4, site: '旺财体育', agent: 'LGNB', member: 'lgnb_5908', currency: 'CNY', deposit: 12000, unlockedBonus: 500, total: 14850, withdrawable: 11650, locked: 3200, withdrawalFlow: 10000 },
-  { id: 5, site: '旺财体育', agent: 'daliwei001', member: 'single_0201', currency: 'CNY', deposit: 26000, unlockedBonus: 0, total: 31560, withdrawable: 31560, locked: 0, withdrawalFlow: 0 },
-  { id: 6, site: '财神客栈', agent: 'FEE0426_A8', member: 'fee_member8', currency: 'CNY', deposit: 80000, unlockedBonus: 3000, total: 92600, withdrawable: 80600, locked: 12000, withdrawalFlow: 28000 },
-  { id: 7, site: '财神客栈', agent: 'NA7', member: 'na7_player', currency: 'CNY', deposit: 10000, unlockedBonus: 600, total: 7800, withdrawable: 5300, locked: 2500, withdrawalFlow: 6800 },
-  { id: 8, site: '旺财体育', agent: 'WC002', member: 'wc_member19', currency: 'CNY', deposit: 45000, unlockedBonus: 1500, total: 51280, withdrawable: 44980, locked: 6300, withdrawalFlow: 17400 },
+  { id: 1, site: '旺财体育', agent: 'qiaodashang', member: 'member_10086', currency: 'CNY', deposit: 50000, total: 74528.5, withdrawable: 64152.5, locked: 10376, withdrawalFlow: 31320 },
+  { id: 2, site: '旺财体育', agent: 'WC002', member: 'wc_member02', currency: 'CNY', deposit: 30000, total: 26400, withdrawable: 20400, locked: 6000, withdrawalFlow: 15000 },
+  { id: 3, site: '旺财体育', agent: 'qiaodashang', member: 'vip_8821', currency: 'CNY', deposit: 18000, total: 20000, withdrawable: 12800, locked: 7200, withdrawalFlow: 9000 },
+  { id: 4, site: '旺财体育', agent: 'LGNB', member: 'lgnb_5908', currency: 'CNY', deposit: 12000, total: 14850, withdrawable: 11650, locked: 3200, withdrawalFlow: 10000 },
+  { id: 5, site: '旺财体育', agent: 'daliwei001', member: 'single_0201', currency: 'CNY', deposit: 26000, total: 31560, withdrawable: 31560, locked: 0, withdrawalFlow: 0 },
+  { id: 6, site: '财神客栈', agent: 'FEE0426_A8', member: 'fee_member8', currency: 'CNY', deposit: 80000, total: 92600, withdrawable: 80600, locked: 12000, withdrawalFlow: 28000 },
+  { id: 7, site: '财神客栈', agent: 'NA7', member: 'na7_player', currency: 'CNY', deposit: 10000, total: 7800, withdrawable: 5300, locked: 2500, withdrawalFlow: 6800 },
+  { id: 8, site: '旺财体育', agent: 'WC002', member: 'wc_member19', currency: 'CNY', deposit: 45000, total: 51280, withdrawable: 44980, locked: 6300, withdrawalFlow: 17400 },
 ]
 
 const WITHDRAWAL_DETAIL = [
@@ -95,7 +95,6 @@ export function MemberLockedFlowPage({ onToast }) {
     { key: 'member', label: '会员账号 / ID', render: (value) => <b>{value}</b> },
     { key: 'currency', label: '币种' },
     { key: 'deposit', label: '充值额度', render: (value) => <b>{money(value)}</b> },
-    { key: 'unlockedBonus', label: '未解锁彩金', render: (value) => <b>{money(value)}</b> },
     { key: 'total', label: '总余额', render: (value) => <b>{money(value)}</b> },
     { key: 'withdrawable', label: '可提现余额', render: (value) => <Money value={value} tone="positive" /> },
     { key: 'locked', label: '锁定余额', render: (value) => <b>{money(value)}</b> },
@@ -107,13 +106,13 @@ export function MemberLockedFlowPage({ onToast }) {
     onToast('筛选条件已重置')
   }
   return <section className="member-locked-flow-screen">
-    <SectionHeader title="会员提现流水查询" description="查询会员充值额度、未解锁彩金、可提现及锁定余额，并下钻核对当前与历史提现流水。" />
+    <SectionHeader title="会员提现流水查询" description="查询会员充值额度、可提现及锁定余额，并下钻核对当前与历史提现流水。" />
     <FilterBar onSearch={() => { setFilters(draft); onToast(`已查询到 ${MEMBER_FLOW_ROWS.filter((row) => (!draft.site || row.site === draft.site) && (!draft.agent || row.agent.toLowerCase().includes(draft.agent.toLowerCase())) && (!draft.member || row.member.toLowerCase().includes(draft.member.toLowerCase()))).length} 条会员流水`) }} onReset={reset} onExport={() => onToast(`已导出当前 ${rows.length} 条会员提现流水`)}>
         <Field label="站点"><Select value={draft.site} onChange={(value) => setDraft((current) => ({ ...current, site: value }))} placeholder="全部站点" options={['旺财体育', '财神客栈']} /></Field>
         <Field label="代理账号"><Input value={draft.agent} onChange={(value) => setDraft((current) => ({ ...current, agent: value }))} placeholder="请输入代理账号" /></Field>
         <Field label="会员账号 / ID"><Input value={draft.member} onChange={(value) => setDraft((current) => ({ ...current, member: value }))} placeholder="请输入会员账号或ID" /></Field>
     </FilterBar>
-    <Alert title="金额与流水口径">总余额 = 可提现余额 + 锁定余额；未解锁彩金为当前仍受提现流水约束的彩金金额；充值/彩金提现流水为各类型及通用任务仍需解锁流水之和。</Alert>
+    <Alert title="金额与流水口径">总余额 = 可提现余额 + 锁定余额；充值/彩金提现流水为各类型及通用任务仍需解锁流水之和。</Alert>
     <Panel title="会员提现流水统计" description={`共 ${rows.length} 条`} className="member-flow-panel"><DataTable minWidth={1280} columns={columns} rows={rows} paginated /></Panel>
     <WithdrawalFlowModal row={withdrawalRow} onClose={() => setWithdrawalRow(null)} onToast={onToast} />
   </section>

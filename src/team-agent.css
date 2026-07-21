@@ -614,3 +614,57 @@
 .member-flow-detail-toolbar > div { display: grid; gap: 2px; }
 .member-flow-detail-toolbar strong { color: #26384b; font-size: 13px; }
 .member-flow-detail-toolbar span { color: #8a99aa; font-size: 10px; }
+
+/* 负盈利模式说明：提现流水与锁定余额业务规则 */
+.negative-mode-guide-screen { min-width: 0; display: grid; gap: 12px; }
+.negative-mode-guide-screen .ta-section-header { min-height: 38px; margin-bottom: 0; }
+.negative-mode-hero { min-height: 118px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 18px 20px; border: 1px solid #cfe3f7; border-radius: 7px; background: linear-gradient(105deg, #f7fbff 0%, #edf6ff 68%, #f8fbff 100%); }
+.negative-mode-hero-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 12px; color: #fff; background: #2b98f1; box-shadow: 0 8px 20px rgba(43,152,241,.23); font-size: 22px; }
+.negative-mode-hero span { color: #2b83ce; font-size: 10px; font-weight: 700; }
+.negative-mode-hero h2 { margin: 5px 0 6px; color: #263d56; font-size: 20px; line-height: 1.35; }
+.negative-mode-hero p { max-width: 760px; margin: 0; color: #6e8093; font-size: 11px; line-height: 1.7; }
+.negative-mode-hero-result { min-width: 190px; display: grid; gap: 7px; padding: 13px 15px; border-left: 1px solid #cbdff1; }
+.negative-mode-hero-result small { color: #8b9daf; font-size: 10px; }
+.negative-mode-hero-result strong { display: flex; align-items: center; gap: 6px; color: #1b9b70; font-size: 12px; }
+.negative-mode-section { padding: 16px; border: 1px solid #e2eaf2; border-radius: 7px; background: #fff; }
+.negative-mode-section-title { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; color: #2b98f1; }
+.negative-mode-section-title > .anticon { margin-top: 2px; font-size: 17px; }
+.negative-mode-section-title h2 { margin: 0; color: #2b3f55; font-size: 14px; }
+.negative-mode-section-title p { margin: 4px 0 0; color: #8a9aab; font-size: 10px; }
+.negative-mode-flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
+.negative-mode-flow-step { position: relative; min-width: 0; display: flex; align-items: flex-start; gap: 8px; padding: 12px 11px; border: 1px solid #e4ebf3; border-radius: 5px; background: #f9fbfd; }
+.negative-mode-flow-step > b { width: 23px; height: 23px; flex: none; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #2b98f1; font-size: 10px; }
+.negative-mode-flow-step > div { min-width: 0; display: grid; gap: 5px; }
+.negative-mode-flow-step strong { color: #3d5269; font-size: 11px; }
+.negative-mode-flow-step span { color: #7f8fa1; font-size: 9px; line-height: 1.6; }
+.negative-mode-flow-step > .anticon { position: absolute; top: 50%; right: -14px; z-index: 1; color: #9dc7ea; transform: translateY(-50%); }
+.negative-mode-rule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.negative-mode-rule-card { min-width: 0; display: flex; gap: 12px; padding: 15px; border: 1px solid #dfe9f3; border-left: 3px solid #2b98f1; border-radius: 6px; background: #fff; }
+.negative-mode-rule-card > i { width: 31px; height: 31px; flex: none; display: grid; place-items: center; border-radius: 7px; color: #2b98f1; background: #edf7ff; font-size: 14px; font-style: normal; }
+.negative-mode-rule-card h3 { margin: 0 0 6px; color: #344a61; font-size: 12px; }
+.negative-mode-rule-card p { margin: 0; color: #748598; font-size: 10px; line-height: 1.7; }
+.negative-mode-rule-card.is-green { border-left-color: #25ac7d; }
+.negative-mode-rule-card.is-green > i { color: #1c9870; background: #eaf8f3; }
+.negative-mode-rule-card.is-orange { border-left-color: #e9a52a; }
+.negative-mode-rule-card.is-orange > i { color: #ce8611; background: #fff7e8; }
+.negative-mode-scenarios { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.negative-mode-scenario { min-width: 0; overflow: hidden; border: 1px solid #dfe8f1; border-radius: 6px; background: #fbfcfe; }
+.negative-mode-scenario header { display: flex; align-items: flex-start; gap: 11px; padding: 13px 14px; border-bottom: 1px solid #e5ecf3; background: #f5f9fd; }
+.negative-mode-scenario header > span { flex: none; padding: 4px 8px; border-radius: 3px; color: #fff; background: #4a8fd0; font-size: 9px; font-weight: 700; }
+.negative-mode-scenario h3 { margin: 0; color: #354b62; font-size: 12px; }
+.negative-mode-scenario header p { margin: 5px 0 0; color: #8292a4; font-size: 9px; line-height: 1.5; }
+.negative-mode-scenario ol { display: grid; gap: 8px; margin: 0; padding: 13px 17px 14px 34px; }
+.negative-mode-scenario li { padding-left: 3px; color: #687a8e; font-size: 10px; line-height: 1.65; }
+.negative-mode-scenario li::marker { color: #2b98f1; font-weight: 700; }
+@media (max-width: 1050px) {
+  .negative-mode-hero { grid-template-columns: auto minmax(0, 1fr); }
+  .negative-mode-hero-result { grid-column: 2; padding: 4px 0 0; border-left: 0; }
+  .negative-mode-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .negative-mode-flow-step > .anticon { display: none; }
+}
+@media (max-width: 760px) {
+  .negative-mode-hero { grid-template-columns: 1fr; }
+  .negative-mode-hero-icon { width: 40px; height: 40px; }
+  .negative-mode-hero-result { grid-column: 1; }
+  .negative-mode-flow, .negative-mode-rule-grid, .negative-mode-scenarios { grid-template-columns: 1fr; }
+}
