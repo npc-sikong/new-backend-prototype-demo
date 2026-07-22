@@ -48,7 +48,7 @@ const COLUMN_DEFS = [
   { key: 'withdrawalFee', label: '提款手续费' },
   { key: 'manualOrderWinLoss', label: '补单输赢' },
   { key: 'netWinLossRaw', label: '净输赢' },
-  { key: 'lastBalance', label: '上月结余' },
+  { key: 'lastBalance', label: '上周期结余' },
   { key: 'correctedNet', label: '冲正后净输赢' },
   { key: 'rebateLevel', label: '返佣等级' },
   { key: 'rate', label: '佣金比例' },
@@ -258,6 +258,17 @@ export const NEGATIVE_REPORT_COLUMNS = COLUMN_DEFS
 export const NEGATIVE_REPORT_COMMISSION_EXCLUDED_KEYS = COMMISSION_REPORT_EXCLUDED_KEYS
 export const buildNegativeReportRows = buildRows
 
+export function scopeNegativeReportRows(rows, role) {
+  const accounts = ROLE_ACCOUNTS[role] || []
+  if (role === 'secondary') {
+    return rows.flatMap((row) => {
+      const memberRows = row.memberRows.filter((member) => accounts.includes(member.agentAccount))
+      return memberRows.length ? [{ ...row, memberRows, expandable: true }] : []
+    })
+  }
+  return rows.filter((row) => accounts.includes(row.agentAccount))
+}
+
 function FieldColumnFilter({ columns, visibleKeys, onChange }) {
   const [open, setOpen] = useState(false)
   const toggleKey = (key) => {
@@ -305,13 +316,13 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
   const [adjustForm, setAdjustForm] = useState({ reduction: 0, remark: '' })
   const allRows = useMemo(() => {
     const sourceRows = buildRows(data)
+    if (portal === 'agent' && isCommissionReport) {
+      return scopeNegativeReportRows(sourceRows, role).map((row) => ({ ...row, ...(rowUpdates[row.id] || {}) }))
+    }
     const scopedRows = sourceRows.flatMap((row) => {
       if (portal === 'site') return row.site === '旺财体育' ? [row] : []
       if (portal !== 'agent') return [row]
       const accounts = ROLE_ACCOUNTS[role] || []
-      if (isCommissionReport && role === 'secondary') {
-        return row.memberRows.filter((member) => accounts.includes(member.agentAccount)).map((member) => ({ ...member, index: 1 }))
-      }
       return accounts.includes(row.agentAccount) ? [row] : []
     })
     return scopedRows.map((row) => ({ ...row, ...(rowUpdates[row.id] || {}) }))
@@ -403,9 +414,16 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
   }
 
   const pageTitle = isCommissionReport ? '负盈利代理佣金报表' : '负盈利代理佣金结算'
+  const scopeDescription = portal !== 'agent'
+    ? '默认展示团队主记录和单线代理；点击团队行前的“+”可逐行查看团队负责人及其副线。'
+    : role === 'main'
+      ? '展示授权团队汇总；点击“+”可查看团队负责人和全部副线明细。'
+      : role === 'secondary'
+        ? '展示所属团队汇总；点击“+”仅查看当前副线本人明细，不展示其他副线。'
+        : '仅展示当前单线代理本人记录。'
   return <section className="ta-stack negative-profit-report-screen">
     <SectionHeader title={pageTitle} description={isCommissionReport ? '按跨日期统计区间查看负盈利代理人数、收支、成本、结余和佣金结果，不包含发放、审核、维护及操作字段。' : portal === 'master' ? '按佣金周期汇总负盈利模式代理及负向结余账单，集中核对人数、收支、成本、结余、佣金和发放处理。' : portal === 'site' ? '同步总控负盈利代理佣金结算口径，仅查看旺财体育本站的代理及负向结余账单。' : '同步总控负盈利代理佣金结算口径，仅查看当前演示身份本人可见的负向结余账单。'} actions={<Toolbar><Button icon={<DownloadOutlined />} variant="slate" onClick={() => onToast(`${pageTitle}已导出 ${rows.length} 条`)}>导出</Button><Button icon={<FolderOpenOutlined />} variant="ghost" onClick={() => onToast(`${pageTitle}文件已下载`)}>下载文件</Button></Toolbar>} />
-    {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '数据固定为旺财体育本站，不展示其他站点记录。' : '团队负责人查看本人授权团队，副线仅展示本人线路核算结果且不形成平台应付账单，单线代理只查看本人记录；代理端不展示发放、审核、维护及结算操作。'}</Alert>}
+    {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '数据固定为旺财体育本站，不展示其他站点记录。' : '团队负责人查看授权团队汇总及全部成员明细；副线查看所属团队汇总并且只能展开本人线路；单线代理只查看本人记录。代理端不展示发放、审核、维护及结算操作。'}</Alert>}
     <FilterBar onSearch={() => onToast(`已查询 ${rows.length} 条负盈利代理记录`)} onReset={resetFilters}>
       <Field label="佣金周期"><Select value={filters.cycle} onChange={(value) => setFilter('cycle', value)} placeholder="全部周期" options={unique(allRows, 'cycle')} /></Field>
       {isCommissionReport && <Field label="统计开始日期"><Input type="date" value={filters.dateFrom} onChange={(value) => setFilter('dateFrom', value)} /></Field>}
@@ -416,12 +434,12 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
       <Field label="字段筛选"><FieldColumnFilter columns={availableColumns} visibleKeys={visibleKeys} onChange={setVisibleKeys} /></Field>
       <Field label="代理/团队"><Input value={filters.keyword} onChange={(value) => setFilter('keyword', value)} placeholder="代理账号、编号、团队或上级" /></Field>
     </FilterBar>
-    <Panel title={isCommissionReport ? '负盈利代理佣金报表明细' : '负盈利待结算区域'} description={portal === 'agent' && role !== 'main' ? '仅展示当前身份本人线路或单线记录，不包含其他团队成员。' : '默认展示团队主记录和单线代理；点击团队行前的“+”可逐行查看团队负责人及其副线。'}>
+    <Panel title={isCommissionReport ? '负盈利代理佣金报表明细' : '负盈利待结算区域'} description={scopeDescription}>
       <DataTable className="negative-profit-report-table" minWidth={tableMinWidth} columns={columns} rows={rows} rowClassName={(row) => row.rowType === 'member' ? 'negative-profit-member-row' : ''} paginated footer={<NegativeReportTotalRow columns={columns} rows={rootRows} />} />
     </Panel>
     <FormulaPanel title={`${pageTitle}口径`} items={[
       { label: '净输赢', formula: '总输赢 - 场馆费 - 红利 - 返水 + 账户调整 - 存款手续费 - 提款手续费 + 补单输赢' },
-      { label: '冲正后净输赢', formula: '净输赢 + 上月结余' },
+      { label: '冲正后净输赢', formula: '净输赢 + 上周期结余' },
       { label: '佣金', formula: isCommissionReport ? 'MAX(0，冲正后净输赢 × 佣金比例)' : 'MAX(0，冲正后净输赢 × 佣金比例 + 佣金调整)' },
     ]} warning={isCommissionReport ? '统计日期筛选按区间重叠口径匹配记录；本页仅用于查询与导出，不提供结算操作。' : '报表展示负盈利模式代理及冲正后净输赢为负的账单记录；刷新演示数据后恢复初始模拟数据。'} />
     {!isCommissionReport && <Modal open={!!adjusting} title="修改发放佣金" description="只能减少本次发放金额，并补充调整备注。" onClose={() => setAdjusting(null)} onConfirm={saveAdjust} confirmText="保存修改">

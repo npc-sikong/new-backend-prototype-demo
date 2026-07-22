@@ -38,14 +38,14 @@ export function TeamAgentProvider({ children }) {
     const lineId = `LINE-${String.fromCharCode(65 + data.teams.reduce((sum, team) => sum + team.lines.length, 0))}`
     const main = data.agents.find((item) => item.account === mainAgent)
     const team = {
-      id, code: `DPT-${String(data.teams.length + 1).padStart(3, '0')}`, name, teamType: payload.teamType || '推广团队', teamAgentType: main?.teamAgentType || '普通代理', developer: payload.developer || mainAgent, site: payload.site || '旺财体育', currency: 'CNY', mainAgent,
+      id, code: `DPT-${String(data.teams.length + 1).padStart(3, '0')}`, name, teamType: payload.teamType || main?.teamAgentType || '普通代理', teamAgentType: payload.teamType || main?.teamAgentType || '普通代理', developer: payload.developer || mainAgent, site: payload.site || '旺财体育', currency: 'CNY', mainAgent,
       memberDetailPermission: Boolean(payload.memberDetailPermission), createdAt: timestamp(), joinedAt: payload.startCycle || '2026-08',
       plan: payload.plan || 'DW负盈利佣金方案', status: '待生效', startCycle: payload.startCycle || '2026-08', endCycle: '长期', previousNegative: 0,
       cumulativeReceived: 0, successfulTransfers: 0, processingOccupied: 0, otherDeductions: 0,
       metrics: { newActive: 0, activeMembers: 0, memberWinLoss: 0, totalWinLoss: 0, venueFee: 0, memberBonus: 0, memberRebate: 0, accountAdjustment: 0, manualOrderWinLoss: 0, depositFee: 0, withdrawalFee: 0, expenses: 0, adjustment: 0, currentNet: 0, lastBalance: 0, balanceAdjustment: 0, assessmentNet: 0, correctedNet: 0, commissionableNet: 0, commissionAdjustment: 0, grade: '待计算', rate: 0, payable: 0 },
       lines: [{ lineId, identity: '主线', agent: mainAgent, scope: '主线直属代理及会员', newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: payload.startCycle || '2026-08' }],
     }
-    const operation = { id: sequence('TOP', data.teamOperations), teamId: id, teamName: name, teamType: team.teamType, mainId: main?.id || '—', mainAccount: mainAgent, secondaryAccounts: '—', action: '创建团队', reason: payload.reason || '市场推广代理线归集', operator: '站点运营', createdAt: timestamp() }
+    const operation = { id: sequence('TOP', data.teamOperations), teamId: id, teamName: name, teamType: team.teamType, mainId: main?.id || '—', mainAccount: mainAgent, secondaryAccounts: '—', action: '创建团队', reason: payload.reason || '代理业务线归集', operator: '站点运营', createdAt: timestamp() }
     setData((current) => ({ ...current, teams: [...current.teams, team], teamOperations: [operation, ...current.teamOperations] }))
     return { ok: true, message: `${name} 已创建，将于 ${team.startCycle} 生效`, id }
   }
@@ -67,7 +67,7 @@ export function TeamAgentProvider({ children }) {
       effectiveCycle: line.startCycle, recommender: '—', status: payload.requireReview === false ? '已批准·待生效' : '待站点复核', conflict: '无冲突', balanceHandling: '加入团队当月结余随代理带入团队', createdAt: timestamp(), note: '副线进入团队后，余额归属按当月结余规则处理。',
     }
     const secondaryAccounts = [...team.lines.filter((item) => item.identity === '副线').map((item) => item.agent), agent].join('、')
-    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamType || '推广团队', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts, action: '新增副线', reason: payload.reason || '扩展团队业务范围', operator: payload.requireReview === false ? '站点运营' : team.mainAgent, createdAt: timestamp() }
+    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamAgentType || team.teamType || '普通代理', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts, action: '新增副线', reason: payload.reason || '扩展团队业务范围', operator: payload.requireReview === false ? '站点运营' : team.mainAgent, createdAt: timestamp() }
     setData((current) => ({
       ...current,
       teams: current.teams.map((item) => item.id === teamId ? { ...item, lines: [...item.lines, line] } : item),
@@ -139,7 +139,7 @@ export function TeamAgentProvider({ children }) {
         teams = teams.map((team) => team.name === targetName ? { ...team, pendingMain, pendingMainCycle: request.effectiveCycle } : team)
       }
       const relatedTeam = teams.find((team) => request.currentUnit.includes(team.name) || request.targetUnit.includes(team.name))
-      const operation = approved && relatedTeam ? { id: sequence('TOP', current.teamOperations), teamId: relatedTeam.id, teamName: relatedTeam.name, teamType: relatedTeam.teamType || '推广团队', mainId: current.agents.find((item) => item.account === relatedTeam.mainAgent)?.id || '—', mainAccount: relatedTeam.mainAgent, secondaryAccounts: relatedTeam.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: request.type, reason: request.balanceHandling || request.note, operator: '站点运营', createdAt: timestamp() } : null
+      const operation = approved && relatedTeam ? { id: sequence('TOP', current.teamOperations), teamId: relatedTeam.id, teamName: relatedTeam.name, teamType: relatedTeam.teamAgentType || relatedTeam.teamType || '普通代理', mainId: current.agents.find((item) => item.account === relatedTeam.mainAgent)?.id || '—', mainAccount: relatedTeam.mainAgent, secondaryAccounts: relatedTeam.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: request.type, reason: request.balanceHandling || request.note, operator: '站点运营', createdAt: timestamp() } : null
       return { ...current, teams, singles, requests: current.requests.map((item) => item.id === requestId ? { ...item, status: approved ? '已批准·待生效' : '审核退回' } : item), teamOperations: operation ? [operation, ...current.teamOperations] : current.teamOperations }
     })
     return { ok: true, message: approved ? `申请已批准，将于 ${request.effectiveCycle} 生效` : '申请已退回' }
@@ -149,7 +149,7 @@ export function TeamAgentProvider({ children }) {
     const team = data.teams.find((item) => item.id === teamId)
     if (!team) return { ok: false, message: '未找到代理部' }
     const balanceAssignee = options.balanceAssignee || team.mainAgent
-    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamType || '推广团队', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts: team.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: status, reason: status === '已解散' ? `团队业务终止；剩余团队结余由指定代理 ${balanceAssignee} 承接` : `团队状态调整为${status}`, operator: '站点运营', createdAt: timestamp() }
+    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamAgentType || team.teamType || '普通代理', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts: team.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: status, reason: status === '已解散' ? `团队业务终止；剩余团队结余由指定代理 ${balanceAssignee} 承接` : `团队状态调整为${status}`, operator: '站点运营', createdAt: timestamp() }
     if (status === '已解散' && (team.previousNegative > 0 || data.bills.some((bill) => bill.unitId === teamId && bill.issued < bill.payable))) {
       setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, status: '待解散', balanceAssignee } : item), teamOperations: [{ ...operation, action: '转为待解散', reason: `存在未发完账单或未处理结余；处理后由 ${balanceAssignee} 承接剩余结余` }, ...current.teamOperations] }))
       return { ok: false, message: '存在未处理当月结余或未发完账单，已转为待解散' }
@@ -295,7 +295,7 @@ export function TeamAgentProvider({ children }) {
     }
     setData((current) => {
       const teams = targetTeam ? current.teams.map((team) => team.id === targetTeam.id ? { ...team, lines: [...team.lines, { lineId, identity: '副线', agent: account, scope: `${account} 节点及直属会员`, newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: '待生效', startCycle: team.startCycle || '2026-08' }] } : team) : current.teams
-      const teamOperations = targetTeam ? [{ id: sequence('TOP', current.teamOperations), teamId: targetTeam.id, teamName: targetTeam.name, teamType: targetTeam.teamType || '推广团队', mainId: current.agents.find((item) => item.account === targetTeam.mainAgent)?.id || '—', mainAccount: targetTeam.mainAgent, secondaryAccounts: [...targetTeam.lines.filter((line) => line.identity === '副线').map((line) => line.agent), account].join('、'), action: '新增副线', reason: '新增代理时加入团队', operator: '总控运营', createdAt: timestamp() }, ...current.teamOperations] : current.teamOperations
+      const teamOperations = targetTeam ? [{ id: sequence('TOP', current.teamOperations), teamId: targetTeam.id, teamName: targetTeam.name, teamType: targetTeam.teamAgentType || targetTeam.teamType || '普通代理', mainId: current.agents.find((item) => item.account === targetTeam.mainAgent)?.id || '—', mainAccount: targetTeam.mainAgent, secondaryAccounts: [...targetTeam.lines.filter((line) => line.identity === '副线').map((line) => line.agent), account].join('、'), action: '新增副线', reason: '新增代理时加入团队', operator: '总控运营', createdAt: timestamp() }, ...current.teamOperations] : current.teamOperations
       return { ...current, agents: [record, ...current.agents], teams, teamOperations }
     })
     return { ok: true, message: targetTeam ? `${account} 已新增并加入 ${targetTeam.name}` : `${account} 已新增` }

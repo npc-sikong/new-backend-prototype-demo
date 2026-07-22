@@ -339,7 +339,7 @@ const PAGE_CONFIG = {
   },
   finance: {
     title: '代理财务', description: '汇总代理或结算单元的存提款、成本、净输赢、当月结余与佣金；顶部卡片可下钻明细。', detail: '财务明细', moneyPage: true, metrics: true,
-    columns: [{ key: 'recordNo', label: '财务记录号' }, { key: 'account', label: '代理账号' }, moneyColumn('deposit', '存款总额'), moneyColumn('withdrawal', '提款总额'), moneyColumn('totalWinLoss', '总输赢', true), moneyColumn('expenses', '费用合计'), moneyColumn('netWinLoss', '净输赢', true), moneyColumn('lastBalance', '上月结余', true), moneyColumn('balanceAdjustment', '本月结余调整', true), moneyColumn('currentBalance', '当月结余', true), moneyColumn('commission', '应付佣金'), statusColumn()],
+    columns: [{ key: 'recordNo', label: '财务记录号' }, { key: 'account', label: '代理账号' }, moneyColumn('deposit', '存款总额'), moneyColumn('withdrawal', '提款总额'), moneyColumn('totalWinLoss', '总输赢', true), moneyColumn('expenses', '费用合计'), moneyColumn('netWinLoss', '净输赢', true), moneyColumn('lastBalance', '上周期结余', true), moneyColumn('balanceAdjustment', '本月结余调整', true), moneyColumn('currentBalance', '当月结余', true), moneyColumn('commission', '应付佣金'), statusColumn()],
   },
   deposits: {
     title: '存款记录', description: '逐笔查询会员存款和代理代存的渠道、手续费与处理状态。', detail: '存款详情', moneyPage: true,
@@ -428,7 +428,7 @@ function ActionLink({ children, onClick }) {
 function BalanceFormula({ page }) {
   return <FormulaPanel title="当月结余口径" items={[
     { label: '净输赢', formula: '总输赢 − 场馆费 − 会员红利 − 会员返水 + 账户调整 + 补单输赢 − 存款手续费 − 提款手续费' },
-    { label: '冲正后净输赢 / 当月结余', formula: '净输赢 + 上月结余 + 本月结余调整' },
+    { label: '冲正后净输赢 / 当月结余', formula: '净输赢 + 上周期结余 + 本月结余调整' },
     { label: '佣金', formula: 'MAX（0，当月结余 × 佣金比例 + 佣金调整）' },
   ]} warning={`${PAGE_CONFIG[page].title}中的交易金额先按业务类型归集；只有进入佣金账单的收入、成本和调整才参与当月结余计算，历史已完成周期不回写。`} />
 }

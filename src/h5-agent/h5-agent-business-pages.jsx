@@ -373,7 +373,7 @@ export function H5TeamPage({ role = 'main', onToast = EMPTY_FN }) {
         const counts = teamOverviewCounts(team, data)
         return <article key={team.id} className="h5-agent-list-card h5-agent-team-card">
           <header onClick={() => openDetail(team)}><div className="h5-agent-card-avatar"><TeamOutlined /></div><div><b>{team.name}</b><span>{team.code} · {team.mainAgent}</span></div><StatusPill>{team.status}</StatusPill></header>
-          <div className="h5-agent-team-summary"><div><span>团队类型</span><b>{team.teamType}</b></div><div><span>当月结余</span><b className={Number(team.metrics?.correctedNet) >= 0 ? 'is-positive' : 'is-negative'}>{money(team.metrics?.correctedNet)}</b></div></div>
+          <div className="h5-agent-team-summary"><div><span>代理类型</span><b>{team.teamAgentType || team.teamType}</b></div><div><span>当月结余</span><b className={Number(team.metrics?.correctedNet) >= 0 ? 'is-positive' : 'is-negative'}>{money(team.metrics?.correctedNet)}</b></div></div>
           <div className="h5-agent-card-metrics h5-agent-card-metrics-clickable"><button onClick={() => openAgents(team)}><span>团队成员</span><b>{counts.agentTotal}</b></button><button onClick={() => openMembers(team)}><span>会员人数</span><b>{counts.memberTotal}</b></button><div><span>团队方案</span><b>{team.plan}</b></div></div>
           <footer><button onClick={() => openDetail(team)}><EyeOutlined />团队详情</button></footer>
         </article>
@@ -383,7 +383,7 @@ export function H5TeamPage({ role = 'main', onToast = EMPTY_FN }) {
     <H5Pager total={rows.length} paging={paging} />
 
     <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} onReset={() => setFilters({ type: '', agent: '', createdFrom: '' })} resultCount={rows.length}>
-      <Field label="团队类型"><select value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value })}><option value="">全部类型</option>{unique(sourceRows, 'teamType').map((value) => <option key={value}>{value}</option>)}</select></Field>
+      <Field label="代理类型"><select value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value })}><option value="">全部类型</option><option value="官方代理">官方代理</option><option value="普通代理">普通代理</option></select></Field>
       <Field label="代理编号/账号"><input value={filters.agent} onChange={(event) => setFilters({ ...filters, agent: event.target.value })} placeholder="主线或副线" /></Field>
       <Field label="创建时间起"><input type="date" value={filters.createdFrom} onChange={(event) => setFilters({ ...filters, createdFrom: event.target.value })} /></Field>
     </FilterSheet>
@@ -396,8 +396,8 @@ export function H5TeamPage({ role = 'main', onToast = EMPTY_FN }) {
           <div className="h5-agent-balance-pair"><article><span>团队当前余额</span><b>{money(selected.metrics?.correctedNet)}</b><small>当月结余 = 冲正后净输赢</small></article><article><span>未结算收益</span><b>{money(selected.metrics?.payable)}</b><small>{selected.metrics?.grade} / {(Number(selected.metrics?.rate || 0) * 100).toFixed(0)}% 团队返佣</small></article></div>
           <DetailGrid items={[
             { label: '代理部编号', value: `${selected.code} / ${selected.id}` }, { label: '所属站点 / 币种', value: `${selected.site} / ${selected.currency}` },
-            { label: '团队负责人', value: selected.mainAgent }, { label: '团队类型', value: selected.teamType },
-            { label: '推广人员', value: selected.developer }, { label: '团队方案', value: selected.plan },
+            { label: '团队负责人', value: selected.mainAgent }, { label: '代理类型', value: selected.teamAgentType || selected.teamType },
+            { label: '团队方案', value: selected.plan },
             { label: '创建时间', value: selected.createdAt }, { label: '加入团队时间', value: selected.joinedAt },
             { label: '生效周期', value: `${selected.startCycle} 起` }, { label: '团队状态', value: selected.status },
             { label: '团队代理总人数', value: selectedCounts.agentTotal }, { label: '总会员数', value: selectedCounts.memberTotal },
@@ -413,7 +413,7 @@ export function H5TeamPage({ role = 'main', onToast = EMPTY_FN }) {
           ]} />
           <section className="h5-agent-grade-card"><span>资金及结算口径</span><DetailGrid items={[
             { label: '净输赢', value: '总输赢 − 场馆费 − 会员红利 − 会员返水 + 账户调整 + 补单输赢 − 存款手续费 − 提款手续费', wide: true },
-            { label: '冲正后净输赢', value: '净输赢 + 上月结余 + 本月结余调整', wide: true },
+            { label: '冲正后净输赢', value: '净输赢 + 上周期结余 + 本月结余调整', wide: true },
             { label: '团队当前余额', value: '团队当前余额 = 冲正后净输赢', wide: true },
             { label: '未结算收益', value: 'MAX（0，团队当前余额 × 团队返佣比例 + 佣金调整）', wide: true },
             { label: '平台收款责任', value: '团队每周期只形成一张平台账单；副线收益通过团队内部分配体现', wide: true },

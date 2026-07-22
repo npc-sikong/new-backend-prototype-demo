@@ -171,7 +171,7 @@ function PersonalCommissionPage({ role, onToast }) {
     <DataTable minWidth={1550} columns={columns} rows={rows} paginated />
     {role !== 'secondary' && <FormulaPanel title="个人佣金计算口径" items={[
       { label: '净输赢', formula: '总输赢 − 场馆费 − 会员红利 − 会员返水 + 账户调整 + 补单输赢 − 存款手续费 − 提款手续费' },
-      { label: '当月结余', formula: '净输赢 + 上月结余 + 本月结余调整' },
+      { label: '当月结余', formula: '净输赢 + 上周期结余 + 本月结余调整' },
       { label: '佣金', formula: 'MAX（0，当月结余 × 佣金比例 + 佣金调整）' },
     ]} />}
     <Modal open={!!selected} title={`${selected?.id || ''} · 佣金详情`} description="查看账单或内部结算的金额、状态和结算单元快照。" onClose={() => setSelected(null)} onConfirm={() => setSelected(null)} confirmText="关闭" showCancel={false} width={850}>

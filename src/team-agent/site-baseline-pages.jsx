@@ -321,7 +321,6 @@ function AgentDetailModal({ record, onClose }) {
       { label: '代理身份', value: <StatusTag tone="blue">{record.agentIdentity}</StatusTag> },
       { label: '代理模型', value: record.model },
       { label: '佣金方案', value: record.plan },
-      { label: '推广人员', value: record.developer },
       { label: '上级代理', value: `${record.parentId} / ${record.parent}` },
       { label: '可选绑定会员', value: record.boundMemberAccount },
       { label: '结算模式', value: <StatusTag>{record.settlementMode}</StatusTag> },
@@ -408,7 +407,7 @@ function SiteDashboardPage({ onToast }) {
 
 function SiteAgentsPage({ onToast }) {
   const { data } = useTeamAgent()
-  const emptyFilters = { account: '', status: '', model: '', settlementMode: '', identity: '', developer: '', parent: '' }
+  const emptyFilters = { account: '', status: '', model: '', settlementMode: '', identity: '', parent: '' }
   const [filters, setFilters] = useState(emptyFilters)
   const [selected, setSelected] = useState(null)
   const siteAgents = useMemo(() => buildSiteAgents(data), [data])
@@ -419,7 +418,6 @@ function SiteAgentsPage({ onToast }) {
     && (!filters.model || agent.model === filters.model)
     && (!filters.settlementMode || agent.settlementMode === filters.settlementMode)
     && (!filters.identity || agent.identity === filters.identity)
-    && (!filters.developer || String(agent.developer).toLowerCase().includes(filters.developer.toLowerCase()))
     && (!filters.parent || String(agent.parent).toLowerCase().includes(filters.parent.toLowerCase()) || String(agent.parentId).includes(filters.parent))
   )), [filters, siteAgents])
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
@@ -430,7 +428,6 @@ function SiteAgentsPage({ onToast }) {
     { key: 'agentType', label: '代理类型', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
     { key: 'model', label: '代理模型', render: (value) => <StatusTag>{value}</StatusTag> },
     { key: 'status', label: '代理状态', render: (value) => <StatusTag>{value}</StatusTag> },
-    { key: 'developer', label: '推广人员' },
     { key: 'parent', label: '上级代理' },
     { key: 'settlementMode', label: '结算模式', render: (value) => <StatusTag>{value}</StatusTag> },
     { key: 'identity', label: '代理层级', render: (value) => value === '—' ? value : <StatusTag tone="blue">{value}</StatusTag> },
@@ -456,7 +453,6 @@ function SiteAgentsPage({ onToast }) {
       <Field label="代理模型"><Select value={filters.model} onChange={(value) => setFilter('model', value)} options={['负盈利模式', '普通代理']} placeholder="全部模型" /></Field>
       <Field label="结算模式"><Select value={filters.settlementMode} onChange={(value) => setFilter('settlementMode', value)} options={['团队模式', '单线代理', '原代理模式']} placeholder="全部结算模式" /></Field>
       <Field label="代理层级"><Select value={filters.identity} onChange={(value) => setFilter('identity', value)} options={['团队负责人', '副线', '单线代理', '—']} placeholder="全部层级" /></Field>
-      <Field label="推广人员"><Input value={filters.developer} onChange={(value) => setFilter('developer', value)} placeholder="推广人员" /></Field>
       <Field label="上级代理"><Input value={filters.parent} onChange={(value) => setFilter('parent', value)} placeholder="编号或账号" /></Field>
     </FilterBar>
     <DataTable className="ta-wide-table" minWidth={2450} columns={columns} rows={rows} paginated />

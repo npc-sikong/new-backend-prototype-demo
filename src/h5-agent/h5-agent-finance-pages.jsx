@@ -352,7 +352,7 @@ function buildNegativeRows(data, role) {
 const NEGATIVE_FIELDS = [
   { key: 'agentAccount', label: '代理名称' }, { key: 'index', label: '序号' }, { key: 'cycle', label: '佣金周期' }, { key: 'teamName', label: '团队名称' }, { key: 'agentId', label: '代理编号' }, { key: 'agentIdentity', label: '代理身份' }, { key: 'parentAccount', label: '上级账号' },
   ...NEGATIVE_COUNT_KEYS.map((key) => ({ key, label: { teamMembers: '团队人数', subAgentCount: '下级会员', registeredCount: '注册人数', firstDepositCount: '首存人数', activeCount: '活跃人数', newActiveCount: '新增活跃人数' }[key] })),
-  ...NEGATIVE_MONEY_KEYS.map((key) => ({ key, label: { depositAmount: '存款金额', withdrawalAmount: '提款金额', totalWinLoss: '总输赢', venueFee: '场馆费', memberBonus: '红利', memberRebate: '返水', accountAdjustment: '账户调整', depositFee: '存款手续费', withdrawalFee: '提款手续费', manualOrderWinLoss: '补单输赢', netWinLossRaw: '净输赢', lastBalance: '上月结余', correctedNet: '冲正后净输赢', commissionAdjustment: '佣金调整', commission: '佣金' }[key], render: (value) => <b className={valueTone(value)}>{money(value, true)}</b> })),
+  ...NEGATIVE_MONEY_KEYS.map((key) => ({ key, label: { depositAmount: '存款金额', withdrawalAmount: '提款金额', totalWinLoss: '总输赢', venueFee: '场馆费', memberBonus: '红利', memberRebate: '返水', accountAdjustment: '账户调整', depositFee: '存款手续费', withdrawalFee: '提款手续费', manualOrderWinLoss: '补单输赢', netWinLossRaw: '净输赢', lastBalance: '上周期结余', correctedNet: '冲正后净输赢', commissionAdjustment: '佣金调整', commission: '佣金' }[key], render: (value) => <b className={valueTone(value)}>{money(value, true)}</b> })),
   { key: 'rebateLevel', label: '返佣等级' }, { key: 'rate', label: '佣金比例', render: (value) => `${Number(value || 0) * 100}%` }, { key: 'commissionState', label: '佣金状态', render: (value) => <StatusPill>{value}</StatusPill> }, { key: 'becameAgentAt', label: '成为代理时间' }, { key: 'joinedAt', label: '加入团队时间' }, { key: 'issuedBy', label: '发放人' }, { key: 'issuedAt', label: '发放时间' }, { key: 'auditState', label: '审核状态', render: (value) => <StatusPill>{value}</StatusPill> },
 ]
 
@@ -390,7 +390,7 @@ export function H5NegativeProfitPage({ role = 'main', onToast }) {
       <div className="h5-agent-section-heading"><div><h2>负盈利代理佣金结算口径</h2></div></div>
       <dl className="h5-agent-detail-grid h5-agent-detail-list">
         <div className="is-wide"><dt>净输赢</dt><dd>总输赢 - 场馆费 - 红利 - 返水 + 账户调整 - 存款手续费 - 提款手续费 + 补单输赢</dd></div>
-        <div className="is-wide"><dt>冲正后净输赢</dt><dd>净输赢 + 上月结余</dd></div>
+        <div className="is-wide"><dt>冲正后净输赢</dt><dd>净输赢 + 上周期结余</dd></div>
         <div className="is-wide"><dt>佣金</dt><dd>MAX(0，冲正后净输赢 × 佣金比例 + 佣金调整)</dd></div>
       </dl>
       <p className="h5-agent-dashboard-alert">报表展示负盈利模式代理及冲正后净输赢为负的账单记录；刷新演示数据后恢复初始模拟数据。</p>

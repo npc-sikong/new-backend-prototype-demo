@@ -36,8 +36,7 @@ export function TeamOverviewList({ team, data }) {
         { label: '代理部编号', value: `${team.code} / ${team.id}` },
         { label: '所属站点 / 币种', value: `${team.site} / ${team.currency}` },
         { label: '团队负责人', value: team.mainAgent },
-        { label: '团队类型', value: team.teamType },
-        { label: '推广人员', value: team.developer },
+        { label: '代理类型', value: team.teamAgentType || team.teamType },
         { label: '团队方案', value: team.plan },
         { label: '创建时间', value: team.createdAt },
         { label: '加入团队时间', value: team.joinedAt },
@@ -65,7 +64,7 @@ export function TeamOverviewList({ team, data }) {
     <Panel title="结算口径">
       <OverviewList columns={3} items={[
         { label: '净输赢', value: <Money value={metrics.currentNet} signed />, helper: '总输赢 − 场馆费 − 会员红利 − 会员返水 + 账户调整 + 补单输赢 − 存款手续费 − 提款手续费' },
-        { label: '冲正后净输赢', value: <Money value={metrics.correctedNet} signed />, helper: '净输赢 + 上月结余 + 本月结余调整' },
+        { label: '冲正后净输赢', value: <Money value={metrics.correctedNet} signed />, helper: '净输赢 + 上周期结余 + 本月结余调整' },
         { label: '团队当前余额', value: <Money value={metrics.correctedNet} signed />, helper: '团队当前余额 = 冲正后净输赢' },
         { label: '未结算收益', value: <Money value={metrics.payable} />, helper: 'MAX（0，团队当前余额 × 团队返佣比例 + 佣金调整）' },
         { label: '平台收款责任', value: '当期团队负责人', helper: '团队每周期只形成一张平台账单；副线收益通过团队内部分配体现' },

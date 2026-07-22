@@ -159,7 +159,7 @@ const CONTEXT_COLUMNS = [
 function BalanceFormula() {
   return <FormulaPanel title="当月结余口径" items={[
     { label: '净输赢', formula: '总输赢 − 场馆费 − 会员红利 − 会员返水 + 账户调整 + 补单输赢 − 存款手续费 − 提款手续费' },
-    { label: '当月结余', formula: '净输赢 + 上月结余 + 本月结余调整' },
+    { label: '当月结余', formula: '净输赢 + 上周期结余 + 本月结余调整' },
     { label: '佣金', formula: 'MAX（0，当月结余 × 佣金比例 + 佣金调整）' },
   ]} warning="预付金和代理付款是资金动作，不反向改写已完成周期；当期金额统一在所属结算单元的当月结余中核对。" />
 }

@@ -5,6 +5,7 @@ import {
   buildNegativeReportRows,
   NEGATIVE_REPORT_COLUMNS,
   NEGATIVE_REPORT_COMMISSION_EXCLUDED_KEYS,
+  scopeNegativeReportRows,
 } from '../team-agent/negative-profit-report-page'
 import {
   H5AgentDetailSheet,
@@ -16,7 +17,6 @@ import {
   H5AgentSearch,
 } from './h5-agent-ui'
 
-const ROLE_ACCOUNTS = { main: ['gaodashang'], secondary: ['WC002'], independent: ['dailiwc001'] }
 const COUNT_KEYS = new Set(['teamMembers', 'subAgentCount', 'registeredCount', 'firstDepositCount', 'activeCount', 'newActiveCount'])
 const MONEY_KEYS = new Set(['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commission'])
 const SIGNED_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet'])
@@ -32,16 +32,6 @@ const money = (value, signed = false) => {
   return `${sign}¥${Math.abs(amount).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 const tone = (value) => Number(value) > 0 ? 'positive' : Number(value) < 0 ? 'negative' : undefined
-
-function scopedRows(data, role) {
-  const roots = buildNegativeReportRows(data)
-  if (role === 'secondary') {
-    return roots.flatMap((row) => row.memberRows
-      .filter((member) => ROLE_ACCOUNTS.secondary.includes(member.agentAccount))
-      .map((member, index) => ({ ...member, index: index + 1, memberRows: [], expandable: false })))
-  }
-  return roots.filter((row) => (ROLE_ACCOUNTS[role] || []).includes(row.agentAccount))
-}
 
 function displayValue(field, row) {
   const value = row[field.key]
@@ -76,7 +66,7 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
   const [visibleKeys, setVisibleKeys] = useState(() => REPORT_FIELDS.map((field) => field.key))
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
-  const allRows = useMemo(() => scopedRows(data, role), [data, role])
+  const allRows = useMemo(() => scopeNegativeReportRows(buildNegativeReportRows(data), role), [data, role])
   const rows = allRows.filter((row) => (!filters.keyword || `${row.agentAccount}${row.agentId}${row.teamName}${row.parentAccount}`.toLowerCase().includes(filters.keyword.toLowerCase()))
     && (!filters.cycle || row.cycle === filters.cycle)
     && (!filters.dateFrom || row.periodEnd >= filters.dateFrom)
@@ -134,7 +124,7 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
     <H5AgentPagination total={rows.length} page={safePage} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={(value) => { setPageSize(value); setPage(1) }} />
     <section className="h5-agent-panel h5-agent-formula-panel"><h2>负盈利代理佣金报表口径</h2><H5AgentFields columns={1} items={[
       { label: '净输赢', value: '总输赢 - 场馆费 - 红利 - 返水 + 账户调整 - 存款手续费 - 提款手续费 + 补单输赢' },
-      { label: '冲正后净输赢', value: '净输赢 + 上月结余' },
+      { label: '冲正后净输赢', value: '净输赢 + 上周期结余' },
       { label: '佣金', value: 'MAX(0，冲正后净输赢 × 佣金比例)' },
     ]} /><p className="h5-agent-dashboard-alert">统计日期按记录统计区间与查询日期区间存在重叠进行匹配；本页仅查询与导出，不提供结算操作。</p></section>
     <H5AgentFilterSheet open={filterOpen} title="负盈利佣金报表筛选" onClose={() => setFilterOpen(false)} onReset={reset} onApply={() => { setFilterOpen(false); onToast(`已查询 ${rows.length} 条负盈利代理佣金报表`) }}>
