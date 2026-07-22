@@ -260,7 +260,7 @@ function distributeTotal(total, weights, precision = 2) {
 }
 
 const NEGATIVE_COUNT_KEYS = ['teamMembers', 'subAgentCount', 'registeredCount', 'firstDepositCount', 'activeCount', 'newActiveCount']
-const NEGATIVE_MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment', 'commission']
+const NEGATIVE_MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment', 'commission']
 const formatDate = (value) => String(value || '—').slice(0, 16)
 const rebateLevelOf = (bill, agent) => bill.rebateLevel || (bill.type === '团队佣金' ? `团队返佣${bill.teamLevel || agent.level || 1}级` : '单线返佣1级')
 const auditStateOf = (bill) => bill.state === '审核退回' ? '审核退回' : ['待审核', '待提交'].includes(bill.state) ? '待审核' : bill.reviewer && bill.reviewer !== '—' ? '已审核' : '待审核'
@@ -275,7 +275,7 @@ function negativeMemberRows(data, bill, team) {
   const performance = weights(({ line, agent }) => agent.totalWinLoss ?? line.netWinLoss ?? 0)
   const specs = {
     teamMembers: [bill.teamMembers ?? members.length, weights(() => 1), 0], subAgentCount: [bill.subAgentCount ?? leader.subAgents ?? 0, weights(({ agent }) => agent.subAgents), 0], registeredCount: [bill.registeredCount ?? leader.members ?? 0, weights(({ agent }) => agent.members), 0], firstDepositCount: [bill.firstDepositCount ?? 0, weights(({ line }) => line.firstDepositCount), 0], activeCount: [bill.activeCount ?? leader.activeMembers ?? 0, weights(({ line, agent }) => line.activeMembers ?? agent.activeMembers), 0], newActiveCount: [bill.newActiveCount ?? leader.newActiveMembers ?? 0, weights(({ line, agent }) => line.newActive ?? agent.newActiveMembers), 0],
-    depositAmount: [bill.depositAmount ?? leader.depositAmount ?? 0, weights(({ agent }) => agent.depositAmount)], withdrawalAmount: [bill.withdrawalAmount ?? leader.withdrawalAmount ?? 0, weights(({ agent }) => agent.withdrawalAmount)], totalWinLoss: [bill.totalWinLoss ?? leader.totalWinLoss ?? 0, performance], venueFee: [bill.venueFee, performance], memberBonus: [bill.memberBonus, performance], memberRebate: [bill.memberRebate, performance], accountAdjustment: [bill.accountAdjustment, performance], depositFee: [bill.depositFee, performance], withdrawalFee: [bill.withdrawalFee, performance], manualOrderWinLoss: [bill.manualOrderWinLoss, performance], netWinLossRaw: [bill.netWinLossRaw, performance], lastBalance: [bill.lastBalance, performance], correctedNet: [bill.correctedNet, performance], commissionAdjustment: [bill.commissionAdjustment, performance], commission: [bill.payable, performance],
+    depositAmount: [bill.depositAmount ?? leader.depositAmount ?? 0, weights(({ agent }) => agent.depositAmount)], withdrawalAmount: [bill.withdrawalAmount ?? leader.withdrawalAmount ?? 0, weights(({ agent }) => agent.withdrawalAmount)], totalWinLoss: [bill.totalWinLoss ?? leader.totalWinLoss ?? 0, performance], venueFee: [bill.venueFee, performance], memberBonus: [bill.memberBonus, performance], activityRewards: [bill.activityRewards, performance], memberReferralReward: [bill.memberReferralReward, performance], memberRebate: [bill.memberRebate, performance], accountAdjustment: [bill.accountAdjustment, performance], depositFee: [bill.depositFee, performance], withdrawalFee: [bill.withdrawalFee, performance], manualOrderWinLoss: [bill.manualOrderWinLoss, performance], netWinLossRaw: [bill.netWinLossRaw, performance], lastBalance: [bill.lastBalance, performance], correctedNet: [bill.correctedNet, performance], commissionAdjustment: [bill.commissionAdjustment, performance], commission: [bill.payable, performance],
   }
   const allocations = Object.fromEntries(Object.entries(specs).map(([key, [total, weight, precision = 2]]) => [key, distributeTotal(total, weight, precision)]))
   return members.map(({ line, agent, leader: isLeader }, index) => ({
@@ -327,6 +327,8 @@ function buildNegativeRows(data, role) {
       totalWinLoss: bill.totalWinLoss ?? agent.totalWinLoss ?? 0,
       venueFee: bill.venueFee ?? 0,
       memberBonus: bill.memberBonus ?? 0,
+      activityRewards: bill.activityRewards ?? 0,
+      memberReferralReward: bill.memberReferralReward ?? 0,
       memberRebate: bill.memberRebate ?? 0,
       accountAdjustment: bill.accountAdjustment ?? 0,
       depositFee: bill.depositFee ?? 0,
@@ -352,7 +354,7 @@ function buildNegativeRows(data, role) {
 const NEGATIVE_FIELDS = [
   { key: 'agentAccount', label: '代理名称' }, { key: 'index', label: '序号' }, { key: 'cycle', label: '佣金周期' }, { key: 'teamName', label: '团队名称' }, { key: 'agentId', label: '代理编号' }, { key: 'agentIdentity', label: '代理身份' }, { key: 'parentAccount', label: '上级账号' },
   ...NEGATIVE_COUNT_KEYS.map((key) => ({ key, label: { teamMembers: '团队人数', subAgentCount: '下级会员', registeredCount: '注册人数', firstDepositCount: '首存人数', activeCount: '活跃人数', newActiveCount: '新增活跃人数' }[key] })),
-  ...NEGATIVE_MONEY_KEYS.map((key) => ({ key, label: { depositAmount: '存款金额', withdrawalAmount: '提款金额', totalWinLoss: '总输赢', venueFee: '场馆费', memberBonus: '红利', memberRebate: '返水', accountAdjustment: '账户调整', depositFee: '存款手续费', withdrawalFee: '提款手续费', manualOrderWinLoss: '补单输赢', netWinLossRaw: '净输赢', lastBalance: '上周期结余', correctedNet: '冲正后净输赢', commissionAdjustment: '佣金调整', commission: '佣金' }[key], render: (value) => <b className={valueTone(value)}>{money(value, true)}</b> })),
+  ...NEGATIVE_MONEY_KEYS.map((key) => ({ key, label: { depositAmount: '存款金额', withdrawalAmount: '提款金额', totalWinLoss: '总输赢', venueFee: '场馆费', memberBonus: '红利', activityRewards: '各活动奖励', memberReferralReward: '会员推会员', memberRebate: '返水', accountAdjustment: '账户调整', depositFee: '存款手续费', withdrawalFee: '提款手续费', manualOrderWinLoss: '补单输赢', netWinLossRaw: '净输赢', lastBalance: '上周期结余', correctedNet: '冲正后净输赢', commissionAdjustment: '佣金调整', commission: '佣金' }[key], render: (value) => <b className={valueTone(value)}>{money(value, true)}</b> })),
   { key: 'rebateLevel', label: '返佣等级' }, { key: 'rate', label: '佣金比例', render: (value) => `${Number(value || 0) * 100}%` }, { key: 'commissionState', label: '佣金状态', render: (value) => <StatusPill>{value}</StatusPill> }, { key: 'becameAgentAt', label: '成为代理时间' }, { key: 'joinedAt', label: '加入团队时间' }, { key: 'issuedBy', label: '发放人' }, { key: 'issuedAt', label: '发放时间' }, { key: 'auditState', label: '审核状态', render: (value) => <StatusPill>{value}</StatusPill> },
 ]
 

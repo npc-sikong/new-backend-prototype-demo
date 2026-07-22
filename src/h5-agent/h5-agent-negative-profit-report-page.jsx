@@ -18,7 +18,7 @@ import {
 } from './h5-agent-ui'
 
 const COUNT_KEYS = new Set(['teamMembers', 'subAgentCount', 'registeredCount', 'firstDepositCount', 'activeCount', 'newActiveCount'])
-const MONEY_KEYS = new Set(['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commission'])
+const MONEY_KEYS = new Set(['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commission'])
 const SIGNED_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet'])
 const STATISTIC_TIME_FIELD = { key: 'statisticTime', label: '统计时间' }
 const REPORT_FIELDS = NEGATIVE_REPORT_COLUMNS

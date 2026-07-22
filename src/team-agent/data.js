@@ -21,7 +21,7 @@ function agent(row) {
 function bill(row) {
   return {
     agentType: '普通代理', becameAgentAt: '2026-05-01', teamType: '普通代理', teamMembers: 1, subAgentCount: 0, registeredCount: 0, firstDepositCount: 0,
-    activeCount: 0, newActiveCount: 0, depositAmount: 0, withdrawalAmount: 0, totalWinLoss: 0, venueFee: 0, memberBonus: 0, memberRebate: 0,
+    activeCount: 0, newActiveCount: 0, depositAmount: 0, withdrawalAmount: 0, totalWinLoss: 0, venueFee: 0, memberBonus: 0, activityRewards: 0, memberReferralReward: 0, memberRebate: 0,
     accountAdjustment: 0, manualOrderWinLoss: 0, depositFee: 0, withdrawalFee: 0, netWinLossRaw: 0, lastBalance: 0, balanceAdjustment: 0,
     correctedNet: 0, commissionAdjustment: 0, maintainer: '站点运营', reviewer: '—', reviewedAt: '—', issuedBy: '—', issuedAt: '—', adjustmentReason: '—', ...row,
   }
@@ -83,10 +83,10 @@ export const INITIAL_STATE = {
     { id: 'PLAN-H-001', type: '历史代理方案', name: '多层级返佣方案', site: '全部站点', effectiveCycle: '历史兼容', status: '历史查询', levels: [] },
   ],
   bills: [
-    bill({ id: 'BILL-T-202607-001', type: '团队佣金', unitId: 'TEAM-001', unitName: 'gaodashang01部', payee: 'gaodashang', agentType: '官方代理', becameAgentAt: '2026-05-08', teamType: '官方代理', teamMembers: 3, subAgentCount: 11, registeredCount: 276, firstDepositCount: 42, activeCount: 128, newActiveCount: 36, depositAmount: 746000, withdrawalAmount: 282000, totalWinLoss: 520000, venueFee: 26000, memberBonus: 18000, memberRebate: 12000, accountAdjustment: 8000, manualOrderWinLoss: 5000, depositFee: 2500, withdrawalFee: 2500, netWinLossRaw: 472000, lastBalance: -60000, correctedNet: 412000, site: '旺财体育', cycle: '2026-07', grade: '五星', rate: 0.5, netWinLoss: 412000, payable: 206000, issued: 120000, state: '部分发放', recommender: '—', reviewer: '若依', reviewedAt: '2026-07-14 09:20', issuedBy: '站点财务', issuedAt: '2026-07-14 10:10', createdAt: '2026-07-14 02:05' }),
-    bill({ id: 'BILL-S-202607-001', type: '单线代理佣金', unitId: 'SINGLE-001', unitName: '单线代理01', payee: 'dailiwc001', becameAgentAt: '2026-05-26', activeCount: 46, newActiveCount: 12, depositAmount: 214000, withdrawalAmount: 87000, totalWinLoss: 205000, venueFee: 10250, memberBonus: 8000, memberRebate: 6750, accountAdjustment: -3000, manualOrderWinLoss: 0, depositFee: 3500, withdrawalFee: 3500, netWinLossRaw: 170000, lastBalance: 0, correctedNet: 170000, site: '旺财体育', cycle: '2026-07', grade: '四星', rate: 0.4, netWinLoss: 170000, payable: 68000, issued: 0, state: '待发放', recommender: 'apppay', reviewer: '若依', reviewedAt: '2026-07-14 09:30', createdAt: '2026-07-14 02:06' }),
+    bill({ id: 'BILL-T-202607-001', type: '团队佣金', unitId: 'TEAM-001', unitName: 'gaodashang01部', payee: 'gaodashang', agentType: '官方代理', becameAgentAt: '2026-05-08', teamType: '官方代理', teamMembers: 3, subAgentCount: 11, registeredCount: 276, firstDepositCount: 42, activeCount: 128, newActiveCount: 36, depositAmount: 746000, withdrawalAmount: 282000, totalWinLoss: 520000, venueFee: 26000, memberBonus: 18000, activityRewards: 9000, memberReferralReward: 3000, memberRebate: 12000, accountAdjustment: 8000, manualOrderWinLoss: 5000, depositFee: 2500, withdrawalFee: 2500, netWinLossRaw: 472000, lastBalance: -60000, correctedNet: 412000, site: '旺财体育', cycle: '2026-07', grade: '五星', rate: 0.5, netWinLoss: 412000, payable: 206000, issued: 120000, state: '部分发放', recommender: '—', reviewer: '若依', reviewedAt: '2026-07-14 09:20', issuedBy: '站点财务', issuedAt: '2026-07-14 10:10', createdAt: '2026-07-14 02:05' }),
+    bill({ id: 'BILL-S-202607-001', type: '单线代理佣金', unitId: 'SINGLE-001', unitName: '单线代理01', payee: 'dailiwc001', becameAgentAt: '2026-05-26', activeCount: 46, newActiveCount: 12, depositAmount: 214000, withdrawalAmount: 87000, totalWinLoss: 205000, venueFee: 10250, memberBonus: 8000, activityRewards: 3200, memberReferralReward: 1200, memberRebate: 6750, accountAdjustment: -3000, manualOrderWinLoss: 0, depositFee: 3500, withdrawalFee: 3500, netWinLossRaw: 170000, lastBalance: 0, correctedNet: 170000, site: '旺财体育', cycle: '2026-07', grade: '四星', rate: 0.4, netWinLoss: 170000, payable: 68000, issued: 0, state: '待发放', recommender: 'apppay', reviewer: '若依', reviewedAt: '2026-07-14 09:30', createdAt: '2026-07-14 02:06' }),
     bill({ id: 'BILL-R-202607-001', type: '推荐奖励', unitId: 'SINGLE-001', unitName: '单线代理01', payee: 'apppay', agentType: '官方代理', becameAgentAt: '2026-04-20', totalWinLoss: 68000, netWinLossRaw: 68000, correctedNet: 68000, site: '旺财体育', cycle: '2026-07', grade: '—', rate: 0.1, netWinLoss: 68000, payable: 6800, issued: 0, state: '待审核', recommender: 'apppay', createdAt: '2026-07-14 02:07' }),
-    bill({ id: 'BILL-T-202608-002', type: '团队佣金', unitId: 'TEAM-002', unitName: 'apppay01部', payee: 'apppay', agentType: '普通代理', teamType: '普通代理', teamMembers: 2, activeCount: 20, newActiveCount: 5, totalWinLoss: 65000, venueFee: 3250, memberBonus: 4000, memberRebate: 2750, accountAdjustment: 0, manualOrderWinLoss: 0, depositFee: 2500, withdrawalFee: 2500, netWinLossRaw: 50000, lastBalance: 0, correctedNet: 50000, site: '旺财体育', cycle: '2026-08', grade: '一星', rate: 0.3, netWinLoss: 50000, payable: 15000, issued: 0, state: '待提交', recommender: '—', createdAt: '2026-07-14 14:20' }),
+    bill({ id: 'BILL-T-202608-002', type: '团队佣金', unitId: 'TEAM-002', unitName: 'apppay01部', payee: 'apppay', agentType: '普通代理', teamType: '普通代理', teamMembers: 2, activeCount: 20, newActiveCount: 5, totalWinLoss: 65000, venueFee: 3250, memberBonus: 4000, activityRewards: 1500, memberReferralReward: 500, memberRebate: 2750, accountAdjustment: 0, manualOrderWinLoss: 0, depositFee: 2500, withdrawalFee: 2500, netWinLossRaw: 50000, lastBalance: 0, correctedNet: 50000, site: '旺财体育', cycle: '2026-08', grade: '一星', rate: 0.3, netWinLoss: 50000, payable: 15000, issued: 0, state: '待提交', recommender: '—', createdAt: '2026-07-14 14:20' }),
     bill({ id: 'BILL-S-202606-002', type: '单线代理佣金', unitId: 'SINGLE-003', unitName: '单线代理03', payee: 'charles', becameAgentAt: '2026-06-22', totalWinLoss: -18000, netWinLossRaw: -18000, lastBalance: 0, correctedNet: -18000, site: '旺财体育', cycle: '2026-06', grade: '零级', rate: 0, netWinLoss: -18000, payable: 0, issued: 0, state: '无佣金结转', recommender: '—', createdAt: '2026-07-01 02:03' }),
   ],
   internalSettlements: [
@@ -703,6 +703,34 @@ PAGE_NOTES['master:version'] = {
   requirement: '归档三后台及H5当前有效模块，并统一使用“上周期结余”描述上一结算周期承接的结余金额。',
   acceptance: '桌面端、H5端、表格、公式、业务说明和版本说明均统一使用“上周期结余”；相关金额与计算结果保持不变。',
   record: `修改时间：${PREVIOUS_BALANCE_TERM_UPDATED_AT}；修改说明：统一结余承接字段名称；修改内容：全原型统一显示“上周期结余”，字段结构、金额和计算逻辑不变。`,
+}
+
+const NEGATIVE_REWARD_FIELDS_UPDATED_AT = '2026-07-23 05:37'
+;['master:negativeProfit', 'site:negativeProfit', 'master:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+  PAGE_NOTES[key] = {
+    ...current,
+    updatedAt: NEGATIVE_REWARD_FIELDS_UPDATED_AT,
+    fields: current.fields.includes('各活动奖励')
+      ? current.fields
+      : current.fields.includes('红利、')
+        ? current.fields.replace('红利、', '红利、各活动奖励、会员推会员、')
+        : `${current.fields.replace(/。$/, '')}、红利、各活动奖励、会员推会员。`,
+    logic: `${current.logic} “各活动奖励”和“会员推会员”位于红利右侧，团队成员明细按现有业绩权重拆分且逐列合计等于团队主记录；两项随当前筛选结果参与列表总计，本次不改变现有净输赢和佣金计算公式。`,
+    requirement: `${current.requirement} 负盈利结算与只读报表在红利右侧同步展示各活动奖励、会员推会员。`,
+    acceptance: `${current.acceptance} 总控、站点、代理及H5代理后台对应表格均可查看两项金额，团队展开与总计金额一致。`,
+    record: `修改时间：${NEGATIVE_REWARD_FIELDS_UPDATED_AT}；修改说明：补充负盈利佣金成本核对字段；修改内容：红利右侧新增各活动奖励、会员推会员，并同步团队成员拆分、字段筛选、底部总计及H5详情。`,
+  }
+})
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: NEGATIVE_REWARD_FIELDS_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 负盈利代理佣金结算和负盈利代理佣金报表在红利右侧新增各活动奖励、会员推会员，并同步站点、代理与H5代理后台。`,
+  requirement: '归档三后台及H5当前有效模块；负盈利佣金结算与只读报表统一展示红利、各活动奖励、会员推会员及后续经营字段。',
+  acceptance: '总控、站点、代理及H5代理后台对应负盈利表格均按红利、各活动奖励、会员推会员的顺序展示，团队成员拆分和底部总计可核对。',
+  record: `修改时间：${NEGATIVE_REWARD_FIELDS_UPDATED_AT}；修改说明：同步负盈利佣金奖励明细字段；修改内容：结算与只读报表新增各活动奖励、会员推会员，并同步四端展示、团队拆分和总计。`,
 }
 
 export const P1_ROADMAP = ['副线批量开设与范围调整', '内部结算模板', '主线自有资金提前结算', '方案计算预演', '推荐奖励期限与阶梯', '历史余额受控移交']

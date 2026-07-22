@@ -21,7 +21,7 @@ import {
 } from './ui'
 
 const FILTER_DEFAULTS = { cycle: '', dateFrom: '', dateTo: '', agentIdentity: '', commissionState: '', auditState: '', keyword: '' }
-const MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment', 'commission']
+const MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment', 'commission']
 
 const COLUMN_DEFS = [
   { key: 'agentAccount', label: '代理名称', className: 'negative-agent-name-column', cellClassName: 'negative-agent-name-cell' },
@@ -42,6 +42,8 @@ const COLUMN_DEFS = [
   { key: 'totalWinLoss', label: '总输赢' },
   { key: 'venueFee', label: '场馆费' },
   { key: 'memberBonus', label: '红利' },
+  { key: 'activityRewards', label: '各活动奖励' },
+  { key: 'memberReferralReward', label: '会员推会员' },
   { key: 'memberRebate', label: '返水' },
   { key: 'accountAdjustment', label: '账户调整' },
   { key: 'depositFee', label: '存款手续费' },
@@ -127,6 +129,8 @@ function buildTeamMemberRows(data, bill, team) {
     totalWinLoss: distributeTotal(bill.totalWinLoss ?? teamLeader.totalWinLoss ?? 0, performanceWeights),
     venueFee: distributeTotal(bill.venueFee ?? 0, performanceWeights),
     memberBonus: distributeTotal(bill.memberBonus ?? 0, performanceWeights),
+    activityRewards: distributeTotal(bill.activityRewards ?? 0, performanceWeights),
+    memberReferralReward: distributeTotal(bill.memberReferralReward ?? 0, performanceWeights),
     memberRebate: distributeTotal(bill.memberRebate ?? 0, performanceWeights),
     accountAdjustment: distributeTotal(bill.accountAdjustment ?? 0, performanceWeights),
     depositFee: distributeTotal(bill.depositFee ?? 0, performanceWeights),
@@ -165,6 +169,8 @@ function buildTeamMemberRows(data, bill, team) {
         totalWinLoss: valueOf('totalWinLoss'),
         venueFee: valueOf('venueFee'),
         memberBonus: valueOf('memberBonus'),
+        activityRewards: valueOf('activityRewards'),
+        memberReferralReward: valueOf('memberReferralReward'),
         memberRebate: valueOf('memberRebate'),
         accountAdjustment: valueOf('accountAdjustment'),
         depositFee: valueOf('depositFee'),
@@ -226,6 +232,8 @@ function buildRows(data) {
         totalWinLoss: bill.totalWinLoss ?? agent.totalWinLoss ?? 0,
         venueFee: bill.venueFee ?? 0,
         memberBonus: bill.memberBonus ?? 0,
+        activityRewards: bill.activityRewards ?? 0,
+        memberReferralReward: bill.memberReferralReward ?? 0,
         memberRebate: bill.memberRebate ?? 0,
         accountAdjustment: bill.accountAdjustment ?? 0,
         depositFee: bill.depositFee ?? 0,
