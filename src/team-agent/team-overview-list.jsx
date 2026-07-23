@@ -1,5 +1,6 @@
 import { formatGradeConditionValue, teamGradeProgress, teamOverviewCounts } from './team-management-helpers'
-import { Money, Panel, StatusTag } from './ui'
+import { recommenderOf } from './recommender'
+import { Money, Panel } from './ui'
 
 function OverviewList({ items, columns = 4 }) {
   return <dl className="team-overview-list" style={{ '--overview-columns': columns }}>{items.map((item) => (
@@ -37,11 +38,10 @@ export function TeamOverviewList({ team, data }) {
         { label: '所属站点 / 币种', value: `${team.site} / ${team.currency}` },
         { label: '团队负责人', value: team.mainAgent },
         { label: '代理类型', value: team.teamAgentType || team.teamType },
+        { label: '推荐人', value: recommenderOf(team) },
         { label: '团队方案', value: team.plan },
         { label: '创建时间', value: team.createdAt },
         { label: '加入团队时间', value: team.joinedAt },
-        { label: '生效周期', value: `${team.startCycle} 起` },
-        { label: '团队状态', value: <StatusTag>{team.status}</StatusTag> },
       ]} />
     </Panel>
     <Panel title="团队规模">
@@ -59,16 +59,6 @@ export function TeamOverviewList({ team, data }) {
         { label: '团队返佣比例', value: rate },
         { label: '下一等级', value: nextGrade },
         ...gradeConditions,
-      ]} />
-    </Panel>
-    <Panel title="结算口径">
-      <OverviewList columns={3} items={[
-        { label: '净输赢', value: <Money value={metrics.currentNet} signed />, helper: '总输赢 − 场馆费 − 会员红利 − 会员返水 + 账户调整 + 补单输赢 − 存款手续费 − 提款手续费' },
-        { label: '冲正后净输赢', value: <Money value={metrics.correctedNet} signed />, helper: '净输赢 + 上周期结余 + 本月结余调整' },
-        { label: '团队当前余额', value: <Money value={metrics.correctedNet} signed />, helper: '团队当前余额 = 冲正后净输赢' },
-        { label: '未结算收益', value: <Money value={metrics.payable} />, helper: 'MAX（0，团队当前余额 × 团队返佣比例 + 佣金调整）' },
-        { label: '平台收款责任', value: '当期团队负责人', helper: '团队每周期只形成一张平台账单；副线收益通过团队内部分配体现' },
-        { label: '关系变更结余', value: '按关系变更时点归属', helper: '加入团队时带入，移出团队时留原团队，解散后由指定代理承接' },
       ]} />
     </Panel>
   </div>

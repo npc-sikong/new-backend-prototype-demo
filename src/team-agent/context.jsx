@@ -149,13 +149,35 @@ export function TeamAgentProvider({ children }) {
     const team = data.teams.find((item) => item.id === teamId)
     if (!team) return { ok: false, message: '未找到代理部' }
     const balanceAssignee = options.balanceAssignee || team.mainAgent
-    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamAgentType || team.teamType || '普通代理', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts: team.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: status, reason: status === '已解散' ? `团队业务终止；剩余团队结余由指定代理 ${balanceAssignee} 承接` : `团队状态调整为${status}`, operator: '站点运营', createdAt: timestamp() }
+    const operationReason = status === '已解散'
+      ? `团队业务终止；剩余团队结余由指定代理 ${balanceAssignee} 承接`
+      : status === '冻结'
+        ? '冻结团队；团队负责人及全部副线代理禁止登录'
+        : status === '正常'
+          ? '解除冻结；团队负责人及全部副线代理恢复正常登录'
+          : `团队状态调整为${status}`
+    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamAgentType || team.teamType || '普通代理', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts: team.lines.filter((line) => line.identity === '副线').map((line) => line.agent).join('、') || '—', action: status, reason: operationReason, operator: '站点运营', createdAt: timestamp() }
     if (status === '已解散' && (team.previousNegative > 0 || data.bills.some((bill) => bill.unitId === teamId && bill.issued < bill.payable))) {
       setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, status: '待解散', balanceAssignee } : item), teamOperations: [{ ...operation, action: '转为待解散', reason: `存在未发完账单或未处理结余；处理后由 ${balanceAssignee} 承接剩余结余` }, ...current.teamOperations] }))
       return { ok: false, message: '存在未处理当月结余或未发完账单，已转为待解散' }
     }
-    setData((current) => ({ ...current, teams: current.teams.map((item) => item.id === teamId ? { ...item, status, ...(status === '已解散' ? { balanceAssignee } : {}) } : item), teamOperations: [operation, ...current.teamOperations] }))
-    return { ok: true, message: `${team.name} 已更新为${status}` }
+    const teamAccounts = new Set(team.lines.map((line) => line.agent))
+    setData((current) => ({
+      ...current,
+      teams: current.teams.map((item) => item.id === teamId ? { ...item, status, ...(status === '已解散' ? { balanceAssignee } : {}) } : item),
+      agents: ['冻结', '正常'].includes(status)
+        ? current.agents.map((item) => teamAccounts.has(item.account) ? { ...item, status: status === '冻结' ? '冻结' : '启用' } : item)
+        : current.agents,
+      teamOperations: [operation, ...current.teamOperations],
+    }))
+    return {
+      ok: true,
+      message: status === '冻结'
+        ? `${team.name} 已冻结，团队负责人及全部副线代理禁止登录`
+        : status === '正常'
+          ? `${team.name} 已解除冻结并恢复正常`
+          : `${team.name} 已更新为${status}`,
+    }
   }
 
   function changeMain(teamId, nextMain, effectiveCycle = '2026-08') {

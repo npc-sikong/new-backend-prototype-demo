@@ -23,16 +23,11 @@ export function dashboardGroupsForRole(data, role) {
   const agent = data.agents.find((item) => item.account === account)
   if (!agent) return DASHBOARD_GROUPS
   const bill = data.bills.find((item) => item.payee === account && item.cycle === '2026-07')
-  const pendingWithdrawal = data.withdrawals
-    .filter((item) => item.account === account && ['待审核', '处理中'].includes(item.status))
-    .reduce((sum, item) => sum + Number(item.actualAmountCny || 0), 0)
   const activeAgents = Math.max(1, Number(agent.subAgents || 0) + 1)
   const members = Number(agent.members || bill?.registeredCount || 0)
   const activeMembers = Number(agent.activeMembers || bill?.activeCount || 0)
   const values = {
-    '本期佣金预估/净收益': Number(bill?.payable || 0),
     '当前余额': Number(agent.balance || 0),
-    '提现中佣金': pendingWithdrawal,
     '已结算佣金': Number(bill?.issued || 0),
     '总充值': Number(agent.depositAmount || 0),
     '总提现': Number(agent.withdrawalAmount || 0),
@@ -51,15 +46,18 @@ export function dashboardGroupsForRole(data, role) {
     '会员推广会员': 0,
     '30天未登录会员': Math.max(0, members - activeMembers),
   }
-  const moneyLabels = new Set(['本期佣金预估/净收益', '当前余额', '提现中佣金', '已结算佣金', '总充值', '总提现', '总投注', '有效投注', '总盈亏'])
-  return DASHBOARD_GROUPS.map((group) => ({
+  const moneyLabels = new Set(['当前余额', '已结算佣金', '总充值', '总提现', '总投注', '有效投注', '总盈亏'])
+  return DASHBOARD_GROUPS
+    .filter((group) => group.title !== '本期佣金预估/净收益')
+    .filter((group) => !['secondary', 'independent'].includes(role) || group.title !== '代理数据')
+    .map((group) => ({
     ...group,
-    items: group.items.map((item) => values[item.label] === undefined ? item : {
+    items: group.items.filter((item) => item.label !== '未结算佣金').map((item) => values[item.label] === undefined ? item : {
       ...item,
       value: moneyLabels.has(item.label) ? `¥${values[item.label].toLocaleString('zh-CN', { maximumFractionDigits: 2 })}` : String(values[item.label]),
       note: item.label === '有效投注' ? '占比 100%' : item.label === '活跃代理' ? '活跃率 100.0%' : item.note,
     }),
-  }))
+    }))
 }
 
 export function MultiLevelDashboardPage({ role = 'multiLevel', onToast }) {

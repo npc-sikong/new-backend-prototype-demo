@@ -19,7 +19,6 @@ import {
   rowsForAgentRole,
 } from '../team-agent/multi-level-agent-data'
 import {
-  buildTeamCommissionRows,
   formatGradeConditionValue,
   lineDirectMemberRows,
   teamGradeProgress,
@@ -291,39 +290,21 @@ function teamOperations(data, team, role) {
 export function H5TeamPage({ role = 'main', onToast = EMPTY_FN }) {
   const { data } = useTeamAgent()
   const [keyword, setKeyword] = useState('')
-  const [filters, setFilters] = useState({ type: '', agent: '', createdFrom: '' })
+  const [filters, setFilters] = useState({ type: '', createdFrom: '' })
   const [filterOpen, setFilterOpen] = useState(false)
   const [selected, setSelected] = useState(null)
   const [detailTab, setDetailTab] = useState('overview')
   const [drill, setDrill] = useState(null)
-  const [performanceFilters, setPerformanceFilters] = useState({ agent: '', identity: '', lineId: '', statFrom: '', statTo: '' })
-  const [performanceFilterOpen, setPerformanceFilterOpen] = useState(false)
   const [operationFilters, setOperationFilters] = useState({ teamName: '', agentIdentity: '', agentId: '', agentAccount: '', createdFrom: '', createdTo: '' })
   const [operationFilterOpen, setOperationFilterOpen] = useState(false)
   const sourceRows = useMemo(() => scopedTeams(data, role), [data, role])
   const rows = useMemo(() => sourceRows.filter((team) => contains(`${team.name}${team.code}`, keyword)
     && (!filters.type || team.teamType === filters.type)
-    && (!filters.agent || contains(`${team.mainAgent}${team.lines.map((line) => line.agent).join('')}`, filters.agent))
     && (!filters.createdFrom || dateOnly(team.createdAt) >= filters.createdFrom)), [sourceRows, keyword, filters])
   const paging = usePaging(rows)
-  const openDetail = (team, tab = 'overview') => { setSelected(team); setDetailTab(tab) }
+  const openDetail = (team, tab = 'overview') => { setSelected(team); setDetailTab(tab === 'operations' ? 'operations' : 'overview') }
   const selectedCounts = selected ? teamOverviewCounts(selected, data) : null
   const selectedGrade = selected ? teamGradeProgress(selected, data) : null
-  const performanceBase = selected ? buildTeamCommissionRows(selected).map((row, index) => ({ ...row, statDate: row.statDate || ['2026-07-17', '2026-07-16', '2026-07-15'][index % 3] })) : []
-  const selectedPerformance = performanceBase.filter((row) => (!performanceFilters.agent || contains(row.agent, performanceFilters.agent))
-    && (!performanceFilters.identity || row.identity === performanceFilters.identity)
-    && (!performanceFilters.lineId || contains(row.lineId, performanceFilters.lineId))
-    && (!performanceFilters.statFrom || row.statDate >= performanceFilters.statFrom)
-    && (!performanceFilters.statTo || row.statDate <= performanceFilters.statTo))
-  const performanceTotal = selectedPerformance.reduce((sum, row) => ({
-    newActive: sum.newActive + Number(row.newActive || 0),
-    firstDepositCount: sum.firstDepositCount + Number(row.firstDepositCount || 0),
-    firstDepositAmount: sum.firstDepositAmount + Number(row.firstDepositAmount || 0),
-    activeMembers: sum.activeMembers + Number(row.activeMembers || 0),
-    totalWinLoss: sum.totalWinLoss + Number(row.totalWinLoss || 0),
-    operationFee: sum.operationFee + Number(row.operationFee || 0),
-    netRevenue: sum.netRevenue + Number(row.netRevenue || 0),
-  }), { newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, totalWinLoss: 0, operationFee: 0, netRevenue: 0 })
   const operationBase = selected ? teamOperations(data, selected, role) : []
   const selectedOperations = operationBase.filter((row) => (!operationFilters.teamName || row.teamName === operationFilters.teamName)
     && (!operationFilters.agentIdentity || row.agentIdentity === operationFilters.agentIdentity)
@@ -382,16 +363,15 @@ export function H5TeamPage({ role = 'main', onToast = EMPTY_FN }) {
     </div>
     <H5Pager total={rows.length} paging={paging} />
 
-    <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} onReset={() => setFilters({ type: '', agent: '', createdFrom: '' })} resultCount={rows.length}>
+    <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} onReset={() => setFilters({ type: '', createdFrom: '' })} resultCount={rows.length}>
       <Field label="代理类型"><select value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value })}><option value="">全部类型</option><option value="官方代理">官方代理</option><option value="普通代理">普通代理</option></select></Field>
-      <Field label="代理编号/账号"><input value={filters.agent} onChange={(event) => setFilters({ ...filters, agent: event.target.value })} placeholder="主线或副线" /></Field>
       <Field label="创建时间起"><input type="date" value={filters.createdFrom} onChange={(event) => setFilters({ ...filters, createdFrom: event.target.value })} /></Field>
     </FilterSheet>
 
     <RowsSheet config={drill} onClose={() => setDrill(null)} />
     <H5Sheet open={Boolean(selected)} title={selected?.name || '团队详情'} subtitle={selected ? `${selected.code} / ${selected.site} / ${selected.currency}` : ''} onClose={() => setSelected(null)} className="h5-agent-team-detail-sheet">
       {selected && <>
-        <nav className="h5-agent-segment-tabs">{[['overview', '团队概况'], ['performance', '团队业绩查看'], ['operations', '代理操作记录']].map(([key, label]) => <button key={key} className={detailTab === key ? 'is-active' : ''} onClick={() => setDetailTab(key)}>{label}</button>)}</nav>
+        <nav className="h5-agent-segment-tabs">{[['overview', '团队概况'], ['operations', '代理操作记录']].map(([key, label]) => <button key={key} className={detailTab === key ? 'is-active' : ''} onClick={() => setDetailTab(key)}>{label}</button>)}</nav>
         {detailTab === 'overview' && <div className="h5-agent-team-overview">
           <div className="h5-agent-balance-pair"><article><span>团队当前余额</span><b>{money(selected.metrics?.correctedNet)}</b><small>当月结余 = 冲正后净输赢</small></article><article><span>未结算收益</span><b>{money(selected.metrics?.payable)}</b><small>{selected.metrics?.grade} / {(Number(selected.metrics?.rate || 0) * 100).toFixed(0)}% 团队返佣</small></article></div>
           <DetailGrid items={[
@@ -419,35 +399,6 @@ export function H5TeamPage({ role = 'main', onToast = EMPTY_FN }) {
             { label: '平台收款责任', value: '团队每周期只形成一张平台账单；副线收益通过团队内部分配体现', wide: true },
             { label: '关系变更结余', value: '加入团队时带入，移出团队时留原团队，解散后由指定代理承接', wide: true },
           ]} /></section>
-        </div>}
-        {detailTab === 'performance' && <div>
-          <SearchBar value={performanceFilters.agent} onChange={(agent) => setPerformanceFilters({ ...performanceFilters, agent })} placeholder="代理名称" onFilter={() => setPerformanceFilterOpen(true)} filterCount={Object.values(performanceFilters).filter(Boolean).length} />
-          <div className="h5-agent-result-meta"><span>团队业绩查看 · {selectedPerformance.length} 条</span><button onClick={() => onToast(`团队业绩已导出 ${selectedPerformance.length} 条`)}>导出</button></div>
-          <div className="h5-agent-reconcile-scroll" aria-label="团队业绩横向核对模式"><div className="h5-agent-reconcile-track">{selectedPerformance.map((row) => <article key={row.lineId} className="h5-agent-performance-card"><header><StatusPill tone="brand">{row.identity}</StatusPill><b>{row.agent}</b><span>{row.lineId}</span></header><DetailGrid items={[
-            { label: '统计日期', value: row.statDate }, { label: '显式业务范围', value: row.scope, wide: true },
-            { label: '新增活跃', value: row.newActive || 0 }, { label: '新增首存', value: row.firstDepositCount || 0 },
-            { label: '首存额度', value: money(row.firstDepositAmount) }, { label: '活跃会员', value: row.activeMembers || 0 },
-            { label: '总盈亏', value: money(row.totalWinLoss) }, { label: '运营费用', value: money(row.operationFee) },
-            { label: '净收益', value: money(row.netRevenue), tone: Number(row.netRevenue) >= 0 ? 'positive' : 'negative' }, { label: '团队贡献占比', value: `${(Number(row.contributionRate || 0) * 100).toFixed(2)}%` },
-          ]} /></article>)}</div>{!selectedPerformance.length && <EmptyState />}</div>
-          <section className="h5-agent-grade-card"><span>总计 · 记录 {selectedPerformance.length} 条</span><DetailGrid items={[
-            { label: '新增活跃', value: performanceTotal.newActive }, { label: '新增首存', value: performanceTotal.firstDepositCount },
-            { label: '首存额度', value: money(performanceTotal.firstDepositAmount) }, { label: '活跃会员', value: performanceTotal.activeMembers },
-            { label: '总盈亏', value: money(performanceTotal.totalWinLoss) }, { label: '运营费用', value: money(performanceTotal.operationFee) },
-            { label: '净收益', value: money(performanceTotal.netRevenue), tone: Number(performanceTotal.netRevenue) >= 0 ? 'positive' : 'negative' },
-          ]} /></section>
-          <section className="h5-agent-grade-card"><span>团队业绩查看口径</span><DetailGrid items={[
-            { label: '总盈亏', value: `各线路总输赢合计 · ${money(performanceTotal.totalWinLoss)}`, wide: true },
-            { label: '运营费用', value: `按线路运营成本合计 · ${money(performanceTotal.operationFee)}`, wide: true },
-            { label: '净收益', value: `总盈亏 − 运营费用 · ${money(performanceTotal.netRevenue)}`, wide: true },
-            { label: '团队贡献占比', value: '单线正向净收益 ÷ 全团队正向净收益', wide: true },
-          ]} /></section>
-          <FilterSheet open={performanceFilterOpen} title="团队业绩筛选" onClose={() => setPerformanceFilterOpen(false)} onReset={() => setPerformanceFilters({ agent: '', identity: '', lineId: '', statFrom: '', statTo: '' })} resultCount={selectedPerformance.length}>
-            <Field label="身份"><select value={performanceFilters.identity} onChange={(event) => setPerformanceFilters({ ...performanceFilters, identity: event.target.value })}><option value="">全部身份</option><option>主线</option><option>副线</option></select></Field>
-            <Field label="line_id"><input value={performanceFilters.lineId} onChange={(event) => setPerformanceFilters({ ...performanceFilters, lineId: event.target.value })} placeholder="LINE-A" /></Field>
-            <Field label="统计日期起"><input type="date" value={performanceFilters.statFrom} onChange={(event) => setPerformanceFilters({ ...performanceFilters, statFrom: event.target.value })} /></Field>
-            <Field label="统计日期止"><input type="date" value={performanceFilters.statTo} onChange={(event) => setPerformanceFilters({ ...performanceFilters, statTo: event.target.value })} /></Field>
-          </FilterSheet>
         </div>}
         {detailTab === 'operations' && <div>
           <SearchBar value={operationFilters.agentAccount} onChange={(agentAccount) => setOperationFilters({ ...operationFilters, agentAccount })} placeholder="主线或副线账号" onFilter={() => setOperationFilterOpen(true)} filterCount={Object.values(operationFilters).filter(Boolean).length} />

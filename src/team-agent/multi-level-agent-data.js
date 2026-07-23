@@ -32,7 +32,7 @@ export const DASHBOARD_GROUPS = [
     columns: 3,
     items: [
       { label: '当前余额', value: '¥79,790.25', tone: 'orange' },
-      { label: '提现中佣金', value: '¥7,094.29', tone: 'red' },
+      { label: '未结算佣金', value: '¥7,094.29', tone: 'red' },
       { label: '已结算佣金', value: '¥0', tone: 'green' },
     ],
   },
@@ -48,7 +48,7 @@ export const DASHBOARD_GROUPS = [
       { label: '会员VIP福利', value: '¥0', tone: 'blue', link: '点击查看明细' },
       { label: '活动福利', value: '¥0', tone: 'orange', link: '点击查看明细' },
       { label: '会员推广福利', value: '¥0', tone: 'blue', link: '点击查看明细' },
-      { label: '代理手续费支出', value: '¥0', tone: 'red', link: '点击查看明细' },
+      { label: '充提手续运营费', value: '¥0', tone: 'red', link: '点击查看明细' },
     ],
   },
   {

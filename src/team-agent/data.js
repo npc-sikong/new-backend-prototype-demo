@@ -11,7 +11,7 @@ const DEFAULT_CHANNEL_STATS = [
 
 function agent(row) {
   return {
-    agentType: '多层级代理', developer: '—', parentId: '—', boundMemberAccount: '—', email: '—', registeredAt: '2026-06-01 10:00',
+    agentType: '多层级代理', developer: '—', recommender: '—', parentId: '—', boundMemberAccount: '—', email: '—', registeredAt: '2026-06-01 10:00',
     registerIp: '103.22.15.8', loginIp: '103.22.15.18', registerLocation: '中国 / 广东省 / 广州市', loginLocation: '中国 / 广东省 / 深圳市',
     activeMembers: 0, newActiveMembers: 0, depositAmount: 0, withdrawalAmount: 0, totalWinLoss: 0, validBetting: 0, lastLogin: '—',
     channelStats: DEFAULT_CHANNEL_STATS, subAgentDetails: [], ...row,
@@ -30,9 +30,9 @@ function bill(row) {
 export const INITIAL_STATE = {
   ...LEGACY_STATE,
   agents: [
-    agent({ id: '345', account: 'gaodashang', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', boundMemberAccount: 'M100345', email: 'gao@example.com', registeredAt: '2026-05-08 13:20', settlementMode: '团队模式', identity: '团队负责人', unit: 'gaodashang01部', lineId: 'LINE-A', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: '无上级代理', subAgents: 8, members: 207, activeMembers: 68, newActiveMembers: 18, depositAmount: 486000, withdrawalAmount: 182000, totalWinLoss: 218000, validBetting: 1640000, plan: 'DW负盈利佣金方案', balance: 79806.45, lastLogin: '2026-07-15 09:22', subAgentDetails: [{ id: '373', account: 'WC002', registeredAt: '2026-06-02 12:30' }, { id: '374', account: 'LGNB', registeredAt: '2026-06-06 17:40' }, { id: '1750', account: 'dailiwc001a', registeredAt: '2026-06-18 09:15' }] }),
-    agent({ id: '373', account: 'WC002', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', parentId: '345', email: 'wc002@example.com', registeredAt: '2026-06-02 12:30', settlementMode: '团队模式', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-B', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'gaodashang', subAgents: 2, members: 31, activeMembers: 37, newActiveMembers: 11, depositAmount: 168000, withdrawalAmount: 62000, totalWinLoss: 146000, validBetting: 780000, plan: 'DW负盈利佣金方案', balance: 3100, lastLogin: '2026-07-14 18:36' }),
-    agent({ id: '374', account: 'LGNB', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', parentId: '345', email: 'lgnb@example.com', registeredAt: '2026-06-06 17:40', settlementMode: '团队模式', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-C', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'gaodashang', subAgents: 1, members: 22, activeMembers: 23, newActiveMembers: 7, depositAmount: 92000, withdrawalAmount: 38000, totalWinLoss: 50000, validBetting: 410000, plan: 'DW负盈利佣金方案', balance: 2850, lastLogin: '2026-07-13 20:10' }),
+    agent({ id: '345', account: 'gaodashang', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'charles', boundMemberAccount: 'M100345', email: 'gao@example.com', registeredAt: '2026-05-08 13:20', settlementMode: '团队模式', identity: '团队负责人', unit: 'gaodashang01部', lineId: 'LINE-A', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: '无上级代理', subAgents: 8, members: 207, activeMembers: 68, newActiveMembers: 18, depositAmount: 486000, withdrawalAmount: 182000, totalWinLoss: 218000, validBetting: 1640000, plan: 'DW负盈利佣金方案', balance: 79806.45, lastLogin: '2026-07-15 09:22', subAgentDetails: [{ id: '373', account: 'WC002', registeredAt: '2026-06-02 12:30' }, { id: '374', account: 'LGNB', registeredAt: '2026-06-06 17:40' }, { id: '1750', account: 'dailiwc001a', registeredAt: '2026-06-18 09:15' }] }),
+    agent({ id: '373', account: 'WC002', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'charles', parentId: '345', email: 'wc002@example.com', registeredAt: '2026-06-02 12:30', settlementMode: '团队模式', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-B', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'gaodashang', subAgents: 2, members: 31, activeMembers: 37, newActiveMembers: 11, depositAmount: 168000, withdrawalAmount: 62000, totalWinLoss: 146000, validBetting: 780000, plan: 'DW负盈利佣金方案', balance: 3100, lastLogin: '2026-07-14 18:36' }),
+    agent({ id: '374', account: 'LGNB', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'WC002', parentId: '345', email: 'lgnb@example.com', registeredAt: '2026-06-06 17:40', settlementMode: '团队模式', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-C', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'gaodashang', subAgents: 1, members: 22, activeMembers: 23, newActiveMembers: 7, depositAmount: 92000, withdrawalAmount: 38000, totalWinLoss: 50000, validBetting: 410000, plan: 'DW负盈利佣金方案', balance: 2850, lastLogin: '2026-07-13 20:10' }),
     agent({ id: '1749', account: 'dailiwc001', model: '负盈利模式', agentType: '单线代理', teamAgentType: '—', developer: 'apppay', parentId: '901', boundMemberAccount: 'M201749', email: 'dailiwc001@example.com', registeredAt: '2026-05-26 11:45', settlementMode: '单线代理', identity: '单线代理', unit: '单线代理01', lineId: 'SINGLE-001', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'apppay', subAgents: 1, members: 18, activeMembers: 46, newActiveMembers: 12, depositAmount: 214000, withdrawalAmount: 87000, totalWinLoss: 170000, validBetting: 920000, plan: 'DW负盈利佣金方案', balance: 68903.14, lastLogin: '2026-07-12 11:08' }),
     agent({ id: '1750', account: 'dailiwc001a', model: '负盈利模式', agentType: '多层级代理', developer: 'market02', parentId: '1050', registeredAt: '2026-06-18 09:15', settlementMode: '原代理模式', identity: '—', unit: '—', lineId: '—', effectiveCycle: '—', site: '旺财体育', status: '启用', parent: 'hddaili', subAgents: 0, members: 4, activeMembers: 3, newActiveMembers: 1, depositAmount: 18800, withdrawalAmount: 7200, totalWinLoss: 9500, validBetting: 64000, plan: '多层级返佣方案', balance: 1920, lastLogin: '2026-07-10 16:16' }),
     agent({ id: '1774', account: 'charles', model: '普通代理', agentType: '多层级代理', developer: 'market03', registeredAt: '2026-06-22 15:20', settlementMode: '原代理模式', identity: '—', unit: '—', lineId: '—', effectiveCycle: '—', site: '旺财体育', status: '启用', parent: '无上级代理', subAgents: 0, members: 3, activeMembers: 2, newActiveMembers: 1, depositAmount: 12000, withdrawalAmount: 4800, totalWinLoss: -18000, validBetting: 38000, plan: '多层级返佣方案', balance: 1960, lastLogin: '2026-07-06 16:41' }),
@@ -41,7 +41,7 @@ export const INITIAL_STATE = {
   ],
   teams: [
     {
-      id: 'TEAM-001', code: 'DPT-001', name: 'gaodashang01部', teamType: '官方代理', teamAgentType: '官方代理', developer: 'gaodashang', site: '旺财体育', currency: 'CNY', mainAgent: 'gaodashang', memberDetailPermission: false, createdAt: '2026-06-28 10:20', joinedAt: '2026-07-01 00:00', plan: 'DW负盈利佣金方案', status: '生效中', startCycle: '2026-07', endCycle: '长期', previousNegative: 60000,
+      id: 'TEAM-001', code: 'DPT-001', name: 'gaodashang01部', teamType: '官方代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'charles', site: '旺财体育', currency: 'CNY', mainAgent: 'gaodashang', memberDetailPermission: false, createdAt: '2026-06-28 10:20', joinedAt: '2026-07-01 00:00', plan: 'DW负盈利佣金方案', status: '生效中', startCycle: '2026-07', endCycle: '长期', previousNegative: 60000,
       cumulativeReceived: 220000, successfulTransfers: 28000, processingOccupied: 15000, otherDeductions: 3200,
       metrics: { newActive: 36, activeMembers: 128, memberWinLoss: 520000, totalWinLoss: 520000, venueFee: 26000, memberBonus: 18000, memberRebate: 12000, accountAdjustment: 8000, manualOrderWinLoss: 5000, depositFee: 2500, withdrawalFee: 2500, expenses: 60000, adjustment: 8000, currentNet: 472000, lastBalance: -60000, balanceAdjustment: 0, assessmentNet: 412000, correctedNet: 412000, commissionableNet: 412000, commissionAdjustment: 0, grade: '五星', rate: 0.5, payable: 206000 },
       lines: [
@@ -526,13 +526,13 @@ PAGE_NOTES['agent:negativeProfitReport'] = note(
   '负盈利代理佣金报表',
   '按当前代理身份查询负盈利模式的经营、结余和佣金结果，只用于查看与导出。',
   '统计时间、佣金周期、团队名称、代理名称、代理身份、人数指标、存提款、总输赢、运营成本、净输赢、上周期结余、冲正后净输赢、返佣等级、佣金比例和佣金。',
-  '团队负责人查看授权团队汇总及团队负责人、全部副线明细；副线查看所属团队汇总并且只能展开本人 line_id 对应的经营明细，不得查看其他副线；单线代理只查看本人记录。净输赢 = 总输赢 − 场馆费 − 红利 − 返水 + 账户调整 − 存款手续费 − 提款手续费 + 补单输赢；冲正后净输赢 = 净输赢 + 上周期结余；佣金 = MAX（0，冲正后净输赢 × 佣金比例）。本页不提供确认、不发放、修改发放或其他结算处理。',
+  '团队负责人查看授权团队汇总及团队负责人、全部副线明细；副线仅展示本人 line_id 对应的经营记录，不展示团队汇总、团队负责人或其他副线；单线代理只查看本人记录。净输赢 = 总输赢 − 场馆费 − 红利 − 返水 + 账户调整 − 存款手续费 − 提款手续费 + 补单输赢；冲正后净输赢 = 净输赢 + 上周期结余；佣金 = MAX（0，冲正后净输赢 × 佣金比例）。本页不提供确认、不发放、修改发放或其他结算处理。',
   '关联代理列表、冲正统计报表和个人财务中心。',
-  '2026-07-23 03:54：调整负盈利代理佣金报表身份范围；修改内容：团队负责人查看团队及全部成员，副线查看团队汇总和本人线路，单线代理仅查看本人。',
+  '2026-07-23 19:24：收紧负盈利代理佣金报表副线权限；修改内容：团队负责人查看团队及全部成员，副线只查看本人线路，单线代理仅查看本人。',
   {
-    updatedAt: '2026-07-23 03:54',
+    updatedAt: '2026-07-23 19:24',
     requirement: '为团队负责人、副线和单线代理提供简单、只读、按身份隔离的负盈利佣金查询页面，不在代理端承载站点结算操作。',
-    acceptance: '三种身份均可进入报表；团队负责人看到 TEAM-001 团队汇总并可展开全部成员，副线看到 TEAM-001 团队汇总且展开后只有 WC002 本人线路，单线代理只看到 dailiwc001；页面无确认、不发放和修改发放按钮。',
+    acceptance: '三种身份均可进入报表；团队负责人看到 TEAM-001 团队汇总并可展开全部成员，副线只看到 WC002 本人线路且没有展开入口，单线代理只看到 dailiwc001；页面无确认、不发放和修改发放按钮。',
     boundary: '纯前端模拟报表；刷新恢复初始数据，不连接接口，不产生真实佣金结算或资金变更。',
     comparison: NOTE_COMPARISONS['agent:negativeProfitReport'],
   },
@@ -646,6 +646,19 @@ Object.entries(MULTI_LEVEL_NOTES).forEach(([page, [title, summary, fields, logic
   })
 })
 
+const AGENT_DASHBOARD_UPDATED_AT = '2026-07-23 19:15'
+PAGE_NOTES['agent:mlDashboard'] = {
+  ...PAGE_NOTES['agent:mlDashboard'],
+  updatedAt: AGENT_DASHBOARD_UPDATED_AT,
+  summary: '按当前代理身份集中查看适用的佣金、资金、代理和会员经营指标。',
+  fields: '日期范围；多层级代理展示本期佣金预估或净收益、当前余额、未结算佣金、已结算佣金、资金流水、代理数据和会员数据；团队负责人不展示本期佣金预估或净收益及未结算佣金；副线和单线代理在此基础上继续移除代理数据整组；四种身份统一展示充提手续运营费。',
+  logic: '团队负责人按授权团队范围统计，副线按本人线路统计，单线代理按本人单线统计，多层级代理保持原授权下级范围；多层级代理保留佣金预估及未结算佣金，其他三种身份隐藏不适用的两个佣金指标；副线和单线代理不汇总代理人数指标；原代理手续费支出统一改名为充提手续运营费。',
+  requirement: '代理数据看板按身份展示适用指标：多层级代理使用未结算佣金，团队负责人、副线和单线代理不展示本期佣金预估或净收益及提现中佣金，副线和单线代理同时不展示代理数据模块；所有身份统一使用充提手续运营费名称。',
+  acceptance: '切换多层级代理可看到未结算佣金且不出现提现中佣金；切换团队负责人不出现两个不适用佣金指标但保留代理数据；切换副线或单线代理同时不出现代理数据模块；四种身份资金流水均显示充提手续运营费。',
+  record: `修改时间：${AGENT_DASHBOARD_UPDATED_AT}；修改说明：按身份精简佣金及代理数据看板并统一手续费名称；修改内容：多层级代理将提现中佣金改为未结算佣金，团队负责人、副线和单线代理移除本期佣金预估或净收益及提现中佣金，副线和单线代理继续移除代理数据整组，四种身份将代理手续费支出改为充提手续运营费。`,
+  comparison: NOTE_COMPARISONS['agent:mlDashboard'],
+}
+
 const TEAM_CLASSIFICATION_UPDATED_AT = '2026-07-23 03:14'
 const TEAM_CLASSIFICATION_NOTE_KEYS = [
   'master:agents', 'site:siteAgents', 'site:agents', 'agent:agents',
@@ -675,24 +688,24 @@ PAGE_NOTES['master:version'] = {
   record: `修改时间：${TEAM_CLASSIFICATION_UPDATED_AT}；修改说明：统一全原型团队与关系术语；修改内容：团队分类改为代理类型并限定两种取值，移除推广角色展示，单线关系统一显示上级代理。`,
 }
 
-const AGENT_NEGATIVE_REPORT_SCOPE_UPDATED_AT = '2026-07-23 03:54'
+const AGENT_NEGATIVE_REPORT_SCOPE_UPDATED_AT = '2026-07-23 19:24'
 PAGE_NOTES['agent:negativeProfitReport'] = {
   ...PAGE_NOTES['agent:negativeProfitReport'],
   updatedAt: AGENT_NEGATIVE_REPORT_SCOPE_UPDATED_AT,
-  logic: '团队负责人查看授权团队汇总及团队负责人、全部副线明细；副线查看所属团队汇总并且只能展开本人 line_id 对应的经营明细，不得查看其他副线；单线代理只查看本人记录。净输赢 = 总输赢 − 场馆费 − 红利 − 返水 + 账户调整 − 存款手续费 − 提款手续费 + 补单输赢；冲正后净输赢 = 净输赢 + 上周期结余；佣金 = MAX（0，冲正后净输赢 × 佣金比例）。本页不提供确认、不发放、修改发放或其他结算处理。',
-  requirement: '负盈利代理佣金报表按身份隔离：团队负责人查看团队和全部成员，副线查看团队汇总与本人线路，单线代理只查看本人；桌面端与H5保持一致。',
-  acceptance: '团队负责人看到 TEAM-001 团队汇总并可展开全部成员；副线看到 TEAM-001 团队汇总且展开后只有 WC002 本人线路；单线代理只看到 dailiwc001；三种身份均无结算操作。',
-  record: `修改时间：${AGENT_NEGATIVE_REPORT_SCOPE_UPDATED_AT}；修改说明：调整代理端负盈利佣金报表身份查看范围；修改内容：团队负责人可看团队及全部成员，副线可看团队汇总与本人线路并隐藏其他副线，单线代理仅看本人，桌面端和H5同步。`,
+  logic: '团队负责人查看授权团队汇总及团队负责人、全部副线明细；副线仅展示本人 line_id 对应的经营记录，不展示团队汇总、团队负责人或其他副线；单线代理只查看本人记录。净输赢 = 总输赢 − 场馆费 − 红利 − 返水 + 账户调整 − 存款手续费 − 提款手续费 + 补单输赢；冲正后净输赢 = 净输赢 + 上周期结余；佣金 = MAX（0，冲正后净输赢 × 佣金比例）。本页不提供确认、不发放、修改发放或其他结算处理。',
+  requirement: '负盈利代理佣金报表按身份隔离：团队负责人查看团队和全部成员，副线只查看本人线路记录，单线代理只查看本人；桌面端与H5保持一致。',
+  acceptance: '团队负责人看到 TEAM-001 团队汇总并可展开全部成员；副线只看到 WC002 本人线路且没有展开入口；单线代理只看到 dailiwc001；三种身份均无结算操作。',
+  record: `修改时间：${AGENT_NEGATIVE_REPORT_SCOPE_UPDATED_AT}；修改说明：收紧代理端负盈利佣金报表副线查看范围；修改内容：团队负责人可看团队及全部成员，副线只看本人线路且不展示团队汇总或其他成员，单线代理仅看本人，桌面端和H5同步。`,
 }
 
 PAGE_NOTES['master:version'] = {
   ...PAGE_NOTES['master:version'],
   updatedAt: AGENT_NEGATIVE_REPORT_SCOPE_UPDATED_AT,
   summary: '按总控、站点、代理后台展示最新版本需求，并同步代理后台负盈利佣金报表的身份查看范围。',
-  logic: `${PAGE_NOTES['master:version'].logic} 代理后台负盈利代理佣金报表中，团队负责人查看团队汇总及全部成员，副线查看团队汇总且只展开本人线路，单线代理仅查看本人。`,
+  logic: `${PAGE_NOTES['master:version'].logic} 代理后台负盈利代理佣金报表中，团队负责人查看团队汇总及全部成员，副线只查看本人线路记录且不展示团队汇总或其他成员，单线代理仅查看本人。`,
   requirement: '归档三后台当前有效模块，并按最新身份权限记录代理后台负盈利代理佣金报表的团队与线路查看范围。',
   acceptance: '版本说明明确团队负责人、副线和单线代理在负盈利代理佣金报表中的不同查看范围，桌面端与H5权限一致。',
-  record: `修改时间：${AGENT_NEGATIVE_REPORT_SCOPE_UPDATED_AT}；修改说明：更新代理后台负盈利佣金报表身份范围；修改内容：团队负责人看团队及全部成员，副线看团队汇总与本人线路，单线代理只看本人。`,
+  record: `修改时间：${AGENT_NEGATIVE_REPORT_SCOPE_UPDATED_AT}；修改说明：更新代理后台负盈利佣金报表身份范围；修改内容：团队负责人看团队及全部成员，副线只看本人线路，单线代理只看本人。`,
 }
 
 const PREVIOUS_BALANCE_TERM_UPDATED_AT = '2026-07-23 04:41'
@@ -731,6 +744,360 @@ PAGE_NOTES['master:version'] = {
   requirement: '归档三后台及H5当前有效模块；负盈利佣金结算与只读报表统一展示红利、各活动奖励、会员推会员及后续经营字段。',
   acceptance: '总控、站点、代理及H5代理后台对应负盈利表格均按红利、各活动奖励、会员推会员的顺序展示，团队成员拆分和底部总计可核对。',
   record: `修改时间：${NEGATIVE_REWARD_FIELDS_UPDATED_AT}；修改说明：同步负盈利佣金奖励明细字段；修改内容：结算与只读报表新增各活动奖励、会员推会员，并同步四端展示、团队拆分和总计。`,
+}
+
+const NEGATIVE_PLAN_TOOLTIP_UPDATED_AT = '2026-07-23 18:05'
+const NEGATIVE_PLAN_TOOLTIP_TEXT = '净输赢 = 所有下级会员盈亏值 − 所有运营费用'
+PAGE_NOTES['master:plans'] = {
+  ...PAGE_NOTES['master:plans'],
+  updatedAt: NEGATIVE_PLAN_TOOLTIP_UPDATED_AT,
+  fields: PAGE_NOTES['master:plans'].fields.replace('总输赢', '净输赢及问号提示'),
+  logic: `${PAGE_NOTES['master:plans'].logic} 负盈利方案的净输赢按“${NEGATIVE_PLAN_TOOLTIP_TEXT}”理解，字段右侧问号在鼠标悬停或键盘聚焦时展示该说明；本次仅补充解释，不改变门槛数值和佣金计算。`,
+  requirement: `${PAGE_NOTES['master:plans'].requirement} 负盈利方案净输赢字段需要提供可悬停的计算口径提示。`,
+  acceptance: `${PAGE_NOTES['master:plans'].acceptance} 修改DW负盈利佣金方案时，净输赢字段右侧显示问号，悬停或聚焦后完整展示计算说明。`,
+  record: `修改时间：${NEGATIVE_PLAN_TOOLTIP_UPDATED_AT}；修改说明：明确负盈利方案净输赢门槛口径；修改内容：净输赢字段右侧增加问号，悬停或聚焦后提示“${NEGATIVE_PLAN_TOOLTIP_TEXT}”，原门槛和返佣计算保持不变。`,
+}
+
+PAGE_NOTES['master:negativeProfit'] = {
+  ...PAGE_NOTES['master:negativeProfit'],
+  updatedAt: NEGATIVE_PLAN_TOOLTIP_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:negativeProfit'].logic} “负盈利佣佣金方案”修改弹窗中的净输赢字段右侧提供问号提示，说明${NEGATIVE_PLAN_TOOLTIP_TEXT}；该提示不改变现有方案值或结算结果。`,
+  requirement: `${PAGE_NOTES['master:negativeProfit'].requirement} 负盈利方案需通过问号悬停说明净输赢门槛口径。`,
+  acceptance: `${PAGE_NOTES['master:negativeProfit'].acceptance} 进入负盈利佣佣金方案并打开修改弹窗后，可在净输赢右侧悬停问号查看完整说明。`,
+  record: `修改时间：${NEGATIVE_PLAN_TOOLTIP_UPDATED_AT}；修改说明：帮助运营理解负盈利返佣等级的净输赢条件；修改内容：方案编辑表将原字段显示为净输赢，并增加问号悬停说明，不改变原门槛和计算逻辑。`,
+}
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: NEGATIVE_PLAN_TOOLTIP_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 负盈利佣佣金方案的净输赢字段增加问号悬停说明，口径为${NEGATIVE_PLAN_TOOLTIP_TEXT}。`,
+  requirement: `${PAGE_NOTES['master:version'].requirement} 记录负盈利方案净输赢字段的悬停说明。`,
+  acceptance: `${PAGE_NOTES['master:version'].acceptance} 版本说明可跳转到负盈利代理佣金结算，并在方案修改弹窗验证净输赢问号提示。`,
+  record: `修改时间：${NEGATIVE_PLAN_TOOLTIP_UPDATED_AT}；修改说明：补充负盈利方案净输赢解释；修改内容：方案编辑表新增问号悬停提示并同步模块说明与验收口径。`,
+}
+
+const RECOMMENDER_FIELD_UPDATED_AT = '2026-07-23 11:30'
+const RECOMMENDER_REPORT_NOTE_KEYS = [
+  'master:agents', 'site:agents', 'site:siteAgents', 'agent:agents', 'agent:downline',
+  'master:teams', 'site:teams', 'agent:teams', 'master:teamDetails', 'site:teamDetails', 'agent:teamDetails',
+  'master:records', 'site:records', 'site:commissionRecords', 'agent:commissionRecords',
+  'master:settlement', 'site:settlement', 'agent:bills', 'master:reversal', 'site:reversal',
+  'master:returns', 'site:returns', 'agent:returns', 'master:withdrawals', 'site:withdrawals', 'agent:withdrawals',
+]
+
+RECOMMENDER_REPORT_NOTE_KEYS.forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+  const fields = current.fields.includes('推荐人')
+    ? current.fields
+    : current.fields.includes('代理类型、')
+      ? current.fields.replace('代理类型、', '代理类型、推荐人、')
+      : `${current.fields.replace(/。$/, '')}、推荐人。`
+  PAGE_NOTES[key] = {
+    ...current,
+    updatedAt: RECOMMENDER_FIELD_UPDATED_AT,
+    fields,
+    logic: `${current.logic} 推荐人用于核对代理来源关系，与团队负责人或副线上级代理分别记录；凡报表展示代理类型时，推荐人紧跟其右侧展示。`,
+    requirement: `${current.requirement} 含代理类型的列表、报表和详情在其右侧展示推荐人。`,
+    acceptance: `${current.acceptance} 可在代理类型右侧核对推荐人，未设置时显示横线。`,
+    record: `修改时间：${RECOMMENDER_FIELD_UPDATED_AT}；修改说明：补充代理来源关系核对；修改内容：含代理类型的报表在其右侧新增推荐人字段。`,
+  }
+})
+
+;['master:agents', 'site:agents'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+  PAGE_NOTES[key] = {
+    ...current,
+    logic: `${current.logic} 新增或修改团队代理时可独立选择推荐人；代理层级为副线时，上级代理由加入团队的团队负责人自动带出并锁定，不允许手动修改。`,
+    requirement: `${current.requirement} 团队代理新增和修改表单提供推荐人选项，副线上级代理必须只读。`,
+    acceptance: `${current.acceptance} 选择团队代理可看到推荐人下拉；选择副线并指定团队后，上级代理显示该团队负责人且不可编辑。`,
+    record: `修改时间：${RECOMMENDER_FIELD_UPDATED_AT}；修改说明：分离推荐关系与副线直属关系；修改内容：团队代理新增推荐人选项，副线上级代理由所属团队自动带出并锁定。`,
+  }
+})
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: RECOMMENDER_FIELD_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 团队代理新增和修改可选择推荐人，副线上级代理由所属团队负责人自动确定；所有含代理类型的报表在其右侧展示推荐人。`,
+  requirement: '归档三后台当前有效模块；推荐人与副线上级代理分别记录，并在所有含代理类型的报表中统一展示推荐人。',
+  acceptance: '总控和站点代理表单可维护团队代理推荐人且副线上级代理不可编辑；三后台含代理类型的报表均在其右侧显示推荐人。',
+  record: `修改时间：${RECOMMENDER_FIELD_UPDATED_AT}；修改说明：统一推荐关系录入与报表展示；修改内容：团队代理表单新增推荐人，副线上级代理锁定，含代理类型的报表新增推荐人字段。`,
+}
+
+const AGENT_LIST_ROLE_ACCESS_UPDATED_AT = '2026-07-23 19:20'
+PAGE_NOTES['agent:agents'] = {
+  ...PAGE_NOTES['agent:agents'],
+  updatedAt: AGENT_LIST_ROLE_ACCESS_UPDATED_AT,
+  summary: '仅供团队负责人按授权团队范围查看本人及下级代理资料；副线和单线代理不展示本模块。',
+  logic: `${PAGE_NOTES['agent:agents'].logic} 代理列表仅对团队负责人保留；副线和单线代理没有该菜单和页面入口。若在团队负责人代理列表切换为副线或单线代理，页面自动返回代理数据看板。多层级代理继续使用其独立代理列表。`,
+  requirement: '代理后台团队负责人保留代理列表；副线和单线代理移除代理列表菜单及页面入口；多层级代理独立代理列表不变。',
+  acceptance: '团队负责人左侧可进入代理列表；切换为副线或单线代理后菜单立即消失且当前页回到代理数据看板；切回团队负责人后仍可进入原代理列表；多层级代理不受影响。',
+  boundary: '仅调整代理后台及其H5移动端的身份菜单权限；不修改总控后台、站点后台、代理资料字段、数据范围或代理关系。',
+  record: `修改时间：${AGENT_LIST_ROLE_ACCESS_UPDATED_AT}；修改说明：让副线和单线代理只使用本人经营模块；修改内容：移除副线和单线代理的代理列表菜单与访问入口，增加身份切换页面兜底，团队负责人和多层级代理保持原能力。`,
+}
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: AGENT_LIST_ROLE_ACCESS_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 代理后台代理列表仅对团队负责人和多层级代理各自保留；副线和单线代理移除代理列表入口，H5代理后台同步相同身份权限。`,
+  requirement: '归档三后台及H5当前有效模块；代理后台和H5代理后台的副线、单线代理均不展示代理列表，团队负责人和多层级代理保持原代理列表能力。',
+  acceptance: '桌面代理后台与H5代理后台切换为副线或单线代理后均不存在代理列表入口；团队负责人和多层级代理仍可进入各自代理列表，其他后台不变。',
+  record: `修改时间：${AGENT_LIST_ROLE_ACCESS_UPDATED_AT}；修改说明：同步代理列表最新身份权限；修改内容：桌面与H5代理后台移除副线、单线代理的代理列表入口，保留团队负责人和多层级代理原能力。`,
+}
+
+const SECONDARY_NEGATIVE_REPORT_PRIVATE_UPDATED_AT = '2026-07-23 19:24'
+PAGE_NOTES['agent:negativeProfitReport'] = {
+  ...PAGE_NOTES['agent:negativeProfitReport'],
+  updatedAt: SECONDARY_NEGATIVE_REPORT_PRIVATE_UPDATED_AT,
+  summary: '按当前代理身份查询负盈利佣金经营结果；副线仅查看本人线路记录。',
+  logic: '团队负责人查看授权团队汇总及团队负责人、全部副线明细；副线仅展示当前副线本人 line_id 对应的经营记录，不展示团队汇总、团队负责人或其他副线，也不提供团队成员展开入口；单线代理只查看本人记录。净输赢 = 总输赢 − 场馆费 − 红利 − 返水 + 账户调整 − 存款手续费 − 提款手续费 + 补单输赢；冲正后净输赢 = 净输赢 + 上周期结余；佣金 = MAX（0，冲正后净输赢 × 佣金比例）。本页不提供确认、不发放、修改发放或其他结算处理。',
+  requirement: '负盈利代理佣金报表按身份隔离：团队负责人查看团队和全部成员，副线只查看本人线路记录，单线代理只查看本人；桌面端与H5保持一致。',
+  acceptance: '团队负责人可看到授权团队汇总并展开全部成员；副线只看到WC002本人线路记录且没有团队展开按钮；单线代理只看到本人记录；页面不出现发放或结算操作。',
+  boundary: '副线本人记录沿用团队账单按线路拆分后的只读经营数据，不代表副线独立承接平台团队账单。',
+  record: `修改时间：${SECONDARY_NEGATIVE_REPORT_PRIVATE_UPDATED_AT}；修改说明：收紧副线负盈利佣金数据权限；修改内容：副线只展示本人线路记录，移除团队汇总和团队成员展开入口，不展示团队负责人或其他副线，桌面端与H5同步。`,
+}
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: SECONDARY_NEGATIVE_REPORT_PRIVATE_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 代理后台与H5代理后台的负盈利代理佣金报表中，副线仅查看本人线路记录，不展示团队汇总、团队负责人或其他副线。`,
+  requirement: '归档三后台及H5当前有效模块；代理后台负盈利代理佣金报表按最新身份权限展示，副线仅保留本人线路记录。',
+  acceptance: '桌面代理后台与H5代理后台切换为副线后，负盈利代理佣金报表只显示本人记录且没有团队展开入口；团队负责人和单线代理原查看范围不变。',
+  record: `修改时间：${SECONDARY_NEGATIVE_REPORT_PRIVATE_UPDATED_AT}；修改说明：同步副线负盈利佣金报表最新权限；修改内容：桌面与H5副线报表移除团队汇总及其他团队成员，仅保留本人线路记录。`,
+}
+
+const AGENT_REVERSAL_SIMPLE_UPDATED_AT = '2026-07-23 19:37'
+PAGE_NOTES['agent:reversal'] = {
+  ...PAGE_NOTES['agent:reversal'],
+  updatedAt: AGENT_REVERSAL_SIMPLE_UPDATED_AT,
+  summary: '按当前代理身份核对欠站点、已归还和剩余欠款；仅团队负责人和单线代理可查看。',
+  fields: '筛选项：统计开始日期、统计结束日期、代理名称、代理身份。列表字段：统计日期、代理名称、代理身份、欠站点、还站点、剩余欠款。',
+  logic: '团队负责人查看所属团队欠款汇总，单线代理只查看本人记录，副线不展示本模块。欠站点为累计应还站点金额，还站点为已归还金额；剩余欠款 = MAX（0，欠站点 − 还站点）。多层级代理继续使用原有冲正统计报表及原字段。',
+  related: '关联负盈利代理佣金报表、代理数据看板和财务中心；不改变多层级代理冲正统计报表。',
+  requirement: '代理后台负盈利代理身份的冲正统计仅保留六项核对字段及对应筛选；团队负责人和单线代理可查看，副线移除菜单与页面入口，多层级代理保持原报表。',
+  acceptance: '团队负责人和单线代理可从左侧进入冲正统计，表头严格为六个指定字段，筛选区只保留起止日期、代理名称和代理身份；副线左侧无该入口；多层级代理仍展示原垫付与欠款统计。',
+  boundary: '仅调整代理后台及H5代理后台的团队负责人、副线和单线代理前端原型；不连接真实欠款服务，不提供审核、还款或发放操作，不修改多层级代理数据与页面。',
+  comparison: NOTE_COMPARISONS['agent:reversal'],
+  record: `修改时间：${AGENT_REVERSAL_SIMPLE_UPDATED_AT}；修改说明：将负盈利代理冲正报表收敛为欠站点核对；修改内容：列表只保留统计日期、代理名称、代理身份、欠站点、还站点和剩余欠款，筛选同步精简；副线移除入口，团队负责人和单线代理保留，多层级代理原报表不变。`,
+}
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: AGENT_REVERSAL_SIMPLE_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 代理后台与H5代理后台的负盈利代理冲正统计统一为六字段欠站点核对；团队负责人和单线代理保留，副线移除，多层级代理原报表不变。`,
+  requirement: '归档三后台及H5当前有效模块；代理后台冲正统计按最新身份权限展示，团队负责人和单线代理使用六字段欠款表，副线不展示，多层级代理保持原冲正统计。',
+  acceptance: '桌面代理后台与H5代理后台的团队负责人、单线代理可查看六字段冲正统计；副线没有该入口；多层级代理仍可查看原冲正统计字段和指标。',
+  record: `修改时间：${AGENT_REVERSAL_SIMPLE_UPDATED_AT}；修改说明：同步代理后台冲正统计最新字段和身份范围；修改内容：精简为统计日期、代理名称、代理身份、欠站点、还站点和剩余欠款，副线移除入口，H5同步，多层级代理不变。`,
+}
+
+const SITE_NEGATIVE_REPORT_UPDATED_AT = '2026-07-23 21:03'
+PAGE_NOTES['site:negativeProfitReport'] = {
+  ...PAGE_NOTES['master:negativeProfitReport'],
+  updatedAt: SITE_NEGATIVE_REPORT_UPDATED_AT,
+  summary: '按跨日期统计区间查询旺财体育本站负盈利代理的经营、结余和佣金结果，只用于核对与导出。',
+  logic: `${PAGE_NOTES['master:negativeProfitReport'].logic} 站点后台进入本页后，根记录固定筛选所属站点为旺财体育；团队主记录展开后的团队负责人和副线沿用同一本站团队数据，不展示其他站点代理。页面不提供确认、不发放、修改发放、审核或其他结算处理。`,
+  related: '关联本站负盈利代理佣金结算、代理列表、团队代理管理和版本需求说明。',
+  requirement: '站点后台代理管理同步增加负盈利代理佣金报表；页面字段和交互与总控同名只读报表一致，数据仅限旺财体育本站。',
+  acceptance: '站点后台左侧可进入负盈利代理佣金报表；列表根记录、团队成员展开和底部总计均只使用旺财体育数据；无法查询其他站点代理；页面无任何结算操作。',
+  boundary: '本页为旺财体育本站只读演示报表，不连接真实佣金服务，不产生确认、发放、审核、调整或资金变化。',
+  comparison: NOTE_COMPARISONS['site:negativeProfitReport'],
+  record: `修改时间：${SITE_NEGATIVE_REPORT_UPDATED_AT}；修改说明：让站点运营核对本站负盈利代理佣金结果；修改内容：同步总控同名只读报表的字段、跨日期筛选、团队展开、字段筛选、总计、分页、导出和下载，数据固定为旺财体育本站。`,
+}
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: SITE_NEGATIVE_REPORT_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 站点后台同步负盈利代理佣金报表，完整复用总控同名只读报表，并将根记录、团队成员明细和总计固定为旺财体育本站范围。`,
+  requirement: '归档三后台当前有效模块；站点后台增加负盈利代理佣金报表，字段与总控一致且只展示本站代理数据。',
+  acceptance: '版本说明的站点后台分组可跳转至负盈利代理佣金报表；页面只显示旺财体育代理及团队成员，不出现其他站点数据或结算操作。',
+  record: `修改时间：${SITE_NEGATIVE_REPORT_UPDATED_AT}；修改说明：同步站点后台负盈利佣金只读报表；修改内容：增加站点菜单和页面入口，复用总控字段与交互，并固定旺财体育本站数据范围。`,
+}
+
+const NEGATIVE_SETTLEMENT_FIELDS_UPDATED_AT = '2026-07-23 23:57'
+const NEGATIVE_SETTLEMENT_FIELDS = '代理名称、序号、佣金周期、团队名称、代理编号、代理身份、上级账号、总输赢、上周期结余总输赢、返佣比例、运营费用、上周期结余运营费用、三方场馆费用、充值手续费、运营分摊比例、上周期结余佣金、佣金净收益、佣金调整、佣金、佣金状态、成为代理时间、加入团队时间、发放人、发放时间、审核人员、审核时间、审核状态、维护人、调整原因和操作'
+const NEGATIVE_SETTLEMENT_FORMULA = '佣金净收益 =（总输赢 + 上周期结余总输赢）× 返佣比例 −（运营费用 + 三方场馆费用 + 充提手续费 + 上周期结余运营费用）× 运营分摊比例；佣金 = 佣金净收益 + 上周期结余佣金 + 佣金调整'
+
+PAGE_NOTES['master:negativeProfit'] = {
+  ...PAGE_NOTES['master:negativeProfit'],
+  updatedAt: NEGATIVE_SETTLEMENT_FIELDS_UPDATED_AT,
+  summary: '集中核对负盈利代理当期与上周期盈亏、运营成本、佣金净收益及最终发放金额，并保留负盈利佣金方案和佣金记录切页。',
+  fields: `结算列表字段：${NEGATIVE_SETTLEMENT_FIELDS}。字段筛选支持按当前结算结构全选、反选和逐项显示。`,
+  logic: `运营费用 = 活动奖励 + 会员推会员 + 返水 + 礼金 + 人工发彩金 + 余额宝利息，点击运营费用金额可查看六项费用额度。${NEGATIVE_SETTLEMENT_FORMULA}。列表中的充值手续费用于汇总佣金公式所需的充提手续费。每个结算字段名称右侧均提供“?”，点击后展示对应字段口径；团队成员展开、逐列合计、确认、不发放和修改发放继续沿用原结算操作。`,
+  related: '关联代理列表、团队代理管理、负盈利佣佣金方案、佣金记录、站点后台负盈利代理佣金结算和版本需求说明。',
+  requirement: '负盈利代理佣金结算去除原人数、存提款、奖励明细、净输赢、结余及等级字段；在总输赢右侧改为当期与上周期盈亏、运营费用、分摊比例、佣金净收益和最终佣金字段，并为所有字段提供可点击说明。',
+  acceptance: '结算宽表不再显示团队人数、下级会员、注册人数、首存人数、活跃人数、新增活跃人数、存提款、奖励明细、返水、账户调整、手续费明细、补单输赢、净输赢、上周期结余、冲正后净输赢、返佣等级和旧佣金比例字段；总输赢右侧按新顺序展示九项字段，运营费用可打开六项明细，每个字段问号可打开TIPS，佣金结果符合最新公式，站点后台展示相同结构。',
+  boundary: '本次仅调整总控和站点后台负盈利代理佣金结算切页的前端模拟字段、说明和计算；不修改负盈利代理佣金报表、代理后台、H5代理后台或真实资金数据。',
+  comparison: NOTE_COMPARISONS['master:negativeProfit'],
+  record: `修改时间：${NEGATIVE_SETTLEMENT_FIELDS_UPDATED_AT}；修改说明：按最新负盈利结算口径收敛宽表字段并补充可核对计算过程；修改内容：移除旧人数、存提款、奖励、净输赢和等级字段，在总输赢右侧增加上周期盈亏、运营成本、分摊及佣金净收益字段，新增运营费用明细弹窗、全字段TIPS和最新佣金公式。`,
+}
+
+PAGE_NOTES['site:negativeProfit'] = {
+  ...PAGE_NOTES['master:negativeProfit'],
+  updatedAt: NEGATIVE_SETTLEMENT_FIELDS_UPDATED_AT,
+  summary: '在旺财体育本站范围内核对负盈利代理当期与上周期盈亏、运营成本、佣金净收益及最终发放金额。',
+  logic: `${PAGE_NOTES['master:negativeProfit'].logic} 站点后台固定使用旺财体育本站代理和账单数据，不展示或处理其他站点记录。`,
+  related: '关联本站代理列表、团队代理管理、负盈利佣佣金方案、佣金记录和总控后台同名结算页。',
+  requirement: '站点后台同步总控负盈利代理佣金结算的最新字段、运营费用明细、字段TIPS和佣金公式，数据范围固定为旺财体育。',
+  acceptance: '站点后台结算切页与总控使用相同字段顺序、费用明细和计算口径，所有记录均属于旺财体育，原确认、不发放和修改发放操作保持可用。',
+  boundary: '仅用于旺财体育本站前端演示，不连接真实佣金、费用或发放服务；负盈利代理佣金报表保持原只读字段。',
+  comparison: NOTE_COMPARISONS['site:negativeProfit'],
+  record: `修改时间：${NEGATIVE_SETTLEMENT_FIELDS_UPDATED_AT}；修改说明：同步本站负盈利代理佣金最新核对口径；修改内容：与总控同步结算字段、运营费用六项明细、全字段TIPS、佣金净收益及最终佣金公式。`,
+}
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: NEGATIVE_SETTLEMENT_FIELDS_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 总控和站点后台负盈利代理佣金结算改用当期及上周期总输赢、运营费用、运营分摊、佣金净收益和最终佣金结构；运营费用支持六项明细下钻，每个字段提供可点击TIPS。`,
+  requirement: '归档三后台当前有效模块；总控和站点负盈利代理佣金结算按最新字段及佣金公式展示，负盈利代理佣金报表、代理后台和H5代理后台保持不变。',
+  acceptance: '版本说明可跳转总控或站点负盈利代理佣金结算，核对新字段顺序、六项运营费用明细、字段TIPS和最新佣金公式。',
+  record: `修改时间：${NEGATIVE_SETTLEMENT_FIELDS_UPDATED_AT}；修改说明：同步负盈利代理佣金结算最新字段与计算说明；修改内容：总控和站点结算宽表收敛旧字段，新增上周期盈亏、运营成本、分摊比例、佣金净收益、运营费用明细和全字段TIPS。`,
+}
+
+const AGENT_REVERSAL_CYCLE_UPDATED_AT = '2026-07-24 00:50'
+PAGE_NOTES['agent:reversal'] = {
+  ...PAGE_NOTES['agent:reversal'],
+  updatedAt: AGENT_REVERSAL_CYCLE_UPDATED_AT,
+  summary: '按账期核对欠站点、已归还和剩余欠款；仅团队负责人和单线代理可查看。',
+  fields: '筛选项：账期、代理名称、代理身份。列表字段：账期时间、代理名称、代理身份、欠站点、还站点、剩余欠款。',
+  logic: '账期使用下拉选项筛选，不提供开始日期或结束日期输入。账期时间以完整起止范围展示，例如2026-07账期显示“2026-07-01 至 2026-07-31”。团队负责人查看所属团队账期欠款汇总，单线代理只查看本人账期记录，副线不展示本模块。欠站点为账期内累计应还站点金额，还站点为已归还金额；剩余欠款 = MAX（0，欠站点 − 还站点）。多层级代理继续使用原有冲正统计报表及原字段。',
+  related: '关联负盈利代理佣金报表、代理数据看板和财务中心；H5代理后台同步账期筛选，不改变多层级代理冲正统计。',
+  requirement: '团队负责人和单线代理的冲正统计取消起止日期筛选，改为账期下拉；列表时间字段改为账期时间并展示该账期从几号到几号。',
+  acceptance: '团队负责人和单线代理可按2026-07或2026-06账期筛选；页面无开始日期和结束日期输入；列表首列显示完整账期起止日期；副线无入口，多层级代理仍展示原冲正统计。',
+  boundary: '仅调整代理后台及H5代理后台的团队负责人和单线代理前端原型；不连接真实欠款服务，不提供审核、还款或发放操作，不修改总控、站点或多层级代理页面。',
+  comparison: NOTE_COMPARISONS['agent:reversal'],
+  record: `修改时间：${AGENT_REVERSAL_CYCLE_UPDATED_AT}；修改说明：让冲正欠款按固定账期核对而非任意日期查询；修改内容：移除统计开始日期和结束日期，新增账期下拉筛选，列表“统计日期”改为“账期时间”并展示完整起止日期，H5同步。`,
+}
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: AGENT_REVERSAL_CYCLE_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 代理后台及H5代理后台的团队负责人、单线代理冲正统计取消起止日期筛选，改为账期下拉，并以完整起止日期展示账期时间。`,
+  requirement: '归档三后台及H5当前有效模块；代理端负盈利冲正统计按固定账期查询，团队负责人和单线代理展示账期时间范围，副线不展示，多层级代理保持原报表。',
+  acceptance: '版本说明可跳转代理后台冲正统计；页面仅使用账期下拉作为时间条件，列表首列显示账期起止日期，H5同步且多层级代理不变。',
+  record: `修改时间：${AGENT_REVERSAL_CYCLE_UPDATED_AT}；修改说明：同步代理冲正统计最新账期查询口径；修改内容：桌面与H5移除起止日期筛选，增加账期下拉并将统计日期改为账期时间范围。`,
+}
+
+const TEAM_DETAIL_OVERVIEW_TRIM_UPDATED_AT = '2026-07-24 01:16'
+;['master:teams', 'site:teams', 'master:teamDetails', 'site:teamDetails', 'agent:teamDetails'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+
+  PAGE_NOTES[key] = {
+    ...current,
+    updatedAt: TEAM_DETAIL_OVERVIEW_TRIM_UPDATED_AT,
+    fields: '所属站点筛选、团队名称或编号、团队负责人、资金概况、团队基础资料、团队规模、团队返佣等级、团队业绩查看和代理操作记录。',
+    logic: `${current.logic} 团队概况不再展示结算口径模块；团队基础资料不展示生效周期和团队状态，详情标题信息条不展示团队状态标签。团队代理管理列表、团队业绩、代理操作记录和团队生命周期操作保持不变。`,
+    requirement: '团队详情的团队概况仅保留资金概况、团队基础资料、团队规模和团队返佣等级；移除结算口径模块、生效周期、团队状态和标题状态标签。',
+    acceptance: '进入团队详情的团队概况后，页面不存在结算口径、生效周期、团队状态或标题状态标签；其他概况分组、团队业绩和代理操作记录可正常使用。',
+    boundary: '本次仅精简团队详情概况展示；团队代理管理列表、开副线、换主线、冻结、解散及相关生效规则不变。',
+    record: `修改时间：${TEAM_DETAIL_OVERVIEW_TRIM_UPDATED_AT}；修改说明：精简团队详情概况，减少重复状态和结算信息；修改内容：移除结算口径模块、生效周期、团队状态和标题状态标签，保留其他概况分组与既有业务操作。`,
+  }
+})
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: TEAM_DETAIL_OVERVIEW_TRIM_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 总控和站点后台团队详情的团队概况移除结算口径模块、生效周期、团队状态和标题状态标签，列表、业绩、操作记录及团队生命周期操作不变。`,
+  requirement: '归档三后台当前有效模块；总控和站点后台团队详情按最新概况结构展示，不再出现结算口径、生效周期或团队状态。',
+  acceptance: '版本说明可跳转团队代理管理的团队详情切页；团队概况只保留资金概况、团队基础资料、团队规模和团队返佣等级，其他切页和操作保持可用。',
+  record: `修改时间：${TEAM_DETAIL_OVERVIEW_TRIM_UPDATED_AT}；修改说明：同步团队详情最新概况结构；修改内容：移除结算口径模块、生效周期、团队状态和标题状态标签，保留团队列表、业绩、操作记录与生命周期操作。`,
+}
+
+const NEGATIVE_REPORT_DEBT_FIELDS_UPDATED_AT = '2026-07-24 01:31'
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+
+  const fields = current.fields.includes('佣金净收益')
+    ? current.fields.replace('佣金净收益', '佣金净收益、本期欠款、总欠款')
+    : current.fields.replace('佣金比例、佣金', '佣金比例、佣金净收益、本期欠款、总欠款、佣金')
+  PAGE_NOTES[key] = {
+    ...current,
+    updatedAt: NEGATIVE_REPORT_DEBT_FIELDS_UPDATED_AT,
+    fields,
+    logic: `${current.logic} 报表在佣金净收益右侧依次展示本期欠款和总欠款；本期欠款 = MAX（0，−净输赢），总欠款 = MAX（0，−冲正后净输赢）。两项随团队成员明细逐列拆分，成员合计严格等于团队主记录，并参与字段筛选、当前筛选结果总计、详情和导出。`,
+    requirement: '负盈利代理佣金报表在佣金净收益右侧增加本期欠款和总欠款，桌面端与H5代理后台使用相同字段顺序、欠款口径和身份数据范围。',
+    acceptance: '报表表头及字段筛选按佣金净收益、本期欠款、总欠款顺序展示；团队展开后两项金额逐列加总等于团队主记录，底部总计、详情、H5卡片和横向核对均包含两个欠款字段。',
+    boundary: `${current.boundary} 本次只增加只读欠款核对字段，不增加发放、审核、维护或结算操作。`,
+    record: `修改时间：${NEGATIVE_REPORT_DEBT_FIELDS_UPDATED_AT}；修改说明：补充负盈利佣金的当期与累计欠款核对；修改内容：在佣金净收益右侧增加本期欠款、总欠款，并同步团队拆分、字段筛选、总计、详情、导出和H5展示。`,
+  }
+})
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: NEGATIVE_REPORT_DEBT_FIELDS_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 总控、站点、代理及H5代理后台的负盈利代理佣金报表在佣金净收益右侧增加本期欠款、总欠款，并同步团队拆分、字段筛选、总计和移动端详情。`,
+  requirement: '归档三后台及H5当前有效模块；负盈利代理佣金报表按最新欠款字段和计算口径展示，身份权限及只读边界保持不变。',
+  acceptance: '版本说明可跳转负盈利代理佣金报表；表格、团队成员、总计、字段筛选及H5详情均按佣金净收益、本期欠款、总欠款顺序展示。',
+  record: `修改时间：${NEGATIVE_REPORT_DEBT_FIELDS_UPDATED_AT}；修改说明：同步负盈利代理佣金报表欠款核对字段；修改内容：四端报表增加本期欠款、总欠款，并同步团队拆分、字段筛选、总计、详情和H5横向核对。`,
+}
+
+const NEGATIVE_REPORT_AGENT_FIELDS_UPDATED_AT = '2026-07-24 01:34'
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+
+  const fields = current.fields.includes('代理类型、代理身份、代理层级')
+    ? current.fields
+    : current.fields.includes('代理身份')
+      ? current.fields.replace('代理身份', '代理类型、代理身份、代理层级')
+      : `${current.fields.replace(/。$/, '')}、代理类型、代理身份、代理层级。`
+  PAGE_NOTES[key] = {
+    ...current,
+    updatedAt: NEGATIVE_REPORT_AGENT_FIELDS_UPDATED_AT,
+    fields,
+    logic: `${current.logic} 代理资料字段按代理类型、代理身份、代理层级连续展示：代理类型仅为团队代理或单线代理；代理身份仅为官方代理或普通代理；代理层级仅为团队负责人、副线或单线代理。团队主记录、团队成员明细和单线代理记录使用各自对应值。`,
+    requirement: '负盈利代理佣金报表在代理身份左侧增加代理类型、右侧增加代理层级，三项同步三后台、H5、字段筛选、详情和导出。',
+    acceptance: '报表表头及字段筛选按代理类型、代理身份、代理层级连续展示；团队主记录显示团队代理/官方或普通代理/团队负责人，展开成员正确区分团队负责人和副线，单线记录显示单线代理层级；H5卡片、详情和横向核对同步。',
+    boundary: `${current.boundary} 本次仅补充代理资料分类字段，不改变现有身份数据范围、金额计算、发放状态或只读边界。`,
+    record: `修改时间：${NEGATIVE_REPORT_AGENT_FIELDS_UPDATED_AT}；修改说明：补齐负盈利佣金报表的代理分类与业务层级；修改内容：代理身份左侧新增代理类型、右侧新增代理层级，并同步团队成员、字段筛选、详情、导出和H5展示。`,
+  }
+})
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: NEGATIVE_REPORT_AGENT_FIELDS_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 总控、站点、代理及H5代理后台的负盈利代理佣金报表按代理类型、代理身份、代理层级连续展示代理资料字段。`,
+  requirement: '归档三后台及H5当前有效模块；负盈利代理佣金报表增加代理类型和代理层级，并与原代理身份形成连续三字段。',
+  acceptance: '版本说明可跳转负盈利代理佣金报表；三后台表格、团队成员、字段筛选、详情、导出及H5卡片和横向核对均按代理类型、代理身份、代理层级展示。',
+  record: `修改时间：${NEGATIVE_REPORT_AGENT_FIELDS_UPDATED_AT}；修改说明：同步负盈利佣金报表代理资料字段；修改内容：四端报表新增代理类型、代理层级，并同步团队成员和移动端展示。`,
+}
+
+const TEAM_DETAIL_SIMPLIFIED_UPDATED_AT = '2026-07-24 01:38'
+;['master:teams', 'site:teams', 'agent:teams', 'master:teamDetails', 'site:teamDetails', 'agent:teamDetails'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+  const isAgent = key.startsWith('agent:')
+
+  PAGE_NOTES[key] = {
+    ...current,
+    updatedAt: TEAM_DETAIL_SIMPLIFIED_UPDATED_AT,
+    summary: isAgent
+      ? '查看当前身份授权团队、团队概况和该团队代理操作记录。'
+      : '管理团队资料、成员与会员下钻，并查看团队概况和代理操作记录。',
+    fields: '团队名称或编号、代理类型、创建时间、团队成员、会员人数、团队概况和代理操作记录；不展示代理编号/账号筛选或团队业绩查看。',
+    logic: isAgent
+      ? '团队负责人、副线和单线代理只查看当前身份授权团队。团队详情仅保留团队概况和代理操作记录，不展示团队业绩查看；H5代理后台同步相同结构。'
+      : '团队列表按团队名称、代理类型和创建时间查询，不提供代理编号/账号筛选。团队详情仅保留团队概况和代理操作记录。冻结团队前必须二次确认；冻结后团队状态为冻结，团队负责人及全部副线代理账号同步冻结并禁止登录；解除冻结后团队恢复正常，相关代理账号恢复启用。',
+    related: '关联代理列表、团队成员与会员下钻、代理操作记录和版本需求说明。',
+    requirement: '移除团队列表代理编号/账号筛选和团队详情的团队业绩查看；补充冻结团队会禁止团队负责人及全部副线代理登录、解除后恢复正常的说明与状态联动。',
+    acceptance: '团队列表不存在代理编号/账号筛选；团队详情只显示团队概况和代理操作记录；总控和站点冻结确认弹窗明确包含副线的登录影响，冻结后成员账号为冻结，解除后团队正常且成员账号恢复启用；H5详情不显示团队业绩查看。',
+    boundary: isAgent
+      ? '代理后台及H5代理后台只读查看授权团队，不提供冻结、解除、换主线或解散操作。'
+      : '本次为前端原型状态演示，不连接真实登录服务；冻结和解除通过共享模拟数据同步团队及成员账号状态。',
+    comparison: NOTE_COMPARISONS[key],
+    record: `修改时间：${TEAM_DETAIL_SIMPLIFIED_UPDATED_AT}；修改说明：精简团队详情并明确冻结登录影响；修改内容：移除代理编号/账号筛选及团队业绩查看，冻结团队时同步冻结团队负责人和全部副线代理，解除后恢复正常。`,
+  }
+})
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: TEAM_DETAIL_SIMPLIFIED_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 三后台及H5代理后台团队详情去除团队业绩查看，团队列表去除代理编号/账号筛选；总控和站点冻结团队时同步禁止团队负责人及全部副线代理登录，解除后恢复正常。`,
+  requirement: '归档三后台及H5当前团队代理管理结构；团队详情仅保留团队概况和代理操作记录，并明确团队冻结及解除对成员登录状态的影响。',
+  acceptance: '版本说明可跳转团队代理管理；列表无代理编号/账号筛选，详情无团队业绩查看，冻结说明包含团队负责人和全部副线代理，解除后恢复正常。',
+  record: `修改时间：${TEAM_DETAIL_SIMPLIFIED_UPDATED_AT}；修改说明：同步团队详情精简及冻结规则；修改内容：移除代理编号/账号筛选和团队业绩查看，补充冻结团队与成员登录状态联动。`,
 }
 
 export const P1_ROADMAP = ['副线批量开设与范围调整', '内部结算模板', '主线自有资金提前结算', '方案计算预演', '推荐奖励期限与阶梯', '历史余额受控移交']

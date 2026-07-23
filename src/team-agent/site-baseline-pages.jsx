@@ -13,6 +13,7 @@ import {
   WalletOutlined,
 } from '@ant-design/icons'
 import { useTeamAgent } from './context'
+import { recommenderColumn, recommenderOf } from './recommender'
 import {
   Alert,
   Button,
@@ -87,7 +88,7 @@ function distribute(total, weights, variation = 0) {
 }
 
 function getCurrentTeam(data, account) {
-  return data.teams.find((team) => team.site === CURRENT_SITE && team.status === '生效中' && team.lines.some((line) => (
+  return data.teams.find((team) => team.site === CURRENT_SITE && ['生效中', '正常'].includes(team.status) && team.lines.some((line) => (
     line.agent === account
     && line.startCycle <= CURRENT_CYCLE
     && (!line.endCycle || line.endCycle >= CURRENT_CYCLE)
@@ -318,6 +319,7 @@ function AgentDetailModal({ record, onClose }) {
       { label: '所属站点', value: record.site },
       { label: '代理状态', value: <StatusTag>{record.status}</StatusTag> },
       { label: '代理类型', value: record.agentType },
+      { label: '推荐人', value: recommenderOf(record) },
       { label: '代理身份', value: <StatusTag tone="blue">{record.agentIdentity}</StatusTag> },
       { label: '代理模型', value: record.model },
       { label: '佣金方案', value: record.plan },
@@ -426,6 +428,7 @@ function SiteAgentsPage({ onToast }) {
     { key: 'account', label: '代理账号', render: (value) => <b className="ta-primary-text">{value}</b> },
     { key: 'agentIdentity', label: '代理身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
     { key: 'agentType', label: '代理类型', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
+    recommenderColumn(),
     { key: 'model', label: '代理模型', render: (value) => <StatusTag>{value}</StatusTag> },
     { key: 'status', label: '代理状态', render: (value) => <StatusTag>{value}</StatusTag> },
     { key: 'parent', label: '上级代理' },

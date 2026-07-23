@@ -131,6 +131,11 @@
 .negative-profit-report-table .negative-agent-name-column { z-index: 5; }
 .negative-profit-report-table .negative-operation-column, .negative-profit-report-table .negative-operation-cell { position: sticky; right: 0; z-index: 3; min-width: 164px; background: #fff; box-shadow: -8px 0 14px rgba(49, 73, 99, .07); }
 .negative-profit-report-table .negative-operation-column { z-index: 5; background: #f8fafc; }
+.negative-column-label { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.negative-column-label > button { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 1px solid #8fc7f1; border-radius: 50%; color: #268fdc; background: #fff; font-size: 10px; font-weight: 800; line-height: 1; cursor: pointer; }
+.negative-column-label > button:hover, .negative-column-label > button:focus-visible { color: #fff; border-color: #278fdc; background: #278fdc; outline: none; }
+.negative-cost-detail-button { padding: 0; border: 0; border-bottom: 1px dashed #2b91e2; color: #2b91e2; background: transparent; cursor: pointer; }
+.negative-cost-detail-button:hover, .negative-cost-detail-button:focus-visible { border-bottom-style: solid; outline: none; }
 .negative-profit-report-table .negative-profit-member-row td { border-top-color: #c9def2; background: #e6f2ff; }
 .negative-profit-report-table .negative-profit-member-row .negative-expand-cell { background: #e6f2ff; }
 .negative-profit-report-table .negative-profit-member-row .negative-agent-name-cell, .negative-profit-report-table .negative-profit-member-row .negative-operation-cell { background: #e6f2ff; }
@@ -280,6 +285,10 @@
 .legacy-rebate-modal-grid { min-height: 500px; display: grid; grid-template-columns: 1180px minmax(120px, 1fr); border: 1px solid #e1e8f0; background: #fff; }
 .legacy-level-table { width: 100%; border-collapse: collapse; color: #56667a; table-layout: fixed; }
 .legacy-level-table th { height: 50px; border-right: 1px solid #e1e8f0; border-bottom: 1px solid #e1e8f0; background: #f8fafc; font-size: 13px; text-align: center; }
+.legacy-field-tip-label { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.legacy-field-help-mark { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border: 1px solid #8da2ba; border-radius: 50%; color: #71869f; background: #fff; font-size: 11px; font-weight: 700; line-height: 1; cursor: help; outline: none; }
+.legacy-field-help-mark::after { position: absolute; left: 50%; bottom: calc(100% + 9px); z-index: 20; width: 300px; padding: 9px 12px; border-radius: 5px; color: #fff; background: rgba(35, 51, 72, .96); box-shadow: 0 7px 18px rgba(35, 51, 72, .2); content: attr(data-tip); font-size: 12px; font-weight: 500; line-height: 1.55; text-align: left; white-space: normal; opacity: 0; pointer-events: none; transform: translate(-50%, 4px); transition: opacity .15s ease, transform .15s ease; }
+.legacy-field-help-mark:hover::after, .legacy-field-help-mark:focus::after { opacity: 1; transform: translate(-50%, 0); }
 .legacy-level-table td { height: 58px; border-right: 1px solid #e1e8f0; border-bottom: 1px solid #e1e8f0; text-align: center; }
 .legacy-level-table th:nth-child(1), .legacy-level-table td:nth-child(1) { width: 110px; }
 .legacy-level-table th:nth-child(2), .legacy-level-table td:nth-child(2), .legacy-level-table th:nth-child(3), .legacy-level-table td:nth-child(3), .legacy-level-table th:nth-child(4), .legacy-level-table td:nth-child(4), .legacy-level-table th:nth-child(5), .legacy-level-table td:nth-child(5), .legacy-level-table th:nth-child(6), .legacy-level-table td:nth-child(6) { width: 122px; }

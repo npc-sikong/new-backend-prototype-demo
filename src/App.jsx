@@ -49,7 +49,7 @@ const PAGE_META = {
     version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', memberLockedFlow: '会员提现流水查询', agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理', revenue: '代理收益看板',
   },
   site: {
-    agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', teams: '团队代理管理',
+    agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理',
   },
   agent: {
     agents: '代理列表', negativeProfitReport: '负盈利代理佣金报表', reversal: '冲正统计报表',
@@ -80,6 +80,7 @@ const SITE_NAV = [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'cycle', label: '结算周期设置', mark: '改', icon: SettingOutlined },
     { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
+    { id: 'negativeProfitReport', label: '负盈利代理佣金报表', mark: '新', icon: FileTextOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
   ] },
 ]
@@ -127,7 +128,14 @@ function PortalSwitch({ active, onChange }) {
 function Sidebar({ portal, page, agentRole, onNavigate }) {
   const portalMeta = portal === 'agent' && agentRole === 'multiLevel' ? { ...PORTAL_META.agent, suffix: '多层级代理' } : PORTAL_META[portal]
   const BrandIcon = portalMeta.icon
-  const nav = portal === 'master' ? MASTER_NAV : portal === 'site' ? SITE_NAV : agentRole === 'multiLevel' ? MULTI_LEVEL_AGENT_NAV : AGENT_NAV
+  const nav = portal === 'master'
+    ? MASTER_NAV
+    : portal === 'site'
+      ? SITE_NAV
+      : agentRole === 'multiLevel'
+        ? MULTI_LEVEL_AGENT_NAV
+        : AGENT_NAV.filter((item) => (item.id !== 'agents' || agentRole === 'main')
+          && (item.id !== 'reversal' || agentRole !== 'secondary'))
   return <aside className="sidebar ta-sidebar"><div className="brand"><span className="brand-mark"><BrandIcon /></span><span>{portalMeta.title}</span></div><div className="ta-brand-suffix">{portalMeta.suffix}</div><nav>
     {nav.map((item) => {
       const ItemIcon = item.icon
@@ -192,7 +200,11 @@ function PrototypeApp() {
     {toast && <div className={`toast ta-toast-${toast.tone}`}>{toast.message}</div>}
   </>
 
-  const currentPage = portal === 'agent' && agentRole === 'multiLevel' ? multiLevelPage : pages[portal]
+  const selectedPage = portal === 'agent' && agentRole === 'multiLevel' ? multiLevelPage : pages[portal]
+  const currentPage = portal === 'agent' && ((['secondary', 'independent'].includes(agentRole) && selectedPage === 'agents')
+    || (agentRole === 'secondary' && selectedPage === 'reversal'))
+    ? 'mlDashboard'
+    : selectedPage
   const page = PAGE_META[portal][currentPage] ? currentPage : DEFAULT_PAGES[portal]
   const title = PAGE_META[portal][page]
   const note = PAGE_NOTES[`${portal}:${page}`]

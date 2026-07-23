@@ -21,7 +21,7 @@ import {
 } from './ui'
 
 const FILTER_DEFAULTS = { cycle: '', dateFrom: '', dateTo: '', agentIdentity: '', commissionState: '', auditState: '', keyword: '' }
-const MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment', 'commission']
+const MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'previousWinLossBalance', 'operatingExpense', 'previousOperatingExpense', 'thirdPartyVenueFee', 'depositWithdrawalFee', 'previousCommissionBalance', 'commissionNetIncome', 'currentDebt', 'totalDebt', 'commissionAdjustment', 'settlementCommission', 'commission']
 
 const COLUMN_DEFS = [
   { key: 'agentAccount', label: '代理名称', className: 'negative-agent-name-column', cellClassName: 'negative-agent-name-cell' },
@@ -29,7 +29,9 @@ const COLUMN_DEFS = [
   { key: 'cycle', label: '佣金周期' },
   { key: 'teamName', label: '团队名称' },
   { key: 'agentId', label: '代理编号' },
+  { key: 'agentType', label: '代理类型' },
   { key: 'agentIdentity', label: '代理身份' },
+  { key: 'agentLevel', label: '代理层级' },
   { key: 'parentAccount', label: '上级账号' },
   { key: 'teamMembers', label: '团队人数' },
   { key: 'subAgentCount', label: '下级会员' },
@@ -68,20 +70,148 @@ const COLUMN_DEFS = [
   { key: 'adjustmentReason', label: '调整原因' },
 ]
 
+const columnOf = (key, label) => ({ ...COLUMN_DEFS.find((column) => column.key === key), key, label: label || COLUMN_DEFS.find((column) => column.key === key)?.label || key })
+const SETTLEMENT_COLUMN_DEFS = [
+  columnOf('agentAccount'),
+  columnOf('index'),
+  columnOf('cycle'),
+  columnOf('teamName'),
+  columnOf('agentId'),
+  columnOf('agentIdentity'),
+  columnOf('parentAccount'),
+  columnOf('totalWinLoss'),
+  { key: 'previousWinLossBalance', label: '上周期结余总输赢' },
+  columnOf('rate', '返佣比例'),
+  { key: 'operatingExpense', label: '运营费用' },
+  { key: 'previousOperatingExpense', label: '上周期结余运营费用' },
+  { key: 'thirdPartyVenueFee', label: '三方场馆费用' },
+  { key: 'depositWithdrawalFee', label: '充值手续费' },
+  { key: 'operatingShareRate', label: '运营分摊比例' },
+  { key: 'previousCommissionBalance', label: '上周期结余佣金' },
+  { key: 'commissionNetIncome', label: '佣金净收益' },
+  columnOf('commissionAdjustment'),
+  { key: 'settlementCommission', label: '佣金' },
+  columnOf('commissionState'),
+  columnOf('becameAgentAt'),
+  columnOf('joinedAt'),
+  columnOf('issuedBy'),
+  columnOf('issuedAt'),
+  columnOf('reviewer'),
+  columnOf('reviewedAt'),
+  columnOf('auditState'),
+  columnOf('maintainer'),
+  columnOf('adjustmentReason'),
+]
+
+const FIELD_TIPS = {
+  agentAccount: '本条账单对应的团队负责人或单线代理账号。',
+  index: '当前筛选结果中的展示序号。',
+  cycle: '本条佣金账单归属的结算周期。',
+  teamName: '团队代理所属团队；单线代理显示其独立结算单元。',
+  agentId: '代理在当前站点内的唯一编号。',
+  agentType: '当前记录的代理业务类型，仅展示团队代理或单线代理。',
+  agentIdentity: '代理身份仅展示官方代理或普通代理。',
+  agentLevel: '当前代理在负盈利业务中的层级，仅展示团队负责人、副线或单线代理。',
+  parentAccount: '当前代理关系中的直接上级账号；无上级时显示横线。',
+  totalWinLoss: '本周期全部直属及授权下级会员产生的总输赢。',
+  previousWinLossBalance: '上一结算周期未完成计佣、需要带入本周期的总输赢。',
+  rate: '当前代理命中方案对应的返佣比例。',
+  operatingExpense: '活动奖励、会员推会员、返水、礼金、人工发彩金和余额宝利息的合计；点击金额可查看明细。',
+  previousOperatingExpense: '上一结算周期未完成分摊、需要带入本周期的运营费用。',
+  thirdPartyVenueFee: '本周期三方场馆按约定费率收取的费用合计。',
+  depositWithdrawalFee: '本原型汇总展示本周期充值及提现处理手续费，佣金公式中按充提手续费参与计算。',
+  operatingShareRate: '代理需要承担运营费用、三方场馆费用及充提手续费的分摊比例。',
+  previousCommissionBalance: '上一结算周期未发放、需要带入本周期的佣金额度。',
+  commissionNetIncome: '总输赢计佣结果扣除按比例分摊的运营与场馆等费用后的佣金净额。',
+  currentDebt: '本期净输赢为负时形成的欠款额度；本期净输赢为正或零时显示0。',
+  totalDebt: '本期冲正后净输赢为负时仍未抵扣完成的累计欠款额度。',
+  commissionAdjustment: '运营人员对本期最终佣金进行的增加或减少调整，减少时显示负数。',
+  settlementCommission: '按本页公式计算的本期最终佣金，确认、不发放和修改发放均以此金额为准。',
+  commissionState: '当前账单在提交、审核、发放或结转流程中的状态。',
+  becameAgentAt: '该账号正式成为代理的日期。',
+  joinedAt: '该代理加入当前团队或独立结算单元的日期。',
+  issuedBy: '执行本次佣金发放的操作人员。',
+  issuedAt: '本次佣金实际发放时间。',
+  reviewer: '审核本条佣金账单的人员。',
+  reviewedAt: '本条佣金账单完成审核的时间。',
+  auditState: '本条佣金账单当前审核状态。',
+  maintainer: '最后维护本条佣金账单的人员。',
+  adjustmentReason: '佣金调整、不发放或其他人工处理的业务原因。',
+  action: '对当前待结算记录执行确认、不发放或修改发放。',
+}
+
 const ALL_KEYS = COLUMN_DEFS.map((column) => column.key)
 const AGENT_HIDDEN_KEYS = new Set(['reviewer', 'reviewedAt', 'maintainer', 'adjustmentReason'])
 const COMMISSION_REPORT_EXCLUDED_KEYS = new Set(['commissionAdjustment', 'commissionState', 'issuedBy', 'issuedAt', 'reviewer', 'reviewedAt', 'auditState', 'maintainer', 'adjustmentReason'])
 const STATISTIC_TIME_COLUMN = { key: 'statisticTime', label: '统计时间' }
+const COMMISSION_REPORT_COLUMNS = COLUMN_DEFS
+  .flatMap((column) => {
+    if (column.key === 'cycle') return [column, STATISTIC_TIME_COLUMN]
+    if (column.key === 'commission') return [
+      { key: 'commissionNetIncome', label: '佣金净收益' },
+      { key: 'currentDebt', label: '本期欠款' },
+      { key: 'totalDebt', label: '总欠款' },
+      column,
+    ]
+    return [column]
+  })
+  .filter((column) => !COMMISSION_REPORT_EXCLUDED_KEYS.has(column.key))
 const ROLE_ACCOUNTS = { main: ['gaodashang'], secondary: ['WC002'], independent: ['dailiwc001'] }
 const COUNT_KEYS = ['teamMembers', 'subAgentCount', 'registeredCount', 'firstDepositCount', 'activeCount', 'newActiveCount']
 const COUNT_KEY_SET = new Set(COUNT_KEYS)
-const SIGNED_MONEY_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment'])
+const SIGNED_MONEY_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'previousWinLossBalance', 'previousOperatingExpense', 'previousCommissionBalance', 'commissionNetIncome', 'commissionAdjustment', 'settlementCommission'])
 
 const unique = (rows, key) => Array.from(new Set(rows.map((row) => row[key]).filter(Boolean)))
 const formatDate = (value) => String(value || '—').slice(0, 16)
 const sumRows = (rows, key) => rows.reduce((sum, row) => sum + Number(row[key] || 0), 0)
 const rebateLevelOf = (bill, agent) => bill.rebateLevel || (bill.type === '团队佣金' ? `团队返佣${bill.teamLevel || agent.level || 1}级` : bill.type === '单线代理佣金' ? '单线返佣1级' : `${agent.level || 1}级`)
 const statisticRangeOf = (bill) => { const [year, month] = String(bill.cycle || '2026-07').split('-').map(Number); const start = bill.periodStart || `${year}-${String(month).padStart(2, '0')}-01`; const end = bill.periodEnd || `${year}-${String(month).padStart(2, '0')}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`; return { periodStart: start, periodEnd: end, statisticTime: `${start} 至 ${end}` } }
+const sumBreakdown = (breakdown) => Object.values(breakdown).reduce((sum, value) => sum + Number(value || 0), 0)
+
+function operatingBreakdownOf(source) {
+  return {
+    activityRewards: Number(source.activityRewards || 0),
+    memberReferralReward: Number(source.memberReferralReward || 0),
+    memberRebate: Number(source.memberRebate || 0),
+    giftAmount: Number(source.giftAmount ?? source.memberBonus ?? 0),
+    manualBonus: Number(source.manualBonus || 0),
+    yuebaoInterest: Number(source.yuebaoInterest || 0),
+  }
+}
+
+function settlementMetricsOf(source) {
+  const operatingExpenseBreakdown = operatingBreakdownOf(source)
+  const operatingExpense = Number(source.operatingExpense ?? sumBreakdown(operatingExpenseBreakdown))
+  const previousWinLossBalance = Number(source.previousWinLossBalance ?? source.lastBalance ?? 0)
+  const previousOperatingExpense = Number(source.previousOperatingExpense || 0)
+  const thirdPartyVenueFee = Number(source.thirdPartyVenueFee ?? source.venueFee ?? 0)
+  const depositWithdrawalFee = Number(source.depositWithdrawalFee ?? (Number(source.depositFee || 0) + Number(source.withdrawalFee || 0)))
+  const operatingShareRate = Number(source.operatingShareRate ?? source.rate ?? 0)
+  const previousCommissionBalance = Number(source.previousCommissionBalance || 0)
+  const commissionNetIncome = (Number(source.totalWinLoss || 0) + previousWinLossBalance) * Number(source.rate || 0)
+    - (operatingExpense + thirdPartyVenueFee + depositWithdrawalFee + previousOperatingExpense) * operatingShareRate
+  const currentDebt = Number(source.currentDebt ?? Math.max(0, -Number(source.netWinLossRaw || 0)))
+  const totalDebt = Number(source.totalDebt ?? Math.max(0, -Number(source.correctedNet || 0)))
+  const settlementCommission = commissionNetIncome + previousCommissionBalance + Number(source.commissionAdjustment || 0)
+  return {
+    previousWinLossBalance,
+    operatingExpense,
+    operatingExpenseBreakdown,
+    previousOperatingExpense,
+    thirdPartyVenueFee,
+    depositWithdrawalFee,
+    operatingShareRate,
+    previousCommissionBalance,
+    commissionNetIncome,
+    currentDebt,
+    totalDebt,
+    settlementCommission,
+  }
+}
+
+function HeaderTipLabel({ column, onOpen }) {
+  return <span className="negative-column-label"><span>{column.label}</span><button type="button" aria-label={`查看${column.label}说明`} title={`${column.label} TIPS`} onClick={() => onOpen({ label: column.label, text: FIELD_TIPS[column.key] || `${column.label}用于当前负盈利代理佣金结算核对。` })}>?</button></span>
+}
 
 function distributeTotal(total, weights, precision = 2) {
   const scale = 10 ** precision
@@ -132,19 +262,24 @@ function buildTeamMemberRows(data, bill, team) {
     activityRewards: distributeTotal(bill.activityRewards ?? 0, performanceWeights),
     memberReferralReward: distributeTotal(bill.memberReferralReward ?? 0, performanceWeights),
     memberRebate: distributeTotal(bill.memberRebate ?? 0, performanceWeights),
+    giftAmount: distributeTotal(bill.giftAmount ?? bill.memberBonus ?? 0, performanceWeights),
+    manualBonus: distributeTotal(bill.manualBonus ?? 0, performanceWeights),
+    yuebaoInterest: distributeTotal(bill.yuebaoInterest ?? 0, performanceWeights),
     accountAdjustment: distributeTotal(bill.accountAdjustment ?? 0, performanceWeights),
     depositFee: distributeTotal(bill.depositFee ?? 0, performanceWeights),
     withdrawalFee: distributeTotal(bill.withdrawalFee ?? 0, performanceWeights),
     manualOrderWinLoss: distributeTotal(bill.manualOrderWinLoss ?? 0, performanceWeights),
     netWinLossRaw: distributeTotal(bill.netWinLossRaw ?? 0, performanceWeights),
     lastBalance: distributeTotal(bill.lastBalance ?? 0, performanceWeights),
+    previousOperatingExpense: distributeTotal(bill.previousOperatingExpense ?? 0, performanceWeights),
+    previousCommissionBalance: distributeTotal(bill.previousCommissionBalance ?? 0, performanceWeights),
     correctedNet: distributeTotal(bill.correctedNet ?? 0, performanceWeights),
     commissionAdjustment: distributeTotal(bill.commissionAdjustment ?? 0, performanceWeights),
     commission: distributeTotal(bill.payable ?? 0, performanceWeights),
   }
   return members.map(({ line, agent, isTeamLeader }, memberIndex) => {
     const valueOf = (key) => allocations[key][memberIndex]
-    return {
+    const memberRow = {
         id: `${bill.id}-${line.lineId}`,
         parentId: bill.id,
         rowType: 'member',
@@ -156,7 +291,9 @@ function buildTeamMemberRows(data, bill, team) {
         teamName: team.name,
         agentId: agent.id || '—',
         agentAccount: line.agent,
+        agentType: '团队代理',
         agentIdentity: teamAgentIdentity,
+        agentLevel: isTeamLeader ? '团队负责人' : '副线',
         parentAccount: isTeamLeader ? agent.parent || bill.recommender || '—' : team.mainAgent || agent.parent || '—',
         teamMembers: valueOf('teamMembers'),
         subAgentCount: valueOf('subAgentCount'),
@@ -194,6 +331,21 @@ function buildTeamMemberRows(data, bill, team) {
         maintainer: agent.developer || team.developer || '—',
         adjustmentReason: `${isTeamLeader ? '团队负责人' : '副线'}明细（不独立发放）`,
     }
+    return {
+      ...memberRow,
+      ...settlementMetricsOf({
+        ...memberRow,
+        activityRewards: valueOf('activityRewards'),
+        memberReferralReward: valueOf('memberReferralReward'),
+        memberRebate: valueOf('memberRebate'),
+        giftAmount: valueOf('giftAmount'),
+        manualBonus: valueOf('manualBonus'),
+        yuebaoInterest: valueOf('yuebaoInterest'),
+        previousOperatingExpense: valueOf('previousOperatingExpense'),
+        previousCommissionBalance: valueOf('previousCommissionBalance'),
+        operatingShareRate: bill.operatingShareRate ?? bill.rate ?? 0,
+      }),
+    }
   })
 }
 
@@ -207,7 +359,7 @@ function buildRows(data) {
       if (!isNegativeMode) return null
       const memberRows = buildTeamMemberRows(data, bill, team)
       const statisticRange = statisticRangeOf(bill)
-      return {
+      const baseRow = {
         id: bill.id,
         rowType: bill.type === '团队佣金' ? 'team' : 'single',
         expandable: memberRows.length > 0,
@@ -219,7 +371,9 @@ function buildRows(data) {
         teamName: bill.unitName || team?.name || agent.unit || '—',
         agentId: agent.id || bill.agentId || '—',
         agentAccount: bill.payee,
+        agentType: bill.type === '团队佣金' ? '团队代理' : '单线代理',
         agentIdentity: agent.teamAgentType === '官方代理' || bill.agentType === '官方代理' ? '官方代理' : '普通代理',
+        agentLevel: bill.type === '团队佣金' ? '团队负责人' : '单线代理',
         parentAccount: agent.parent || bill.recommender || '—',
         teamMembers: bill.teamMembers ?? team?.lines?.length ?? (bill.type === '单线代理佣金' ? 1 : 0),
         subAgentCount: bill.subAgentCount ?? agent.subAgents ?? 0,
@@ -257,6 +411,7 @@ function buildRows(data) {
         maintainer: bill.maintainer || agent.developer || team?.developer || '—',
         adjustmentReason: bill.adjustmentReason || (Number(bill.commissionAdjustment || 0) ? '佣金调整' : '—'),
       }
+      return { ...baseRow, ...settlementMetricsOf({ ...bill, ...baseRow }) }
     })
     .filter(Boolean)
     .map((row, index) => ({ ...row, index: index + 1 }))
@@ -264,15 +419,30 @@ function buildRows(data) {
 
 export const NEGATIVE_REPORT_COLUMNS = COLUMN_DEFS
 export const NEGATIVE_REPORT_COMMISSION_EXCLUDED_KEYS = COMMISSION_REPORT_EXCLUDED_KEYS
+export const NEGATIVE_COMMISSION_REPORT_COLUMNS = COMMISSION_REPORT_COLUMNS
 export const buildNegativeReportRows = buildRows
+
+export function scopeSiteNegativeReportRows(rows) {
+  return rows.flatMap((row) => {
+    if (row.site !== '旺财体育') return []
+    const memberRows = row.memberRows.filter((member) => member.site === '旺财体育')
+    return [{ ...row, memberRows, expandable: memberRows.length > 0 }]
+  })
+}
 
 export function scopeNegativeReportRows(rows, role) {
   const accounts = ROLE_ACCOUNTS[role] || []
   if (role === 'secondary') {
-    return rows.flatMap((row) => {
-      const memberRows = row.memberRows.filter((member) => accounts.includes(member.agentAccount))
-      return memberRows.length ? [{ ...row, memberRows, expandable: true }] : []
-    })
+    return rows
+      .flatMap((row) => row.memberRows.filter((member) => accounts.includes(member.agentAccount)))
+      .map((member, index) => ({
+        ...member,
+        parentId: undefined,
+        rowType: 'secondary',
+        index: index + 1,
+        expandable: false,
+        memberRows: [],
+      }))
   }
   return rows.filter((row) => accounts.includes(row.agentAccount))
 }
@@ -322,21 +492,22 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
   const [rowUpdates, setRowUpdates] = useState({})
   const [adjusting, setAdjusting] = useState(null)
   const [adjustForm, setAdjustForm] = useState({ reduction: 0, remark: '' })
+  const [operatingDetail, setOperatingDetail] = useState(null)
+  const [fieldTip, setFieldTip] = useState(null)
   const allRows = useMemo(() => {
     const sourceRows = buildRows(data)
     if (portal === 'agent' && isCommissionReport) {
       return scopeNegativeReportRows(sourceRows, role).map((row) => ({ ...row, ...(rowUpdates[row.id] || {}) }))
     }
     const scopedRows = sourceRows.flatMap((row) => {
-      if (portal === 'site') return row.site === '旺财体育' ? [row] : []
+      if (portal === 'site') return scopeSiteNegativeReportRows([row])
       if (portal !== 'agent') return [row]
       const accounts = ROLE_ACCOUNTS[role] || []
       return accounts.includes(row.agentAccount) ? [row] : []
     })
     return scopedRows.map((row) => ({ ...row, ...(rowUpdates[row.id] || {}) }))
   }, [data, portal, role, rowUpdates, isCommissionReport])
-  const reportColumns = COLUMN_DEFS.flatMap((column) => column.key === 'cycle' ? [column, STATISTIC_TIME_COLUMN] : [column]).filter((column) => !COMMISSION_REPORT_EXCLUDED_KEYS.has(column.key))
-  const sourceColumns = isCommissionReport ? reportColumns : COLUMN_DEFS
+  const sourceColumns = isCommissionReport ? COMMISSION_REPORT_COLUMNS : SETTLEMENT_COLUMN_DEFS
   const availableColumns = portal === 'agent' ? sourceColumns.filter((column) => !AGENT_HIDDEN_KEYS.has(column.key)) : sourceColumns
   const availableKeys = availableColumns.map((column) => column.key)
   const [filters, setFilters] = useState(FILTER_DEFAULTS)
@@ -363,17 +534,17 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
   const isFinal = (row) => ['已确认', '已转结余'].includes(row.commissionState)
   const confirmRow = (row) => { patchRow(row, { commissionState: '已确认', auditState: '已审核', adjustmentReason: row.adjustmentReason === '—' ? '已确认发放' : row.adjustmentReason }); onToast?.(`${row.agentAccount} 已确认发放`) }
   const noPayRow = (row) => {
-    const amount = Number(row.commission || 0)
-    patchRow(row, { commission: 0, commissionState: '已转结余', auditState: '已审核', carryBalance: Number(row.carryBalance || 0) + amount, adjustmentReason: '本月不发放，佣金转入下期结余' })
+    const amount = Number(row.settlementCommission || 0)
+    patchRow(row, { settlementCommission: 0, commissionAdjustment: Number(row.commissionAdjustment || 0) - amount, commissionState: '已转结余', auditState: '已审核', carryBalance: Number(row.carryBalance || 0) + amount, adjustmentReason: '本月不发放，佣金转入下期结余' })
     onToast?.(`${row.agentAccount} 本月佣金已转入下期结余`)
   }
   const openAdjust = (row) => { setAdjusting(row); setAdjustForm({ reduction: 0, remark: row.adjustmentReason === '—' ? '' : row.adjustmentReason }) }
   const saveAdjust = () => {
     const reduction = Number(adjustForm.reduction || 0)
-    const currentAmount = Number(adjusting.commission || 0)
+    const currentAmount = Number(adjusting.settlementCommission || 0)
     if (reduction < 0 || reduction > currentAmount) return onToast?.('减少余额只能在 0 到当前可发放金额之间')
     const remaining = currentAmount - reduction
-    patchRow(adjusting, { commission: remaining, commissionAdjustment: Number(adjusting.commissionAdjustment || 0) - reduction, carryBalance: Number(adjusting.carryBalance || 0) + reduction, adjustmentReason: adjustForm.remark || '减少本次发放佣金' })
+    patchRow(adjusting, { settlementCommission: remaining, commissionAdjustment: Number(adjusting.commissionAdjustment || 0) - reduction, carryBalance: Number(adjusting.carryBalance || 0) + reduction, adjustmentReason: adjustForm.remark || '减少本次发放佣金' })
     setAdjusting(null)
     onToast?.(`本次发放减少 ${reduction.toFixed(2)}，剩余 ${remaining.toFixed(2)}`)
   }
@@ -392,7 +563,7 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
   }
   const actionColumn = {
     key: 'action',
-    label: '操作',
+    label: isCommissionReport ? '操作' : <HeaderTipLabel column={{ key: 'action', label: '操作' }} onOpen={setFieldTip} />,
     className: 'negative-operation-column',
     cellClassName: 'negative-operation-cell',
     render: (_, row) => {
@@ -405,9 +576,11 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
     .filter((column) => visibleKeys.includes(column.key))
     .map((column) => ({
       ...column,
+      label: isCommissionReport ? column.label : <HeaderTipLabel column={column} onOpen={setFieldTip} />,
       render: (value, row) => {
-        if (MONEY_KEYS.includes(column.key)) return <Money value={value} signed={['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionAdjustment'].includes(column.key)} />
-        if (column.key === 'rate') return <Percent value={value} />
+        if (column.key === 'operatingExpense') return <button type="button" className="negative-cost-detail-button" onClick={() => setOperatingDetail(row)}><Money value={value} /></button>
+        if (MONEY_KEYS.includes(column.key)) return <Money value={value} signed={SIGNED_MONEY_KEYS.has(column.key)} />
+        if (['rate', 'operatingShareRate'].includes(column.key)) return <Percent value={value} />
         if (column.key === 'commissionState') return <StatusTag>{value}</StatusTag>
         if (column.key === 'auditState') return <StatusTag>{value}</StatusTag>
         if (column.key === 'agentAccount') return <b className={`ta-primary-text ${row.rowType === 'member' ? 'negative-member-account' : ''}`}>{value}</b>
@@ -427,11 +600,11 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
     : role === 'main'
       ? '展示授权团队汇总；点击“+”可查看团队负责人和全部副线明细。'
       : role === 'secondary'
-        ? '展示所属团队汇总；点击“+”仅查看当前副线本人明细，不展示其他副线。'
+        ? '仅展示当前副线本人线路记录，不展示团队汇总、团队负责人或其他副线。'
         : '仅展示当前单线代理本人记录。'
   return <section className="ta-stack negative-profit-report-screen">
-    <SectionHeader title={pageTitle} description={isCommissionReport ? '按跨日期统计区间查看负盈利代理人数、收支、成本、结余和佣金结果，不包含发放、审核、维护及操作字段。' : portal === 'master' ? '按佣金周期汇总负盈利模式代理及负向结余账单，集中核对人数、收支、成本、结余、佣金和发放处理。' : portal === 'site' ? '同步总控负盈利代理佣金结算口径，仅查看旺财体育本站的代理及负向结余账单。' : '同步总控负盈利代理佣金结算口径，仅查看当前演示身份本人可见的负向结余账单。'} actions={<Toolbar><Button icon={<DownloadOutlined />} variant="slate" onClick={() => onToast(`${pageTitle}已导出 ${rows.length} 条`)}>导出</Button><Button icon={<FolderOpenOutlined />} variant="ghost" onClick={() => onToast(`${pageTitle}文件已下载`)}>下载文件</Button></Toolbar>} />
-    {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '数据固定为旺财体育本站，不展示其他站点记录。' : '团队负责人查看授权团队汇总及全部成员明细；副线查看所属团队汇总并且只能展开本人线路；单线代理只查看本人记录。代理端不展示发放、审核、维护及结算操作。'}</Alert>}
+    <SectionHeader title={pageTitle} description={isCommissionReport ? '按跨日期统计区间查看负盈利代理人数、收支、成本、结余和佣金结果，不包含发放、审核、维护及操作字段。' : portal === 'master' ? '按佣金周期汇总负盈利模式代理账单，集中核对总输赢、上周期结余、运营成本、佣金净收益和发放处理。' : portal === 'site' ? '同步总控最新负盈利结算口径，仅核对旺财体育本站的盈亏、运营成本、佣金净收益和发放结果。' : '同步总控最新负盈利结算口径，仅查看当前演示身份本人可见的盈亏、运营成本和佣金结果。'} actions={<Toolbar><Button icon={<DownloadOutlined />} variant="slate" onClick={() => onToast(`${pageTitle}已导出 ${rows.length} 条`)}>导出</Button><Button icon={<FolderOpenOutlined />} variant="ghost" onClick={() => onToast(`${pageTitle}文件已下载`)}>下载文件</Button></Toolbar>} />
+    {portal !== 'master' && <Alert title="角色查看范围" tone="warning">{portal === 'site' ? '数据固定为旺财体育本站，不展示其他站点记录。' : '团队负责人查看授权团队汇总及全部成员明细；副线仅查看本人线路记录，不展示团队汇总、团队负责人或其他副线；单线代理只查看本人记录。代理端不展示发放、审核、维护及结算操作。'}</Alert>}
     <FilterBar onSearch={() => onToast(`已查询 ${rows.length} 条负盈利代理记录`)} onReset={resetFilters}>
       <Field label="佣金周期"><Select value={filters.cycle} onChange={(value) => setFilter('cycle', value)} placeholder="全部周期" options={unique(allRows, 'cycle')} /></Field>
       {isCommissionReport && <Field label="统计开始日期"><Input type="date" value={filters.dateFrom} onChange={(value) => setFilter('dateFrom', value)} /></Field>}
@@ -446,12 +619,34 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
       <DataTable className="negative-profit-report-table" minWidth={tableMinWidth} columns={columns} rows={rows} rowClassName={(row) => row.rowType === 'member' ? 'negative-profit-member-row' : ''} paginated footer={<NegativeReportTotalRow columns={columns} rows={rootRows} />} />
     </Panel>
     <FormulaPanel title={`${pageTitle}口径`} items={[
-      { label: '净输赢', formula: '总输赢 - 场馆费 - 红利 - 返水 + 账户调整 - 存款手续费 - 提款手续费 + 补单输赢' },
-      { label: '冲正后净输赢', formula: '净输赢 + 上周期结余' },
-      { label: '佣金', formula: isCommissionReport ? 'MAX(0，冲正后净输赢 × 佣金比例)' : 'MAX(0，冲正后净输赢 × 佣金比例 + 佣金调整)' },
-    ]} warning={isCommissionReport ? '统计日期筛选按区间重叠口径匹配记录；本页仅用于查询与导出，不提供结算操作。' : '报表展示负盈利模式代理及冲正后净输赢为负的账单记录；刷新演示数据后恢复初始模拟数据。'} />
+      ...(isCommissionReport ? [
+        { label: '净输赢', formula: '总输赢 - 场馆费 - 红利 - 返水 + 账户调整 - 存款手续费 - 提款手续费 + 补单输赢' },
+        { label: '冲正后净输赢', formula: '净输赢 + 上周期结余' },
+        { label: '本期欠款', formula: 'MAX(0，-净输赢)' },
+        { label: '总欠款', formula: 'MAX(0，-冲正后净输赢)' },
+        { label: '佣金', formula: 'MAX(0，冲正后净输赢 × 佣金比例)' },
+      ] : [
+        { label: '运营费用', formula: '活动奖励 + 会员推会员 + 返水 + 礼金 + 人工发彩金 + 余额宝利息' },
+        { label: '佣金净收益', formula: '（总输赢 + 上周期结余总输赢）× 返佣比例 −（运营费用 + 三方场馆费用 + 充提手续费 + 上周期结余运营费用）× 运营分摊比例' },
+        { label: '佣金', formula: '佣金净收益 + 上周期结余佣金 + 佣金调整' },
+      ]),
+    ]} warning={isCommissionReport ? '统计日期筛选按区间重叠口径匹配记录；本页仅用于查询与导出，不提供结算操作。' : '结算页展示负盈利模式代理账单，并按最新盈亏、成本分摊和佣金公式核对；刷新演示数据后恢复初始模拟数据。'} />
+    {!isCommissionReport && <Modal open={!!operatingDetail} title="运营费用明细" description={operatingDetail ? `${operatingDetail.agentAccount} · ${operatingDetail.cycle} · 点击字段金额查看` : ''} onClose={() => setOperatingDetail(null)} onConfirm={() => setOperatingDetail(null)} confirmText="知道了" showCancel={false} width={640}>
+      {operatingDetail && <DataTable minWidth={520} columns={[{ key: 'name', label: '费用项目' }, { key: 'amount', label: '费用额度', render: (value) => <Money value={value} /> }]} rows={[
+        { id: 'activityRewards', name: '活动奖励', amount: operatingDetail.operatingExpenseBreakdown.activityRewards },
+        { id: 'memberReferralReward', name: '会员推会员', amount: operatingDetail.operatingExpenseBreakdown.memberReferralReward },
+        { id: 'memberRebate', name: '返水', amount: operatingDetail.operatingExpenseBreakdown.memberRebate },
+        { id: 'giftAmount', name: '礼金', amount: operatingDetail.operatingExpenseBreakdown.giftAmount },
+        { id: 'manualBonus', name: '人工发彩金', amount: operatingDetail.operatingExpenseBreakdown.manualBonus },
+        { id: 'yuebaoInterest', name: '余额宝利息', amount: operatingDetail.operatingExpenseBreakdown.yuebaoInterest },
+        { id: 'total', name: '运营费用合计', amount: operatingDetail.operatingExpense },
+      ]} />}
+    </Modal>}
+    {!isCommissionReport && <Modal open={!!fieldTip} title={fieldTip ? `${fieldTip.label} TIPS` : '字段 TIPS'} description="字段口径说明" onClose={() => setFieldTip(null)} onConfirm={() => setFieldTip(null)} confirmText="知道了" showCancel={false} width={520}>
+      <Alert title={fieldTip?.label || '字段说明'}>{fieldTip?.text}</Alert>
+    </Modal>}
     {!isCommissionReport && <Modal open={!!adjusting} title="修改发放佣金" description="只能减少本次发放金额，并补充调整备注。" onClose={() => setAdjusting(null)} onConfirm={saveAdjust} confirmText="保存修改">
-      {adjusting && <FormGrid><Field label="代理名称"><Input value={adjusting.agentAccount} disabled /></Field><Field label="当前可发放"><Input value={Number(adjusting.commission || 0).toFixed(2)} disabled /></Field><Field label="减少余额"><Input type="number" min="0" max={adjusting.commission} value={adjustForm.reduction} onChange={(value) => setAdjustForm({ ...adjustForm, reduction: value })} /></Field><Field label="减少后剩余"><Input value={Math.max(0, Number(adjusting.commission || 0) - Number(adjustForm.reduction || 0)).toFixed(2)} disabled /></Field><Field label="备注说明" className="ta-field-full"><textarea className="ta-input agent-remark" value={adjustForm.remark} onChange={(event) => setAdjustForm({ ...adjustForm, remark: event.target.value })} placeholder="请输入调整原因" /></Field></FormGrid>}
+      {adjusting && <FormGrid><Field label="代理名称"><Input value={adjusting.agentAccount} disabled /></Field><Field label="当前可发放"><Input value={Number(adjusting.settlementCommission || 0).toFixed(2)} disabled /></Field><Field label="减少余额"><Input type="number" min="0" max={adjusting.settlementCommission} value={adjustForm.reduction} onChange={(value) => setAdjustForm({ ...adjustForm, reduction: value })} /></Field><Field label="减少后剩余"><Input value={Math.max(0, Number(adjusting.settlementCommission || 0) - Number(adjustForm.reduction || 0)).toFixed(2)} disabled /></Field><Field label="备注说明" className="ta-field-full"><textarea className="ta-input agent-remark" value={adjustForm.remark} onChange={(event) => setAdjustForm({ ...adjustForm, remark: event.target.value })} placeholder="请输入调整原因" /></Field></FormGrid>}
     </Modal>}
   </section>
 }

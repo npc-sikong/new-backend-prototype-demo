@@ -1,6 +1,10 @@
 import { AGENT_ROLE_PROFILES } from '../team-agent/multi-level-agent-data'
 
 export const H5_AGENT_UPDATED_AT = '2026-07-22 06:13'
+const H5_AGENT_DASHBOARD_UPDATED_AT = '2026-07-23 19:15'
+export const H5_AGENT_ROLE_ACCESS_UPDATED_AT = '2026-07-23 19:37'
+const H5_AGENT_REVERSAL_UPDATED_AT = '2026-07-23 19:37'
+const H5_AGENT_NEGATIVE_REPORT_UPDATED_AT = '2026-07-24 01:34'
 
 export const H5_AGENT_ROLES = [
   { id: 'main', label: '团队负责人', account: 'gaodashang', scope: '本人团队及授权下级' },
@@ -28,8 +32,8 @@ export const H5_AGENT_PAGE_META = {
 
 export const H5_AGENT_ROLE_PAGES = {
   main: ['home', 'dashboard', 'agents', 'negativeProfitReport', 'reversalStats', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
-  secondary: ['home', 'dashboard', 'agents', 'negativeProfitReport', 'reversalStats', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
-  independent: ['home', 'dashboard', 'agents', 'negativeProfitReport', 'reversalStats', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
+  secondary: ['home', 'dashboard', 'negativeProfitReport', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
+  independent: ['home', 'dashboard', 'negativeProfitReport', 'reversalStats', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
   multiLevel: ['home', 'dashboard', 'profile', 'finance', 'agents', 'members', 'bets', 'accountChanges', 'memberFunds', 'reversalStats', 'reversalRepayment', 'venueFees', 'activities'],
 }
 
@@ -92,19 +96,19 @@ const NOTE_SPECS = {
   home: {
     summary: '集中查看当前代理身份已有余额、经营摘要、全部桌面端同身份模块入口和本次会话资金流水。',
     fields: '代理账号、代理身份、可用余额、站点、桌面数据看板既有指标与当前身份全部模块入口。',
-    logic: '首页模块入口严格来自桌面代理后台当前身份菜单；团队负责人、副线和单线代理各显示11个业务模块，多层级代理显示12个业务模块。',
+    logic: '首页模块入口严格来自桌面代理后台当前身份菜单；团队负责人显示11个业务模块，副线显示9个业务模块，单线代理显示10个业务模块，多层级代理显示12个业务模块。副线不展示代理列表和冲正统计报表，单线代理不展示代理列表。',
     related: '关联代理数据看板、代理列表、财务中心、会员列表、负盈利代理佣金报表及冲正统计报表。',
   },
   dashboard: {
-    summary: '按当前代理身份查看桌面代理数据看板的原有五组经营指标。',
-    fields: '本期佣金预估或净收益、佣金余额、资金流水、代理数据和会员数据共24项原有指标。',
-    logic: '四种身份复用桌面端同一指标分组；团队负责人按授权团队、副线按本人线路、单线代理按本人、多层级代理按授权下级统计。',
+    summary: '按当前代理身份查看桌面代理数据看板的佣金、资金、代理与会员经营指标。',
+    fields: '多层级代理展示本期佣金预估或净收益、当前余额、未结算佣金、已结算佣金、资金流水、代理数据和会员数据；团队负责人不展示两个不适用佣金指标；副线和单线代理继续移除代理数据整组；手续费指标统一为充提手续运营费。',
+    logic: '四种身份复用桌面端看板结构并按身份收窄：团队负责人按授权团队、副线按本人线路、单线代理按本人、多层级代理按授权下级统计；身份不适用的佣金指标不显示，副线和单线代理不汇总代理人数指标。',
     related: '关联代理列表、会员列表、财务中心和场馆费用明细。',
   },
   agents: {
-    summary: '按当前身份查看本人及授权下级代理资料，多层级代理可演示维护操作。',
+    summary: '团队负责人查看本人及授权下级代理资料，多层级代理可演示维护操作。',
     fields: '代理ID、账号、代理身份、代理层级、代理类型、状态、下级代理、下级会员、方案及最后登录。',
-    logic: '前三种身份只读；多层级代理保留新增、修改和修改密码，所有操作仅改变前端演示状态。',
+    logic: '团队负责人只读；多层级代理保留新增、修改和修改密码。副线和单线代理不展示代理列表模块；所有可用操作仅改变前端演示状态。',
     related: '关联会员列表、财务中心、代理数据看板和负盈利代理佣金报表。',
   },
   members: {
@@ -139,14 +143,14 @@ const NOTE_SPECS = {
   },
   negativeProfitReport: {
     summary: '只读查询当前身份授权范围内的负盈利代理佣金结果。',
-    fields: '代理、周期、统计时间、团队、人数、存提款、盈亏成本、红利、各活动奖励、会员推会员、净输赢、上周期结余、返佣等级、佣金比例、佣金和代理时间。',
-    logic: '团队负责人查看团队汇总并可展开团队负责人及全部副线；副线查看所属团队汇总并且只能展开本人副线；单线代理仅显示本人。页面不展示操作、佣金状态、发放、审核、维护、调整原因或佣金调整字段。',
+    fields: '代理、周期、统计时间、团队、代理类型、代理身份、代理层级、人数、存提款、盈亏成本、红利、各活动奖励、会员推会员、净输赢、上周期结余、返佣等级、佣金比例、佣金净收益、本期欠款、总欠款、佣金和代理时间。',
+    logic: '代理类型显示团队代理或单线代理，代理身份显示官方代理或普通代理，代理层级显示团队负责人、副线或单线代理。团队负责人查看团队汇总并可展开团队负责人及全部副线；副线仅显示本人线路记录，不展示团队汇总、团队负责人或其他副线；单线代理仅显示本人。佣金净收益右侧依次展示本期欠款和总欠款；本期欠款 = MAX(0，-净输赢)，总欠款 = MAX(0，-冲正后净输赢)。页面不展示操作、佣金状态、发放、审核、维护、调整原因或佣金调整字段。',
     related: '关联代理列表、代理数据看板和账变流水报表。',
   },
   reversalStats: {
     summary: '按当前身份同步桌面端对应的冲正统计口径。',
-    fields: '团队负责人、副线和单线代理展示统计日期、周期、代理、身份、层级、结算单元、line_id、上月欠站点、本期新增欠款、本期已还站点和当前欠站点；多层级代理保留原垫付与欠款统计字段。',
-    logic: '团队负责人和副线查看同一团队周期汇总，单线代理只看本人；当前欠站点 = MAX（0，上月欠站点 + 本期新增欠款 − 本期已还站点）。多层级代理继续沿用原冲正统计。',
+    fields: '团队负责人和单线代理展示统计日期、代理名称、代理身份、欠站点、还站点和剩余欠款；筛选项为统计开始日期、统计结束日期、代理名称和代理身份。多层级代理保留原垫付与欠款统计字段。',
+    logic: '团队负责人查看所属团队欠款汇总，单线代理只看本人，副线不展示本模块；剩余欠款 = MAX（0，欠站点 − 还站点）。多层级代理继续沿用原冲正统计，不受本次调整影响。',
     related: '关联代理列表、负盈利代理佣金报表、账变流水；多层级代理另关联冲正回款报表。',
   },
   reversalRepayment: {
@@ -177,6 +181,15 @@ const NOTE_SPECS = {
 
 export const H5_AGENT_NOTES = Object.fromEntries(Object.entries(H5_AGENT_PAGE_META).map(([page, meta]) => {
   const spec = NOTE_SPECS[page]
+  const updatedAt = ['home', 'reversalStats'].includes(page)
+    ? H5_AGENT_REVERSAL_UPDATED_AT
+    : page === 'agents'
+    ? H5_AGENT_ROLE_ACCESS_UPDATED_AT
+    : page === 'dashboard'
+      ? H5_AGENT_DASHBOARD_UPDATED_AT
+      : page === 'negativeProfitReport'
+        ? H5_AGENT_NEGATIVE_REPORT_UPDATED_AT
+      : H5_AGENT_UPDATED_AT
   return [page, {
     title: meta.label,
     summary: spec.summary,
@@ -187,8 +200,16 @@ export const H5_AGENT_NOTES = Object.fromEntries(Object.entries(H5_AGENT_PAGE_ME
     acceptance: '当前身份范围与桌面端一致；桌面端已有筛选、重置、分页、详情和操作均可演示且无新增功能；完整字段可从卡片详情或横向核对模式查看；手机页面无横向溢出。',
     boundary: '纯前端演示，不连接真实接口；资金、密码、导出、下载和保存均不产生真实业务结果；桌面代理后台与原 H5 前端保持不变。',
     record: page === 'home'
-      ? `修改时间：${H5_AGENT_UPDATED_AT}；修改说明：首页直接使用完整模块入口，避免重复导航；修改内容：移除财务、会员、报表和全部功能快捷区及分隔线，保留当前身份全部模块完整展开，不改变模块、字段、数据或权限。`
-      : `修改时间：${H5_AGENT_UPDATED_AT}；修改说明：按桌面代理后台最新身份范围同步 H5 ${meta.label}；修改内容：仅重排桌面端现有模块、筛选、字段、数据和操作权限，不新增业务字段或功能。`,
-    updatedAt: H5_AGENT_UPDATED_AT,
+      ? `修改时间：${updatedAt}；修改说明：同步代理身份的最新模块权限；修改内容：副线首页移除冲正统计报表入口并继续不展示代理列表，团队负责人和单线代理保留简化冲正统计，多层级代理原冲正统计不变。`
+      : page === 'agents'
+        ? `修改时间：${updatedAt}；修改说明：收窄代理资料模块的身份范围；修改内容：副线和单线代理移除代理列表入口，切换身份时若当前停留在代理列表则返回该身份原页面；团队负责人和多层级代理保持原页面及权限。`
+      : page === 'dashboard'
+        ? `修改时间：${updatedAt}；修改说明：按代理身份精简看板佣金和代理数据指标并统一手续费名称；修改内容：多层级代理将提现中佣金改为未结算佣金，团队负责人、副线和单线代理移除本期佣金预估或净收益及提现中佣金，副线和单线代理继续移除代理数据整组，四种身份将代理手续费支出改为充提手续运营费。`
+        : page === 'negativeProfitReport'
+          ? `修改时间：${updatedAt}；修改说明：补充负盈利佣金代理资料字段；修改内容：按代理类型、代理身份、代理层级连续展示，并同步卡片、详情抽屉、横向核对和团队成员层级。`
+        : page === 'reversalStats'
+          ? `修改时间：${updatedAt}；修改说明：按负盈利代理责任范围精简冲正欠款核对；修改内容：团队负责人和单线代理仅展示统计日期、代理名称、代理身份、欠站点、还站点和剩余欠款，筛选同步为起止日期、代理名称和代理身份；副线移除入口，多层级代理原报表不变。`
+        : `修改时间：${updatedAt}；修改说明：按桌面代理后台最新身份范围同步 H5 ${meta.label}；修改内容：仅重排桌面端现有模块、筛选、字段、数据和操作权限，不新增业务字段或功能。`,
+    updatedAt,
   }]
 }))

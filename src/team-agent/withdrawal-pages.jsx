@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AuditOutlined, EyeOutlined, PlusOutlined, WalletOutlined } from '@ant-design/icons'
 import { useTeamAgent } from './context'
+import { recommenderColumn, recommenderOf } from './recommender'
 import {
   Alert,
   Button,
@@ -102,6 +103,7 @@ function withdrawalDetails(record) {
     { label: '代理账号', value: accountOf(record) },
     { label: '上级账号', value: pick(record, ['parentAccount', 'parent']) },
     { label: '代理类型', value: agentTypeOf(record) },
+    { label: '推荐人', value: recommenderOf(record) },
     { label: '提款类型', value: withdrawalTypeOf(record) },
     { label: 'USDT金额', value: formatUsdt(usdtAmountOf(record)) },
     { label: '实际CNY金额', value: <Money value={cnyAmountOf(record)} /> },
@@ -175,6 +177,7 @@ function OperationsWithdrawalPage({ portal, onToast }) {
     ...(portal === 'master' ? [{ key: 'site', label: '站点', render: (_, record) => pick(record, ['site', 'siteName']) }] : []),
     { key: 'agentAccount', label: '代理账号', render: (_, record) => accountOf(record) },
     { key: 'agentType', label: '代理类型', render: (_, record) => <StatusTag tone="blue">{agentTypeOf(record)}</StatusTag> },
+    recommenderColumn(),
     { key: 'withdrawalType', label: '提款类型', render: (_, record) => withdrawalTypeOf(record) },
     { key: 'usdtAmount', label: 'USDT金额', render: (_, record) => formatUsdt(usdtAmountOf(record)) },
     { key: 'actualCnyAmount', label: '实际CNY金额', render: (_, record) => <Money value={cnyAmountOf(record)} /> },

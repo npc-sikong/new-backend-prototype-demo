@@ -3,8 +3,7 @@ import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { useTeamAgent } from '../team-agent/context'
 import {
   buildNegativeReportRows,
-  NEGATIVE_REPORT_COLUMNS,
-  NEGATIVE_REPORT_COMMISSION_EXCLUDED_KEYS,
+  NEGATIVE_COMMISSION_REPORT_COLUMNS,
   scopeNegativeReportRows,
 } from '../team-agent/negative-profit-report-page'
 import {
@@ -18,12 +17,9 @@ import {
 } from './h5-agent-ui'
 
 const COUNT_KEYS = new Set(['teamMembers', 'subAgentCount', 'registeredCount', 'firstDepositCount', 'activeCount', 'newActiveCount'])
-const MONEY_KEYS = new Set(['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commission'])
-const SIGNED_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet'])
-const STATISTIC_TIME_FIELD = { key: 'statisticTime', label: '统计时间' }
-const REPORT_FIELDS = NEGATIVE_REPORT_COLUMNS
-  .flatMap((field) => field.key === 'cycle' ? [field, STATISTIC_TIME_FIELD] : [field])
-  .filter((field) => !NEGATIVE_REPORT_COMMISSION_EXCLUDED_KEYS.has(field.key))
+const MONEY_KEYS = new Set(['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionNetIncome', 'currentDebt', 'totalDebt', 'commission'])
+const SIGNED_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionNetIncome'])
+const REPORT_FIELDS = NEGATIVE_COMMISSION_REPORT_COLUMNS
 
 const unique = (rows, key) => [...new Set(rows.map((row) => row[key]).filter(Boolean))]
 const money = (value, signed = false) => {
@@ -107,7 +103,12 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
         <header><div><strong>{row.agentAccount}</strong><small>{row.cycle} · {row.teamName}</small></div><span className="h5-agent-status is-brand">{row.agentIdentity}</span></header>
         <div className="h5-agent-record-summary h5-agent-record-values">
           <div><span>统计时间</span><b>{row.statisticTime}</b></div>
+          <div><span>代理类型</span><b>{row.agentType}</b></div>
+          <div><span>代理层级</span><b>{row.agentLevel}</b></div>
           <div><span>冲正后净输赢</span><b className={tone(row.correctedNet) ? `is-${tone(row.correctedNet)}` : ''}>{money(row.correctedNet, true)}</b></div>
+          <div><span>佣金净收益</span><b className={tone(row.commissionNetIncome) ? `is-${tone(row.commissionNetIncome)}` : ''}>{money(row.commissionNetIncome, true)}</b></div>
+          <div><span>本期欠款</span><b>{money(row.currentDebt)}</b></div>
+          <div><span>总欠款</span><b>{money(row.totalDebt)}</b></div>
           <div><span>佣金</span><b>{money(row.commission)}</b></div>
           <div><span>下级会员</span><b>{row.subAgentCount}</b></div>
         </div>
@@ -116,7 +117,7 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
       </article>]
       if (expanded.includes(row.id)) cards.push(...row.memberRows.map((member) => <article className="h5-agent-record-card is-member" key={member.id}>
         <header><div><strong>{member.agentAccount}</strong><small>{member.agentAccount === row.agentAccount ? '团队负责人' : '副线'} · {member.agentId}</small></div><span className="h5-agent-status is-brand">{member.agentIdentity}</span></header>
-        <div className="h5-agent-record-summary h5-agent-record-values"><div><span>冲正后净输赢</span><b>{money(member.correctedNet, true)}</b></div><div><span>佣金</span><b>{money(member.commission)}</b></div><div><span>下级会员</span><b>{member.subAgentCount}</b></div></div>
+        <div className="h5-agent-record-summary h5-agent-record-values"><div><span>代理类型</span><b>{member.agentType}</b></div><div><span>代理层级</span><b>{member.agentLevel}</b></div><div><span>冲正后净输赢</span><b>{money(member.correctedNet, true)}</b></div><div><span>佣金净收益</span><b>{money(member.commissionNetIncome, true)}</b></div><div><span>本期欠款</span><b>{money(member.currentDebt)}</b></div><div><span>总欠款</span><b>{money(member.totalDebt)}</b></div><div><span>佣金</span><b>{money(member.commission)}</b></div><div><span>下级会员</span><b>{member.subAgentCount}</b></div></div>
         <footer><span /><button type="button" className="h5-agent-card-detail" onClick={() => setSelected(member)}>查看全部字段</button></footer>
       </article>))
       return cards
@@ -125,6 +126,8 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
     <section className="h5-agent-panel h5-agent-formula-panel"><h2>负盈利代理佣金报表口径</h2><H5AgentFields columns={1} items={[
       { label: '净输赢', value: '总输赢 - 场馆费 - 红利 - 返水 + 账户调整 - 存款手续费 - 提款手续费 + 补单输赢' },
       { label: '冲正后净输赢', value: '净输赢 + 上周期结余' },
+      { label: '本期欠款', value: 'MAX(0，-净输赢)' },
+      { label: '总欠款', value: 'MAX(0，-冲正后净输赢)' },
       { label: '佣金', value: 'MAX(0，冲正后净输赢 × 佣金比例)' },
     ]} /><p className="h5-agent-dashboard-alert">统计日期按记录统计区间与查询日期区间存在重叠进行匹配；本页仅查询与导出，不提供结算操作。</p></section>
     <H5AgentFilterSheet open={filterOpen} title="负盈利佣金报表筛选" onClose={() => setFilterOpen(false)} onReset={reset} onApply={() => { setFilterOpen(false); onToast(`已查询 ${rows.length} 条负盈利代理佣金报表`) }}>

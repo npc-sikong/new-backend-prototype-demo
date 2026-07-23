@@ -38,7 +38,7 @@ import {
   H5_AGENT_NOTES,
   H5_AGENT_PAGE_META,
   H5_AGENT_ROLES,
-  H5_AGENT_UPDATED_AT,
+  H5_AGENT_ROLE_ACCESS_UPDATED_AT,
   money,
   pageAllowed,
   pagesForRole,
@@ -80,14 +80,18 @@ function H5AgentHome({ role, finance, onNavigate, onRoleOpen, onNotes }) {
   const meta = roleMeta(role)
   const dashboardGroups = useMemo(() => dashboardGroupsForRole(data, role), [data, role])
   const dashboardItems = dashboardGroups.flatMap((group) => group.items)
-  const metricLabels = ['本期佣金预估/净收益', '活跃代理', '活跃会员']
+  const metricLabels = role === 'multiLevel'
+    ? ['本期佣金预估/净收益', '活跃代理', '活跃会员']
+    : role === 'main'
+      ? ['活跃代理', '活跃会员']
+      : ['活跃会员']
   const metrics = metricLabels.map((label) => {
     const item = dashboardItems.find((entry) => entry.label === label)
     return { label, value: item?.value ?? '—' }
   })
   const rolePages = pagesForRole(role).filter((item) => item !== 'home')
   return <div className="h5-agent-home">
-    <header className="h5-agent-home-head"><div><h1>代理中心</h1><small>修改时间：{H5_AGENT_UPDATED_AT}</small></div><div><button type="button" aria-label="业务说明" onClick={onNotes}><FileTextOutlined /><span>说明</span></button></div></header>
+    <header className="h5-agent-home-head"><div><h1>代理中心</h1><small>修改时间：{H5_AGENT_ROLE_ACCESS_UPDATED_AT}</small></div><div><button type="button" aria-label="业务说明" onClick={onNotes}><FileTextOutlined /><span>说明</span></button></div></header>
     <section className="h5-agent-identity-row">
       <span className="h5-agent-account-avatar">{profile.account.slice(0, 1)}</span>
       <div><strong>{profile.account}</strong><p>{meta.scope}</p></div>

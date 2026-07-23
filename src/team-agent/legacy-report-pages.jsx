@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { EyeOutlined, FileSearchOutlined } from '@ant-design/icons'
 import { useTeamAgent } from './context'
 import { AgentPayReportPage, PrepaidReportPage } from './legacy-operation-pages'
+import { recommenderColumn } from './recommender'
 import {
   Alert,
   DataTable,
@@ -26,10 +27,10 @@ const SYNCED_AGENT_REPORTS = new Set(['commissionRecords', 'reversal', 'returns'
 
 function settlementMeta(agent, overrides = {}) {
   const known = {
-    gaodashang: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-A', identity: '团队负责人', unit: 'gaodashang01部 / 团队负责人', scopeRoles: ['main'] },
-    WC002: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-B', identity: '副线', unit: 'gaodashang01部 / WC002线路', scopeRoles: ['main', 'secondary'] },
-    LGNB: { site: '旺财体育', agentType: '团队代理', team: 'gaodashang01部', line: 'LINE-C', identity: '副线', unit: 'gaodashang01部 / LGNB线路', scopeRoles: ['main'] },
-    dailiwc001: { site: '旺财体育', agentType: '团队代理', team: '—', line: 'SINGLE-001', identity: '单线代理', unit: '单线代理01', scopeRoles: ['independent'] },
+    gaodashang: { site: '旺财体育', agentType: '团队代理', recommender: 'charles', team: 'gaodashang01部', line: 'LINE-A', identity: '团队负责人', unit: 'gaodashang01部 / 团队负责人', scopeRoles: ['main'] },
+    WC002: { site: '旺财体育', agentType: '团队代理', recommender: 'charles', team: 'gaodashang01部', line: 'LINE-B', identity: '副线', unit: 'gaodashang01部 / WC002线路', scopeRoles: ['main', 'secondary'] },
+    LGNB: { site: '旺财体育', agentType: '团队代理', recommender: 'WC002', team: 'gaodashang01部', line: 'LINE-C', identity: '副线', unit: 'gaodashang01部 / LGNB线路', scopeRoles: ['main'] },
+    dailiwc001: { site: '旺财体育', agentType: '团队代理', recommender: 'apppay', team: '—', line: 'SINGLE-001', identity: '单线代理', unit: '单线代理01', scopeRoles: ['independent'] },
     apppay: { site: '旺财体育', agentType: '团队代理', team: 'apppay01部', line: 'LINE-D', identity: '团队负责人', unit: 'apppay01部 / 团队负责人', scopeRoles: [] },
     charles: { site: '旺财体育', agentType: '层级代理', team: '—', line: 'LEGACY-CHARLES', identity: '3层', unit: '原代理独立结算', scopeRoles: [] },
     FEE0428_A8: { site: '财神客栈', agentType: '星级代理', team: '—', line: 'LEGACY-FEE', identity: '4星', unit: '原代理独立结算', scopeRoles: [] },
@@ -392,8 +393,8 @@ const CONTEXT_COLUMNS = [
 const AGENT_TYPE_COLUMN = { key: 'agentType', label: '代理类型', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }
 const AGENT_IDENTITY_COLUMN = { key: 'identity', label: '代理身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> }
 const CONTEXT_BY_PORTAL = {
-  site: [AGENT_TYPE_COLUMN, AGENT_IDENTITY_COLUMN, CONTEXT_COLUMNS[1], CONTEXT_COLUMNS[2], CONTEXT_COLUMNS[4], CONTEXT_COLUMNS[5]],
-  agent: [AGENT_TYPE_COLUMN, AGENT_IDENTITY_COLUMN, CONTEXT_COLUMNS[2], CONTEXT_COLUMNS[4], CONTEXT_COLUMNS[5]],
+  site: [AGENT_TYPE_COLUMN, recommenderColumn(), AGENT_IDENTITY_COLUMN, CONTEXT_COLUMNS[1], CONTEXT_COLUMNS[2], CONTEXT_COLUMNS[4], CONTEXT_COLUMNS[5]],
+  agent: [AGENT_TYPE_COLUMN, recommenderColumn(), AGENT_IDENTITY_COLUMN, CONTEXT_COLUMNS[2], CONTEXT_COLUMNS[4], CONTEXT_COLUMNS[5]],
 }
 
 function inScope(row, portal, role) {
