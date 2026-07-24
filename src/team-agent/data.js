@@ -1138,6 +1138,17 @@ const AGENT_TYPE_LEVEL_UPDATED_AT = '2026-07-24 15:22'
   }
 })
 
+const ADD_AGENT_LEVEL_UPDATED_AT = '2026-07-24 15:59'
+PAGE_NOTES['master:agents'] = {
+  ...PAGE_NOTES['master:agents'],
+  updatedAt: ADD_AGENT_LEVEL_UPDATED_AT,
+  fields: `${PAGE_NOTES['master:agents'].fields.replace(/。$/, '')}；新增代理弹窗的代理层级仅提供团队负责人和副线。`,
+  logic: `${PAGE_NOTES['master:agents'].logic} 新增代理时不能直接选择单线代理层级；需要按单线经营时，由团队负责人关闭“是否能开副线”设置。修改代理仍可维护既有单线代理层级，历史记录和报表展示不变。`,
+  requirement: '代理列表新增代理弹窗的代理层级去除单线代理，只保留团队负责人和副线。',
+  acceptance: '新增代理选择团队代理后，代理层级下拉仅显示团队负责人和副线；修改代理弹窗仍可选择单线代理，既有单线代理数据不受影响。',
+  boundary: `${PAGE_NOTES['master:agents'].boundary || ''} 本次仅调整新增代理的层级选项，不改变修改代理、历史数据、结算模式或报表字段。`,
+  record: `修改时间：${ADD_AGENT_LEVEL_UPDATED_AT}；修改说明：统一新增代理的单线经营入口；修改内容：新增代理弹窗的代理层级去除单线代理，仅保留团队负责人和副线，修改代理与历史单线数据保持不变。`,
+}
 ;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
   const current = PAGE_NOTES[key]
   if (!current) return
@@ -1154,10 +1165,10 @@ const AGENT_TYPE_LEVEL_UPDATED_AT = '2026-07-24 15:22'
 
 PAGE_NOTES['master:version'] = {
   ...PAGE_NOTES['master:version'],
-  updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
-  requirement: '归档三后台及H5当前有效模块；代理类型去除单线代理，单线代理保留为代理层级，并记录团队负责人新增字段和开副线规则。',
-  acceptance: '版本说明可跳转代理列表和负盈利代理佣金报表；新增弹窗、三后台报表及H5均按最新代理类型与代理层级口径展示。',
-  record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：同步代理类型与新增团队负责人规则；修改内容：记录代理类型去除单线代理、新增表单移除代理名称、团队负责人增加团队名称和开副线开关，并统一开关与说明的展示顺序。`,
+  updatedAt: ADD_AGENT_LEVEL_UPDATED_AT,
+  requirement: '归档三后台及H5当前有效模块；新增代理的团队代理层级只保留团队负责人和副线，修改代理继续兼容既有单线代理。',
+  acceptance: '版本说明可跳转代理列表；新增代理层级不出现单线代理，修改代理与历史单线数据保持可维护和可查看。',
+  record: `修改时间：${ADD_AGENT_LEVEL_UPDATED_AT}；修改说明：同步新增代理层级最新入口；修改内容：新增代理去除单线代理层级，只保留团队负责人和副线，修改代理与历史数据不变。`,
 }
 
 PAGE_NOTES['master:negativeProfit'] = {

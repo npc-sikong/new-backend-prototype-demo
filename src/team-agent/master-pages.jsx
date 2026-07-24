@@ -78,7 +78,7 @@ function AgentFormDivider() {
 }
 const AGENT_TYPE_OPTIONS = ['多层级代理', '星级代理', '团队代理']
 const TEAM_AGENT_TYPE_OPTIONS = ['官方代理', '普通代理']
-const TEAM_AGENT_ADD_IDENTITY_OPTIONS = ['团队负责人', '副线', '单线代理']
+const TEAM_AGENT_ADD_IDENTITY_OPTIONS = ['团队负责人', '副线']
 const TEAM_AGENT_IDENTITY_OPTIONS = ['团队负责人', '副线', '单线代理']
 const NEGATIVE_PROFIT_PLAN = 'DW负盈利佣金方案'
 const REVERSAL_AGENT_TYPE_OPTIONS = ['团队代理', '星级代理', '层级代理']
