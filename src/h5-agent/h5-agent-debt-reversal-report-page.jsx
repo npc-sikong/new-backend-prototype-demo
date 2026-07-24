@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTeamAgent } from '../team-agent/context'
-import { buildAgentDebtRows } from '../team-agent/agent-debt-reversal-report-page'
+import { AGENT_DEBT_REPORT_FIELDS, buildAgentDebtRows } from '../team-agent/agent-debt-reversal-report-page'
 import {
   H5AgentDetailSheet,
   H5AgentEmpty,
@@ -11,14 +11,7 @@ import {
   H5AgentSearch,
 } from './h5-agent-ui'
 
-const FIELDS = [
-  { key: 'periodRange', label: '账期时间' },
-  { key: 'account', label: '代理名称' },
-  { key: 'agentIdentity', label: '代理身份' },
-  { key: 'owedToSite', label: '欠站点', money: true },
-  { key: 'paidToSite', label: '还站点', money: true },
-  { key: 'remainingDebt', label: '剩余欠款', money: true },
-]
+const FIELDS = AGENT_DEBT_REPORT_FIELDS
 
 const unique = (rows, key) => [...new Set(rows.map((row) => row[key]).filter(Boolean))]
 const money = (value) => `¥${Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`

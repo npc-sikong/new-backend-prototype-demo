@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons'
 import { useTeamAgent } from './context'
 import { recommenderColumn, recommenderOf } from './recommender'
+import { agentLevelLabel } from './team-management-helpers'
 import {
   Alert,
   Button,
@@ -164,6 +165,7 @@ function buildSiteAgents(data) {
 
     return {
       ...agent,
+      identity: agentLevelLabel(agent, data.teams),
       agentIdentity: ['官方代理', '普通代理'].includes(agent.teamAgentType) ? agent.teamAgentType : '普通代理',
       unit: team?.name || single?.name || agent.unit || '—',
       lineId: line?.lineId || agent.lineId || single?.code || '—',

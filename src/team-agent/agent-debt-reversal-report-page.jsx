@@ -73,6 +73,15 @@ export function buildAgentDebtRows(role, agents) {
 
 const moneyColumn = (key, label) => ({ key, label, render: (value) => <Money value={value} /> })
 
+export const AGENT_DEBT_REPORT_FIELDS = [
+  { key: 'periodRange', label: '账期时间' },
+  { key: 'account', label: '代理名称' },
+  { key: 'agentIdentity', label: '代理身份' },
+  { key: 'owedToSite', label: '欠站点', money: true },
+  { key: 'paidToSite', label: '还站点', money: true },
+  { key: 'remainingDebt', label: '剩余欠款', money: true },
+]
+
 export function AgentDebtReversalReportPage({ role = 'main', onToast }) {
   const { data } = useTeamAgent()
   const [filters, setFilters] = useState(EMPTY_FILTERS)
@@ -82,14 +91,12 @@ export function AgentDebtReversalReportPage({ role = 'main', onToast }) {
     && (!filters.agentIdentity || row.agentIdentity === filters.agentIdentity))
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
   const unique = (key) => Array.from(new Set(allRows.map((row) => row[key]).filter(Boolean)))
-  const columns = [
-    { key: 'periodRange', label: '账期时间' },
-    { key: 'account', label: '代理名称', render: (value) => <b className="ta-primary-text">{value}</b> },
-    { key: 'agentIdentity', label: '代理身份', render: (value) => <StatusTag tone="blue">{value}</StatusTag> },
-    moneyColumn('owedToSite', '欠站点'),
-    moneyColumn('paidToSite', '还站点'),
-    moneyColumn('remainingDebt', '剩余欠款'),
-  ]
+  const columns = AGENT_DEBT_REPORT_FIELDS.map((field) => {
+    if (field.money) return moneyColumn(field.key, field.label)
+    if (field.key === 'account') return { ...field, render: (value) => <b className="ta-primary-text">{value}</b> }
+    if (field.key === 'agentIdentity') return { ...field, render: (value) => <StatusTag tone="blue">{value}</StatusTag> }
+    return field
+  })
 
   return <section className="ta-stack reversal-report-screen agent-debt-reversal-report">
     <SectionHeader title="冲正统计报表" description="团队负责人查看所属团队欠款汇总，单线代理只查看本人欠款；副线不展示本报表。" actions={<Toolbar><Button icon={<DownloadOutlined />} variant="slate" onClick={() => onToast?.(`已导出 ${rows.length} 条冲正统计`)}>导出</Button><Button icon={<FolderOpenOutlined />} variant="ghost" onClick={() => onToast?.('冲正统计文件已下载')}>下载文件</Button></Toolbar>} />

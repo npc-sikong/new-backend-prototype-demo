@@ -31,7 +31,7 @@ import { AgentDebtReversalReportPage } from './agent-debt-reversal-report-page'
 import { NegativeProfitReportPage } from './negative-profit-report-page'
 import { MasterRelationsPage } from './relation-record-page'
 import { TeamMembersTable } from './team-members-table'
-import { getTeamInspectConfig, teamAgentRows, teamMemberCount } from './team-management-helpers'
+import { agentLevelLabel, getTeamInspectConfig, teamAgentRows, teamMemberCount } from './team-management-helpers'
 import { TeamDetailPage } from './team-detail-page'
 import { recommenderColumn, recommenderOf } from './recommender'
 import {
@@ -79,7 +79,7 @@ function AgentFormDivider() {
 const AGENT_TYPE_OPTIONS = ['多层级代理', '星级代理', '团队代理']
 const TEAM_AGENT_TYPE_OPTIONS = ['官方代理', '普通代理']
 const TEAM_AGENT_ADD_IDENTITY_OPTIONS = ['团队负责人', '副线']
-const TEAM_AGENT_IDENTITY_OPTIONS = ['团队负责人', '副线', '单线代理']
+const TEAM_AGENT_IDENTITY_OPTIONS = ['团队负责人', '副线']
 const NEGATIVE_PROFIT_PLAN = 'DW负盈利佣金方案'
 const REVERSAL_AGENT_TYPE_OPTIONS = ['团队代理', '星级代理', '层级代理']
 const REVERSAL_FILTER_DEFAULTS = { cycle: '', site: '', agentType: '', keyword: '' }
@@ -110,17 +110,17 @@ function normalizeAgentType(agent) {
   if (agent.agentType === '官方代理') return '星级代理'
   return '多层级代理'
 }
-const isSingleLevelAgent = (agent) => agent?.identity === '单线代理' || agent?.settlementMode === '单线代理'
+const isSingleLevelAgent = (agent, teams = []) => agentLevelLabel(agent, teams) === '单线代理'
 function normalizeTeamIdentity(identity) {
-  if (identity === '单线代理') return '单线代理'
+  if (identity === '单线代理') return '团队负责人'
   return identity || '副线'
 }
-function teamAgentPayload(type, identity = '团队负责人', plan = NEGATIVE_PROFIT_PLAN, teamAgentType = '官方代理') {
+function teamAgentPayload(type, identity = '团队负责人', plan = NEGATIVE_PROFIT_PLAN, teamAgentType = '官方代理', canOpenSecondary = true) { const normalizedIdentity = normalizeTeamIdentity(identity)
   if (type !== '团队代理') return { settlementMode: '原代理模式', identity: '—', teamAgentType: '—', plan: plan || (type === '星级代理' ? '星级返佣方案' : '多层级返佣方案') }
   return {
-    settlementMode: identity === '单线代理' ? '单线代理' : '团队模式',
-    identity,
-    teamAgentType,
+    settlementMode: normalizedIdentity === '团队负责人' && canOpenSecondary === false ? '单线代理' : '团队模式',
+    identity: normalizedIdentity,
+    teamAgentType, canOpenSecondary: normalizedIdentity === '团队负责人' ? canOpenSecondary !== false : true,
     plan: NEGATIVE_PROFIT_PLAN,
   }
 }
@@ -153,11 +153,11 @@ function gradeDisplay(agent) {
   if (type === '星级代理') return `${Math.max(1, Math.min(6, Number(agent.activeMembers || 0) % 6 || 3))}星代理`
   return '-'
 }
-function levelDisplay(agent) {
+function levelDisplay(agent, teams = []) {
   const type = normalizeAgentType(agent)
   if (type === '多层级代理' && agent.level) return agent.level
   if (type === '多层级代理') return `${Math.max(1, Math.min(10, Number(agent.subAgents || 0) + 1))}层代理`
-  if (type === '团队代理') return normalizeTeamIdentity(agent.identity)
+  if (type === '团队代理') return agentLevelLabel(agent, teams)
   return '-'
 }
 function teamAgentTypeDisplay(agent) {
@@ -234,9 +234,8 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     setSelected(target)
     setModal(type)
     if (type === 'edit') {
-      const typeValue = normalizeAgentType(target)
-      const identity = isSingleLevelAgent(target) ? '单线代理' : normalizeTeamIdentity(target.identity)
       const ownedTeam = data.teams.find((team) => team.mainAgent === target.account && team.status !== '已解散')
+      const typeValue = normalizeAgentType(target), singleOperating = isSingleLevelAgent(target, data.teams), identity = singleOperating ? '团队负责人' : normalizeTeamIdentity(target.identity)
       setEditForm({
         account: target.account, agentName: target.agentName || target.account,
         site: target.site || '旺财体育',
@@ -252,7 +251,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
         joinSite: target.site || '旺财体育',
         targetTeamId: data.teams.find((team) => team.site === (target.site || '旺财体育') && (team.name === target.unit || team.lines?.some((line) => line.agent === target.account)))?.id || '',
         teamName: ownedTeam?.name || `${target.account}团队`,
-        canOpenSecondary: ownedTeam?.canOpenSecondary !== false,
+        canOpenSecondary: singleOperating ? false : ownedTeam?.canOpenSecondary !== false,
         status: target.status || '启用',
         remark: target.remark || '',
       })
@@ -290,7 +289,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     const parentAgent = data.agents.find((agent) => agent.account === parent)
     const recommender = form.agentType === '团队代理' ? form.recommender || '—' : '—'
     const unit = targetTeam?.name || (identity === '团队负责人' ? form.teamName.trim() : identity === '单线代理' ? `${form.account.trim()}单线` : '—')
-    const result = addAgent({ ...form, identity, teamAgentType, parent, parentId: parentAgent?.id || '—', recommender, unit, effectiveCycle: targetTeam?.startCycle || '—', ...teamAgentPayload(form.agentType, identity, form.plan, teamAgentType) })
+    const result = addAgent({ ...form, identity, teamAgentType, parent, parentId: parentAgent?.id || '—', recommender, unit, effectiveCycle: targetTeam?.startCycle || '—', ...teamAgentPayload(form.agentType, identity, form.plan, teamAgentType, form.canOpenSecondary) })
     if (!result.ok) return onToast(result.message, 'error')
     if (form.agentType === '团队代理' && identity === '团队负责人') {
       const teamResult = createTeam({ name: form.teamName, mainAgent: form.account, mainId: result.id, teamType: teamAgentType, site: form.site, plan: form.plan, canOpenSecondary: form.canOpenSecondary })
@@ -300,7 +299,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
   }
 
   function saveEditAgent() {
-    const wasSingle = isSingleLevelAgent(selected); if (editForm.agentType === '团队代理' && !String(editForm.agentName || '').trim()) return onToast('请填写代理名称', 'error')
+    const wasSingle = isSingleLevelAgent(selected, data.teams); if (editForm.agentType === '团队代理' && !String(editForm.agentName || '').trim()) return onToast('请填写代理名称', 'error')
     if (editForm.agentType === '团队代理' && editForm.identity === '副线' && !editForm.targetTeamId) {
       onToast('请选择要加入的团队', 'error')
       return
@@ -323,7 +322,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
       carryAllFees: editForm.carryAllFees || '否',
       migratePendingCost: editForm.migratePendingCost || '否',
       teamName: editForm.teamName, canOpenSecondary: editForm.canOpenSecondary,
-      ...teamAgentPayload(editForm.agentType, editForm.identity, editForm.plan, editForm.teamAgentType),
+      ...teamAgentPayload(editForm.agentType, editForm.identity, editForm.plan, editForm.teamAgentType, editForm.canOpenSecondary),
     }
     if (editForm.agentType === '星级代理') payload.starLevel = editForm.rank || defaultRankForAgentType('星级代理')
     if (editForm.agentType === '多层级代理') payload.level = editForm.rank || defaultRankForAgentType('多层级代理')
@@ -346,7 +345,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     { key: 'registeredAt', label: '代理注册时间' },
     { key: 'agentType', label: '代理类型', render: (_, row) => <StatusTag tone={normalizeAgentType(row) === '团队代理' ? 'green' : 'orange'}>{normalizeAgentType(row)}</StatusTag> },
     recommenderColumn(),
-    { key: 'level', label: '代理层级', render: (_, row) => levelDisplay(row) },
+    { key: 'level', label: '代理层级', render: (_, row) => levelDisplay(row, data.teams) },
     { key: 'site', label: '站点编码', render: (value) => siteDisplay(value) },
     { key: 'parent', label: '上级代理', render: (value) => value === '无上级代理' ? '-' : value },
     { key: 'status', label: '代理状态', render: (value) => <StatusTag tone={value === '启用' ? 'green' : 'red'}>{value === '启用' ? '正常' : '停用'}</StatusTag> },
@@ -394,7 +393,6 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
           {form.agentType === '团队代理' && form.identity === '团队负责人' && <><Field label="是否能开副线"><AgentSwitch checked={form.canOpenSecondary} onChange={(checked) => setForm({ ...form, canOpenSecondary: checked })} note="不能开副线的团队负责人类型为单线" /></Field><Field label="团队名称" required><Input value={form.teamName} onChange={(value) => setForm({ ...form, teamName: value })} placeholder="请输入团队名称" /></Field></>}
           {form.agentType === '团队代理' && form.identity === '副线' && <Field label="加入团队" required><Select value={form.targetTeamId} onChange={(value) => setForm({ ...form, targetTeamId: value })} placeholder="请选择同身份团队" options={addJoinTeamOptions} /></Field>}
           {form.agentType === '团队代理' && form.identity === '副线' && <Field label="上级代理" help="由所选团队自动确定，不允许手动修改"><Input value={data.teams.find((team) => team.id === form.targetTeamId)?.mainAgent || '选择团队后自动带出'} disabled /></Field>}
-          {form.agentType === '团队代理' && form.identity === '单线代理' && <Field label="上级代理"><Select value={form.parent} onChange={(value) => setForm({ ...form, parent: value })} options={parentOptions} /></Field>}
           {form.agentType === '团队代理' && <Field label="推荐人"><Select value={form.recommender} onChange={(value) => setForm({ ...form, recommender: value })} options={recommenderOptions} /></Field>}
         </FormGrid>
         <AgentFormDivider />
@@ -517,7 +515,7 @@ function enrichBills(data) {
       remaining: Math.max(0, bill.payable - bill.issued),
       recordAgentType,
       recordAgentIdentity: agent?.teamAgentType && agent.teamAgentType !== '—' ? agent.teamAgentType : bill.agentType === '官方代理' ? '官方代理' : '普通代理',
-      recordAgentLevel: resolveRecordAgentLevel(recordAgentType, bill, agent),
+      recordAgentLevel: resolveRecordAgentLevel(recordAgentType, bill, agent, data.teams),
       monthlyFlow: bill.monthlyFlow ?? agent?.validBetting ?? Number(bill.depositAmount || 0) + Number(bill.withdrawalAmount || 0),
       firstDepositAmount: bill.firstDepositAmount ?? Math.round(Number(bill.depositAmount || 0) * 0.18),
       retentionDays: bill.retentionDays ?? `${Math.max(0, Math.min(30, Math.round(Number(bill.activeCount || 0) / 4)))}天`,
@@ -535,8 +533,10 @@ function resolveRecordAgentType(bill, agent) {
   return '层级代理'
 }
 
-function resolveRecordAgentLevel(recordAgentType, bill, agent) {
+function resolveRecordAgentLevel(recordAgentType, bill, agent, teams = []) {
   if (recordAgentType === '团队代理') {
+    const displayLevel = agentLevelLabel(agent, teams)
+    if (displayLevel !== '—') return displayLevel
     if (bill.type === '团队佣金') return agent?.identity === '副线' ? '副线' : '团队负责人'
     if (bill.type === '单线代理佣金') return '单线代理'
     return normalizeTeamIdentity(agent?.identity || '副线')
@@ -722,7 +722,7 @@ function rebateAmount(value) {
 }
 
 function rebateRuleText(rule) {
-  return `充值金额≥${rebateAmount(rule?.depositThreshold ?? 0)} 或 有效投注≥${rebateAmount(rule?.validBetThreshold ?? 0)}，满足一项即计入`
+  return `充值金额≥${rebateAmount(rule?.depositThreshold ?? 0)} 且 有效投注≥${rebateAmount(rule?.validBetThreshold ?? 0)}，全部满足才计入`
 }
 
 function rebateConditionText(detail) {
@@ -864,7 +864,7 @@ function MasterPlansPage({ onToast }) {
       <div className="legacy-rebate-modal-body">
         <div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={createName} onChange={setCreateName} placeholder="请输入方案名称" /></div>
         <div className="legacy-rebate-name-row"><span><b>*</b> 方案类型</span><Select value={createType} onChange={changeCreateType} options={REBATE_TYPE_OPTIONS} /></div>
-        {createType === 'team' && <div className="legacy-active-rule"><div><strong>团队方案判定条件</strong><p>活跃会员和新增活跃均按“充值金额或有效投注满足一项”计入，并跟随当前方案保存。</p></div><div className="legacy-active-rule-fields"><Field label="活跃充值 ≥"><Input type="number" min="0" value={createRules.activeRule.depositThreshold} onChange={(value) => setCreateRules({ ...createRules, activeRule: { ...createRules.activeRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="活跃投注 ≥"><Input type="number" min="0" value={createRules.activeRule.validBetThreshold} onChange={(value) => setCreateRules({ ...createRules, activeRule: { ...createRules.activeRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增充值 ≥"><Input type="number" min="0" value={createRules.newActiveRule.depositThreshold} onChange={(value) => setCreateRules({ ...createRules, newActiveRule: { ...createRules.newActiveRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增投注 ≥"><Input type="number" min="0" value={createRules.newActiveRule.validBetThreshold} onChange={(value) => setCreateRules({ ...createRules, newActiveRule: { ...createRules.newActiveRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field></div></div>}
+        {createType === 'team' && <div className="legacy-active-rule"><div><strong>团队方案判定条件</strong><p>活跃会员和新增活跃均需同时达到充值金额与有效投注门槛，全部满足才计入，并跟随当前方案保存。</p></div><div className="legacy-active-rule-fields"><Field label="活跃充值 ≥"><Input type="number" min="0" value={createRules.activeRule.depositThreshold} onChange={(value) => setCreateRules({ ...createRules, activeRule: { ...createRules.activeRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="活跃投注 ≥"><Input type="number" min="0" value={createRules.activeRule.validBetThreshold} onChange={(value) => setCreateRules({ ...createRules, activeRule: { ...createRules.activeRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增充值 ≥"><Input type="number" min="0" value={createRules.newActiveRule.depositThreshold} onChange={(value) => setCreateRules({ ...createRules, newActiveRule: { ...createRules.newActiveRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增投注 ≥"><Input type="number" min="0" value={createRules.newActiveRule.validBetThreshold} onChange={(value) => setCreateRules({ ...createRules, newActiveRule: { ...createRules.newActiveRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field></div></div>}
         <Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addCreateLevel}>添加级别</Button>
         <div className="legacy-rebate-modal-grid">
           <table className="legacy-level-table">
@@ -884,7 +884,7 @@ function MasterPlansPage({ onToast }) {
     <Modal open={!!editing} title="修改佣金方案" onClose={() => setEditing(null)} onConfirm={saveEditor} width={1380}>
       <div className="legacy-rebate-modal-body">
         <div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={editName} onChange={setEditName} /></div>
-        {editing?.mode === 'team' && <div className="legacy-active-rule"><div><strong>团队方案判定条件</strong><p>活跃会员和新增活跃均按“充值金额或有效投注满足一项”计入，并跟随当前方案保存。</p></div><div className="legacy-active-rule-fields"><Field label="活跃充值 ≥"><Input type="number" min="0" value={editRules.activeRule.depositThreshold} onChange={(value) => setEditRules({ ...editRules, activeRule: { ...editRules.activeRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="活跃投注 ≥"><Input type="number" min="0" value={editRules.activeRule.validBetThreshold} onChange={(value) => setEditRules({ ...editRules, activeRule: { ...editRules.activeRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增充值 ≥"><Input type="number" min="0" value={editRules.newActiveRule.depositThreshold} onChange={(value) => setEditRules({ ...editRules, newActiveRule: { ...editRules.newActiveRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增投注 ≥"><Input type="number" min="0" value={editRules.newActiveRule.validBetThreshold} onChange={(value) => setEditRules({ ...editRules, newActiveRule: { ...editRules.newActiveRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field></div></div>}
+        {editing?.mode === 'team' && <div className="legacy-active-rule"><div><strong>团队方案判定条件</strong><p>活跃会员和新增活跃均需同时达到充值金额与有效投注门槛，全部满足才计入，并跟随当前方案保存。</p></div><div className="legacy-active-rule-fields"><Field label="活跃充值 ≥"><Input type="number" min="0" value={editRules.activeRule.depositThreshold} onChange={(value) => setEditRules({ ...editRules, activeRule: { ...editRules.activeRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="活跃投注 ≥"><Input type="number" min="0" value={editRules.activeRule.validBetThreshold} onChange={(value) => setEditRules({ ...editRules, activeRule: { ...editRules.activeRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增充值 ≥"><Input type="number" min="0" value={editRules.newActiveRule.depositThreshold} onChange={(value) => setEditRules({ ...editRules, newActiveRule: { ...editRules.newActiveRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增投注 ≥"><Input type="number" min="0" value={editRules.newActiveRule.validBetThreshold} onChange={(value) => setEditRules({ ...editRules, newActiveRule: { ...editRules.newActiveRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field></div></div>}
         <Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addEditLevel}>添加级别</Button>
         <div className="legacy-rebate-modal-grid">
           <table className="legacy-level-table">
@@ -1167,7 +1167,6 @@ function MasterTeamsPage({ onToast, portal = 'master', role = 'main', detailTarg
 function NegativeProfitHub({ onToast, portal = 'master', role = 'main' }) {
   const items = [
     { value: 'report', label: '负盈利代理佣金结算' },
-    ...(portal === 'master' ? [{ value: 'plans', label: '负盈利佣佣金方案' }] : []),
     ...(portal !== 'agent' ? [{ value: 'records', label: '佣金记录' }] : []),
   ]
   const [pageTab, setPageTab] = useState('report')
@@ -1178,11 +1177,9 @@ function NegativeProfitHub({ onToast, portal = 'master', role = 'main' }) {
 
   return <section className="ta-stack merged-module-page">
     {items.length > 1 && <Tabs items={items} active={pageTab} onChange={setPageTab} className="module-page-tabs" />}
-    {pageTab === 'plans'
-      ? <MasterPlansPageV2 onToast={onToast} portal={portal} role={role} negativeOnly />
-      : pageTab === 'records'
-        ? <MasterRecordsPage onToast={onToast} portal={portal} role={role} />
-        : <NegativeProfitReportPage portal={portal} role={role} onToast={onToast} />}
+    {pageTab === 'records'
+      ? <MasterRecordsPage onToast={onToast} portal={portal} role={role} />
+      : <NegativeProfitReportPage portal={portal} role={role} onToast={onToast} />}
   </section>
 }
 
@@ -1191,6 +1188,7 @@ export function MasterPage({ page, navigate, onToast, portal = 'master', role = 
   if (page === 'agents') return <MasterAgentsPage navigate={navigate} onToast={onToast} portal={portal} role={role} />
   if (page === 'cycle' && portal !== 'agent') return <MasterCyclePage portal={portal} onToast={onToast} />
   if (page === 'negativeProfit') return <NegativeProfitHub portal={portal} role={role} onToast={onToast} />
+  if (page === 'rebatePlans' && portal === 'master') return <MasterPlansPageV2 onToast={onToast} portal={portal} role={role} negativeOnly />
   if (page === 'negativeProfitReport') return <NegativeProfitReportPage variant="commissionReport" portal={portal} role={role} onToast={onToast} />
   if (page === 'reversal' && portal === 'agent') return <AgentDebtReversalReportPage role={role} onToast={onToast} />
   if (page === 'teams') return <MasterTeamsPage detailTarget={detailTarget} onToast={onToast} portal={portal} role={role} />

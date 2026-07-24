@@ -19,6 +19,7 @@ import {
   rowsForAgentRole,
 } from '../team-agent/multi-level-agent-data'
 import {
+  agentLevelLabel,
   formatGradeConditionValue,
   lineDirectMemberRows,
   teamGradeProgress,
@@ -158,9 +159,9 @@ function agentIdentityDisplay(row) {
   return ['官方代理', '普通代理'].includes(row.teamAgentType) ? row.teamAgentType : '普通代理'
 }
 
-function agentLevelDisplay(row) {
+function agentLevelDisplay(row, teams = []) {
   const type = agentTypeDisplay(row)
-  if (type === '团队代理') return row.identity || '副线'
+  if (type === '团队代理') return agentLevelLabel(row, teams)
   if (type === '单线代理') return '单线代理'
   if (type === '星级代理') return '-'
   return row.level || `${Math.max(1, Math.min(10, Number(row.subAgents || 0) + 1))}层代理`
@@ -213,7 +214,7 @@ export function H5AgentListPage({ role = 'main', onToast = EMPTY_FN }) {
     <div className="h5-agent-result-meta"><span>{ROLE_META[role].label}可见范围 · {rows.length} 条</span>{!isMultiLevel && <span><button onClick={() => onToast('代理列表已导出')}>导出</button><button onClick={() => onToast('下载文件为演示状态')}>下载文件</button></span>}</div>
     <div className="h5-agent-card-list">
       {paging.visibleRows.map((row) => <article key={row.id} className="h5-agent-list-card" onClick={() => setSelected(row)}>
-        <header><div className="h5-agent-card-avatar"><UserOutlined /></div><div><b>{row.account}</b><span>ID {row.id} · {isMultiLevel ? row.level : agentLevelDisplay(row)}</span></div><RightOutlined /></header>
+        <header><div className="h5-agent-card-avatar"><UserOutlined /></div><div><b>{row.account}</b><span>ID {row.id} · {isMultiLevel ? row.level : agentLevelDisplay(row, data.teams)}</span></div><RightOutlined /></header>
         <div className="h5-agent-card-badges"><StatusPill tone="brand">{isMultiLevel ? row.type : agentTypeDisplay(row)}</StatusPill><StatusPill>{row.status === '启用' ? '正常' : row.status}</StatusPill>{!isMultiLevel && <StatusPill tone="neutral">{agentIdentityDisplay(row)}</StatusPill>}</div>
         <div className="h5-agent-card-metrics"><div><span>下属代理</span><b>{isMultiLevel ? row.childAgents || 0 : row.subAgents || 0}</b></div><div><span>下属会员</span><b>{isMultiLevel ? row.childMembers || 0 : row.members || 0}</b></div><div><span>{isMultiLevel ? '站点编码' : '代理钱包余额'}</span><b>{isMultiLevel ? row.siteCode : money(row.balance)}</b></div></div>
         {isMultiLevel && <footer><button onClick={(event) => { event.stopPropagation(); openEditor('edit', row) }}><EditOutlined />修改</button><button onClick={(event) => { event.stopPropagation(); openEditor('password', row) }}><LockOutlined />修改密码</button></footer>}
@@ -241,7 +242,7 @@ export function H5AgentListPage({ role = 'main', onToast = EMPTY_FN }) {
       ] : [
         { label: '代理ID', value: selected.id }, { label: '代理账号', value: selected.account },
         { label: '代理身份', value: agentIdentityDisplay(selected) }, { label: '代理注册时间', value: selected.registeredAt },
-        { label: '代理类型', value: agentTypeDisplay(selected) }, { label: '代理层级', value: agentLevelDisplay(selected) },
+        { label: '代理类型', value: agentTypeDisplay(selected) }, { label: '代理层级', value: agentLevelDisplay(selected, data.teams) },
         { label: '上级代理', value: selected.parent === '无上级代理' ? '-' : selected.parent }, { label: '代理状态', value: selected.status === '启用' ? '正常' : selected.status },
         { label: '下属代理', value: selected.subAgents || 0 }, { label: '下属会员', value: selected.members || 0 },
         { label: '佣金方案', value: selected.plan, wide: true }, { label: '代理返佣比例', value: agentRateDisplay(selected) },

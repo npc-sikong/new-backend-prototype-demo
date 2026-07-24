@@ -40,16 +40,16 @@ export const NOTE_COMPARISONS = {
     '原总控后台 / 代理管理',
     '原页面可按代理账号、站点、状态和注册时间查询，维护代理账号、模型、星级或层级、上级代理、佣金方案、返佣比例、下属数量、钱包余额与登录信息，并支持新增、修改和修改密码。',
     {
-      fields: ['代理类型新增“团队代理”', '新增代理层级仅保留“团队负责人”和“副线”', '单线代理新增“上级代理”', '副线新增“加入团队”', '代理账号右侧新增“代理身份”', '团队分类字段统一为“代理类型”', '原代理身份改名为“代理层级”', '去除星级级别字段', '新增代理类型筛选', '团队代理与单线代理统一佣金方案'],
+      fields: ['代理类型新增“团队代理”', '新增和修改代理层级仅保留“团队负责人”和“副线”', '团队负责人新增“是否能开副线”', '副线新增“加入团队”', '代理账号右侧新增“代理身份”', '团队分类字段统一为“代理类型”', '原代理身份改名为“代理层级”', '去除星级级别字段', '新增代理类型筛选', '团队代理与单线经营统一佣金方案'],
       filters: ['代理ID', '代理账号', '站点编码', '代理类型', '代理状态', '谷歌验证', '代理注册时间'],
       types: ['团队代理', '单线代理', '官方代理', '普通代理', '团队负责人', '副线'],
-      views: ['新增代理弹窗', '修改代理弹窗', '代理身份与代理层级详情展示', '新增和修改副线的代理名称输入框', '新增副线加入团队字段', '单线代理上级代理字段', '单线代理加入团队字段', '单线代理新建团队字段'],
+      views: ['新增代理弹窗', '修改代理弹窗', '代理身份与代理层级详情展示', '新增和修改副线的代理名称输入框', '新增副线加入团队字段', '团队负责人开副线开关', '历史单线记录映射'],
       actions: ['新增代理时选择代理类型与代理身份', '新增团队负责人并设置是否能开副线', '新增副线并选择加入团队', '修改代理时调整代理类型、代理身份与代理层级', '单线代理改为副线时选择站点和加入团队', '单线代理改为团队负责人时填写新团队名称'],
-      rules: ['代理身份只使用官方代理和普通代理，并紧跟代理账号展示', '新增团队代理时代理层级只可选团队负责人或副线', '新增代理层级不提供单线代理', '新增副线可选择官方代理或普通代理身份', '官方副线只能选择官方团队，普通副线只能选择普通团队', '修改团队代理层级仍可维护团队负责人、副线和单线代理', secondaryRoleRule, '代理层级列展示团队负责人、副线、单线代理或星级/层级归属', '团队代理与单线代理统一使用“DW负盈利佣金方案”', '代理管理不再额外增加经营统计、结算单元或余额调整字段'],
+      rules: ['代理身份只使用官方代理和普通代理，并紧跟代理账号展示', '新增和修改团队代理时代理层级只可选团队负责人或副线', '关闭开副线的团队负责人在列表显示单线代理', '新增副线可选择官方代理或普通代理身份', '官方副线只能选择官方团队，普通副线只能选择普通团队', secondaryRoleRule, '代理层级列展示团队负责人、副线、单线代理或星级/层级归属', '团队代理与单线经营统一使用“DW负盈利佣金方案”', '代理管理不再额外增加经营统计、结算单元或余额调整字段'],
     },
     {
-      updatedAt: '2026-07-24 15:59',
-      record: '修改时间：2026-07-24 15:59；修改说明：统一新增代理的单线经营入口；修改内容：新增代理层级去除单线代理，只保留团队负责人和副线；修改代理仍可维护既有单线代理。',
+      updatedAt: '2026-07-24 16:21',
+      record: '修改时间：2026-07-24 16:21；修改说明：统一团队负责人单线经营入口；修改内容：新增和修改层级只保留团队负责人、副线；关闭开副线的团队负责人在相关列表显示单线代理。',
     },
   ),
   'master:negativeProfit': created(
@@ -106,7 +106,7 @@ export const NOTE_COMPARISONS = {
       types: ['团队佣金方案'],
       views: ['新增代理方案弹窗', '原修改佣金方案弹窗增加团队方案配置和方案内活跃判定条件'],
       actions: ['新增层级代理、星级代理或团队代理方案', '设置方案内活跃会员和新增活跃判定条件', '在原返佣方案列表中修改或配置团队佣金比例及层级门槛'],
-      rules: ['新增方案保存后进入原返佣方案列表', '层级代理和星级代理只配置返佣比例', '团队代理与单线代理统一引用DW负盈利佣金方案', '负盈利方案等级判定字段统一显示总输赢', '总输赢字段不展示问号或悬停说明', '团队方案的新增活跃、活跃会员、总输赢门槛留空则不生效', '活跃会员和新增活跃均按本方案的充值金额或有效投注门槛判定，满足一项即计入', '返佣比例按百分比展示', '所有已设置值高层级不得低于低层级', '佣金方案详情页不再展示推荐奖励切页'],
+      rules: ['新增方案保存后进入原返佣方案列表', '层级代理和星级代理只配置返佣比例', '团队代理与单线代理统一引用DW负盈利佣金方案', '负盈利方案等级判定字段统一显示总输赢', '总输赢字段不展示问号或悬停说明', '团队方案的新增活跃、活跃会员、总输赢门槛留空则不生效', '活跃会员和新增活跃均须同时达到充值金额与有效投注门槛，全部满足才计入', '返佣比例按百分比展示', '所有已设置值高层级不得低于低层级', '佣金方案详情页不再展示推荐奖励切页'],
     },
     {
       updatedAt: '2026-07-24 15:28',
@@ -599,14 +599,14 @@ NOTE_COMPARISONS['master:version'] = {
   ...NOTE_COMPARISONS['master:version'],
   additions: {
     ...NOTE_COMPARISONS['master:version'].additions,
-    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理身份', '身份模块清单', '移动端验收尺寸'],
+    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理登录', '代理身份', '首页额度卡', '资金快捷操作', '其它模块入口', '首页', '看板', '财务', '个人中心', '更多', '底部导航', '移动端验收尺寸'],
     types: [...NOTE_COMPARISONS['master:version'].additions.types, 'H5代理后台需求'],
-    views: [...NOTE_COMPARISONS['master:version'].additions.views, '负盈利代理佣金报表模块卡片', '站点后台与代理后台同步页面清单', 'H5代理后台版本模块卡片', 'H5首页全部模块入口', 'H5首页重复快捷区移除'],
+    views: [...NOTE_COMPARISONS['master:version'].additions.views, '负盈利代理佣金报表模块卡片', '站点后台与代理后台同步页面清单', 'H5代理登录页', 'H5首页紧凑额度卡与资金操作', 'H5首页其它模块入口', 'H5底部单一导航'],
     actions: [...NOTE_COMPARISONS['master:version'].additions.actions, '从版本说明跳转至负盈利代理佣金报表', '从版本说明跳转至 H5代理后台'],
-    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '负盈利代理佣金报表在总控、站点和代理后台分别按权限提供只读入口', '站点后台负盈利代理佣金报表仅展示旺财体育本站代理数据', '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置在总控和站点代理管理下使用独立入口', '周结频率可选一周、二周或三周', '代理后台三身份冲正统计去除级差、垫付和回款字段', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5首页直接展示当前身份全部桌面模块入口', '团队负责人、副线和单线代理同步11个桌面模块且不展示团队管理和负盈利结算', '多层级代理同步12个桌面模块', 'H5只重排现有字段和功能，不新增或删减业务能力', 'H5身份与页面状态不改变原四门户和原H5前端'],
+    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '负盈利代理佣金报表在总控、站点和代理后台分别按权限提供只读入口', '站点后台负盈利代理佣金报表仅展示旺财体育本站代理数据', '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置在总控和站点代理管理下使用独立入口', '周结频率可选一周、二周或三周', '代理后台三身份冲正统计去除级差、垫付和回款字段', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5代理登录后进入对应身份首页', 'H5首页额度卡和四项资金操作高度缩小约25%', 'H5首页资金操作下展示当前身份其它模块入口', 'H5底部导航固定为首页、看板、财务、个人中心、更多', 'H5代理列表和会员列表通过其它模块或更多进入', 'H5一级页面不展示跨模块切页', 'H5一级页面左上返回首页', 'H5只重排现有字段和功能，不新增或删减业务能力', 'H5身份与页面状态不改变原四门户和原H5前端'],
   },
-  updatedAt: '2026-07-22 06:13',
-  record: '修改时间：2026-07-22 06:13；修改说明：同步 H5 代理后台最新角色模块范围并精简重复导航；修改内容：版本说明补充首页完整模块入口、移除重复快捷区、三种团队身份11个模块、多层级代理12个模块，以及不新增或删减桌面端字段和功能的验收边界。',
+  updatedAt: '2026-07-24 17:47',
+  record: '修改时间：2026-07-24 17:47；修改说明：同步H5代理后台底部导航；修改内容：记录财务移至第三项、代理入口改为个人中心并移至第四项，代理列表和会员列表继续从其它模块或更多进入。',
 }
 
 const MODULE_MERGE_UPDATED_AT = '2026-07-20 17:19'
@@ -968,8 +968,8 @@ if (NOTE_COMPARISONS['master:version']) {
   }
 }
 
-const AGENT_TYPE_LEVEL_UPDATED_AT = '2026-07-24 15:22'
-;['master:agents', 'site:agents', 'agent:agents'].forEach((key) => {
+const AGENT_TYPE_LEVEL_UPDATED_AT = '2026-07-24 16:21'
+;['master:agents', 'site:agents', 'site:siteAgents', 'agent:agents', 'agent:downline'].forEach((key) => {
   const current = NOTE_COMPARISONS[key]
   if (!current) return
   const additions = current.additions || {}
@@ -980,11 +980,11 @@ const AGENT_TYPE_LEVEL_UPDATED_AT = '2026-07-24 15:22'
       ...additions,
       fields: [...new Set((additions.fields || []).filter((item) => !item.includes('代理类型新增“单线代理”') && !item.includes('团队代理新增“代理名称”')).concat(isMaster ? ['团队负责人新增“团队名称”', '团队负责人新增“是否能开副线”'] : []))],
       types: [...new Set((additions.types || []).filter((item) => !item.includes('单线代理类型')).concat(['代理类型仅保留多层级代理、星级代理、团队代理', '代理层级继续保留单线代理']))],
-      actions: [...new Set((additions.actions || []).filter((item) => !item.includes('新增单线代理') && !item.includes('填写代理名称')).concat(isMaster ? ['新增任意代理时不填写代理名称', '新增团队负责人时先设置是否能开副线，再填写团队名称'] : []))],
-      rules: [...new Set((additions.rules || []).filter((item) => !item.includes('代理类型仅显示团队代理或单线代理')).concat(['单线代理不再作为代理类型，仅作为团队代理下的代理层级', '不能开副线的团队负责人按单线经营']))],
+      actions: [...new Set((additions.actions || []).filter((item) => !item.includes('新增单线代理') && !item.includes('填写代理名称')).concat(isMaster ? ['新增和修改团队代理层级仅选择团队负责人或副线', '团队负责人设置是否能开副线'] : []))],
+      rules: [...new Set((additions.rules || []).filter((item) => !item.includes('代理类型仅显示团队代理或单线代理') && !item.includes('单线代理不再作为代理类型')).concat(['单线代理不作为新增或修改层级选项', '不能开副线的团队负责人在列表显示为单线代理']))],
     },
     updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
-    record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：区分代理业务类型与代理层级；修改内容：代理类型去除单线代理，代理层级继续保留单线代理；新增团队负责人补充团队名称和是否能开副线，开副线设置位于团队名称上方且单线说明与状态同行展示，新增表单移除代理名称。`,
+    record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：统一团队负责人单线经营的编辑与展示；修改内容：新增和修改层级只保留团队负责人、副线，历史单线映射为团队负责人加关闭开副线，相关列表统一显示单线代理。`,
   }
 })
 
@@ -1131,5 +1131,57 @@ if (NOTE_COMPARISONS['master:version']) {
 
 if (NOTE_COMPARISONS['master:version']) {
   const current = NOTE_COMPARISONS['master:version']
-  NOTE_COMPARISONS['master:version'] = { ...current, updatedAt: AGENT_RECOMMENDATION_REPORT_UPDATED_AT, record: `修改时间：${AGENT_RECOMMENDATION_REPORT_UPDATED_AT}；修改说明：同步推荐代理佣金核对范围；修改内容：版本说明记录三种代理身份的本人范围、推荐数据展开、专属颜色及推荐团队不可二次展开规则。` }
+  NOTE_COMPARISONS['master:version'] = { ...current, additions: { ...current.additions, rules: [...new Set([...(current.additions?.rules || []), '新增和修改层级不提供单线代理', '关闭开副线的团队负责人在相关列表显示单线代理'])] }, updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT, record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：同步团队负责人单线经营规则；修改内容：版本说明记录修改层级选项、历史单线映射及三后台与H5列表显示口径。` }
+}
+
+const REBATE_PLAN_SPLIT_COMPARISON_AT = '2026-07-24 16:53'
+NOTE_COMPARISONS['master:rebatePlans'] = {
+  ...(NOTE_COMPARISONS['master:plans'] || {}), mark: '改', baseline: '原总控后台返佣方案页面', updatedAt: REBATE_PLAN_SPLIT_COMPARISON_AT,
+  additions: {
+    fields: ['方案名称', '扶持时长（月）', '扶持期配置', '常规配置', '新增活跃', '活跃会员', '总输赢', '返佣比例', '活跃与新增判定条件'],
+    views: ['独立返佣方案列表', '扶持期配置切页', '常规配置切页', '修改返佣方案弹窗'],
+    actions: ['切换两套配置', '修改扶持月数', '分别维护等级条件', '保存两套配置', '导出'],
+    rules: ['新代理注册日起按扶持月数使用扶持期配置', '扶持期结束后自动使用常规配置', '现有配置作为常规配置保留', '扶持期与常规配置均要求充值金额和有效投注全部满足才计入'],
+  },
+  record: `修改时间：${REBATE_PLAN_SPLIT_COMPARISON_AT}；修改说明：收紧活跃会员与新增活跃判定；修改内容：扶持期和常规配置均改为充值金额与有效投注全部满足才计入。`,
+}
+if (NOTE_COMPARISONS['master:negativeProfit']) {
+  const current = NOTE_COMPARISONS['master:negativeProfit']
+  NOTE_COMPARISONS['master:negativeProfit'] = { ...current, additions: { ...current.additions, fields: (current.additions?.fields || []).map((item) => item.replace('负盈利佣金方案', '返佣方案')), views: (current.additions?.views || []).filter((item) => !item.includes('方案切页')), rules: [...new Set((current.additions?.rules || []).filter((item) => !item.includes('方案切页') && !item.includes('负盈利佣佣金方案')).concat(['返佣方案拆分为独立左侧入口', '结算页只保留结算与佣金记录切页']))] }, updatedAt: REBATE_PLAN_SPLIT_COMPARISON_AT, record: `修改时间：${REBATE_PLAN_SPLIT_COMPARISON_AT}；修改说明：分离结算与返佣配置；修改内容：结算页移除方案切页，保留结算和佣金记录。` }
+}
+if (NOTE_COMPARISONS['master:version']) {
+  const current = NOTE_COMPARISONS['master:version']
+  NOTE_COMPARISONS['master:version'] = { ...current, additions: { ...current.additions, fields: [...new Set([...(current.additions?.fields || []).filter((item) => !item.includes('负盈利佣佣金方案')), '返佣方案扶持时长与两套配置'])], rules: [...new Set([...(current.additions?.rules || []).filter((item) => !item.includes('负盈利佣佣金方案')), '返佣方案活跃判定要求充值金额与有效投注全部满足'])] }, updatedAt: REBATE_PLAN_SPLIT_COMPARISON_AT, record: `修改时间：${REBATE_PLAN_SPLIT_COMPARISON_AT}；修改说明：同步返佣方案活跃判定；修改内容：版本说明记录扶持期与常规配置均为全部满足才计入。` }
+}
+
+const CROSS_PORTAL_REPORT_SYNC_COMPARISON_AT = '2026-07-24 16:52'
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = NOTE_COMPARISONS[key]
+  if (!current) return
+  NOTE_COMPARISONS[key] = { ...current, additions: { ...current.additions, rules: [...new Set([...(current.additions?.rules || []), '三后台同名报表共用字段、顺序、计算和模拟数据定义', '站点仅固定本站数据，代理仅按当前身份收窄数据', 'H5代理报表复用桌面代理字段并只调整移动端排版'])] }, updatedAt: CROSS_PORTAL_REPORT_SYNC_COMPARISON_AT, record: `修改时间：${CROSS_PORTAL_REPORT_SYNC_COMPARISON_AT}；修改说明：建立同名报表四端同步口径；修改内容：总控、站点、代理共用报表字段定义，H5继续复用桌面代理字段，仅保留站点和身份数据范围差异。` }
+})
+if (NOTE_COMPARISONS['agent:reversal']) {
+  const current = NOTE_COMPARISONS['agent:reversal']
+  NOTE_COMPARISONS['agent:reversal'] = { ...current, additions: { ...current.additions, rules: [...new Set([...(current.additions?.rules || []), '桌面代理与H5共用冲正统计六字段和账期数据定义'])] }, updatedAt: CROSS_PORTAL_REPORT_SYNC_COMPARISON_AT, record: `修改时间：${CROSS_PORTAL_REPORT_SYNC_COMPARISON_AT}；修改说明：同步桌面与H5冲正统计；修改内容：共用账期时间、代理名称、代理身份、欠站点、还站点、剩余欠款字段及账期数据。` }
+}
+if (NOTE_COMPARISONS['master:version']) {
+  const current = NOTE_COMPARISONS['master:version']
+  NOTE_COMPARISONS['master:version'] = { ...current, additions: { ...current.additions, rules: [...new Set([...(current.additions?.rules || []), '同名报表三后台共用字段并只按角色收窄数据', '代理后台模块修改同步H5且只改变移动端排版'])] }, updatedAt: CROSS_PORTAL_REPORT_SYNC_COMPARISON_AT, record: `修改时间：${CROSS_PORTAL_REPORT_SYNC_COMPARISON_AT}；修改说明：归档跨后台与H5同步规则；修改内容：记录同名报表字段共用、角色范围差异及桌面代理到H5同步边界。` }
+}
+
+const REBATE_PLAN_CREATE_COMPARISON_AT = '2026-07-24 17:11'
+NOTE_COMPARISONS['master:rebatePlans'] = {
+  ...NOTE_COMPARISONS['master:rebatePlans'], updatedAt: REBATE_PLAN_CREATE_COMPARISON_AT,
+  additions: { ...NOTE_COMPARISONS['master:rebatePlans'].additions, fields: ['方案名称', '代理层级', '返佣比例（0～1）', '扶持时长（月）', '扶持期与常规负盈利配置'], views: ['独立返佣方案列表', '新增返佣方案弹窗', '层级返佣方案切页', '负盈利返佣方案切页', '扶持期与常规配置切页'], actions: ['新增返佣方案', '切换方案类型', '添加级别', '删除级别', '维护两套负盈利配置', '保存', '导出'], rules: [...new Set([...(NOTE_COMPARISONS['master:rebatePlans'].additions?.rules || []), '层级返佣比例按0～1保存', '新增弹窗只提供层级返佣方案和负盈利返佣方案'])] },
+  record: `修改时间：${REBATE_PLAN_CREATE_COMPARISON_AT}；修改说明：统一两类返佣方案新增入口；修改内容：增加新增按钮、两类方案切页、层级比例表和负盈利扶持期/常规配置。`,
+}
+
+const H5_AGENT_FUNDS_COMPARISON_AT = '2026-07-24 17:53'
+if (NOTE_COMPARISONS['agent:mlFinance']) {
+  const current = NOTE_COMPARISONS['agent:mlFinance']
+  NOTE_COMPARISONS['agent:mlFinance'] = { ...current, additions: { ...current.additions, fields: [...new Set([...(current.additions?.fields || []), '充值渠道与协议', '充值及提现金额', '提现收款账户', '转账目标与流水倍数', '红包发放时间、有效期与备注'])], views: [...new Set([...(current.additions?.views || []), 'H5快速充值底部抽屉', 'H5余额提现底部抽屉', 'H5内部转账底部抽屉', 'H5发放红包底部抽屉'])], actions: [...new Set([...(current.additions?.actions || []), '切换充值渠道', '切换提现方式', '切换转账对象', '设置红包定时与有效期'])], rules: [...new Set([...(current.additions?.rules || []), 'H5表单内容纵向滚动且底部主按钮固定', '四项资金操作继续使用原余额增减与校验口径'])] }, updatedAt: H5_AGENT_FUNDS_COMPARISON_AT, record: `修改时间：${H5_AGENT_FUNDS_COMPARISON_AT}；修改说明：统一四项资金操作的H5排版；修改内容：增加四个暗色底部抽屉及其完整字段、切换、校验和固定主按钮。` }
+}
+if (NOTE_COMPARISONS['master:version']) {
+  const current = NOTE_COMPARISONS['master:version']
+  NOTE_COMPARISONS['master:version'] = { ...current, additions: { ...current.additions, fields: [...new Set([...(current.additions?.fields || []), 'H5四项资金操作完整字段'])], views: [...new Set([...(current.additions?.views || []), 'H5快速充值、余额提现、内部转账、发放红包底部抽屉'])], rules: [...new Set([...(current.additions?.rules || []), 'H5资金抽屉保持手机端排版且无横向溢出'])] }, updatedAt: H5_AGENT_FUNDS_COMPARISON_AT, record: `修改时间：${H5_AGENT_FUNDS_COMPARISON_AT}；修改说明：同步H5四项资金操作抽屉；修改内容：版本说明记录独立表单、完整字段、固定主按钮及移动端验收。` }
 }

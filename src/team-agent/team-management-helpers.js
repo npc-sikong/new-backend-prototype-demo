@@ -4,6 +4,14 @@ function findAgent(data, account) {
   return data.agents.find((agent) => agent.account === account)
 }
 
+export function agentLevelLabel(agent, teams = []) {
+  if (!agent) return '—'
+  const ownedTeam = teams.find((team) => team.mainAgent === agent.account && team.status !== '已解散')
+  if (agent.identity === '团队负责人' && (agent.canOpenSecondary === false || ownedTeam?.canOpenSecondary === false)) return '单线代理'
+  if (agent.identity === '单线代理' || agent.settlementMode === '单线代理') return '单线代理'
+  return agent.identity || '—'
+}
+
 function identityLabel(identity) {
   if (identity === '主线') return '团队负责人'
   if (identity === '副线') return '副线'

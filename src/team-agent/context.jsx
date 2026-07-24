@@ -320,6 +320,7 @@ export function TeamAgentProvider({ children }) {
       model: '负盈利模式',
       settlementMode: payload.settlementMode || '原代理模式',
       identity: payload.identity || '—',
+      canOpenSecondary: payload.identity === '团队负责人' ? payload.canOpenSecondary !== false : true,
       teamAgentType: payload.teamAgentType || (payload.agentType === '团队代理' ? '官方代理' : '—'),
       unit: targetTeam?.name || payload.unit || '—',
       lineId,

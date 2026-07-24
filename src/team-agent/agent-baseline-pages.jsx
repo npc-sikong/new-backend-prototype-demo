@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { EyeOutlined, FileDoneOutlined, SwapOutlined, TeamOutlined, WalletOutlined } from '@ant-design/icons'
 import { useTeamAgent } from './context'
+import { agentLevelLabel } from './team-management-helpers'
 import {
   Alert,
   Button,
@@ -40,16 +41,17 @@ function roleAgents(data, role) {
   const meta = ROLE_META[role] || ROLE_META.main
   const current = data.agents.find((item) => item.account === meta.account)
   if (!current) return []
+  const withLevel = (item) => ({ ...item, identity: agentLevelLabel(item, data.teams) })
   if (role === 'main') {
     const team = data.teams.find((item) => item.mainAgent === meta.account)
     const accounts = new Set([meta.account, ...(team?.lines || []).map((line) => line.agent), ...(current.subAgentDetails || []).map((item) => item.account)])
-    return data.agents.filter((item) => accounts.has(item.account)).map((item) => ({ ...item, treeLevel: item.account === meta.account ? '当前账号' : item.identity === '副线' ? '团队副线' : '直属下级' }))
+    return data.agents.filter((item) => accounts.has(item.account)).map((item) => ({ ...withLevel(item), treeLevel: item.account === meta.account ? '当前账号' : item.identity === '副线' ? '团队副线' : '直属下级' }))
   }
   const children = (current.subAgentDetails || []).map((item) => data.agents.find((agent) => agent.account === item.account) || {
     ...item, site: current.site, parent: current.account, model: current.model, settlementMode: '随上级代理', identity: '下级代理', unit: current.unit, lineId: current.lineId,
     effectiveCycle: current.effectiveCycle, members: 0, activeMembers: 0, status: '启用', balance: 0,
   })
-  return [{ ...current, treeLevel: '当前账号' }, ...children.map((item) => ({ ...item, treeLevel: '直属下级' }))]
+  return [{ ...withLevel(current), treeLevel: '当前账号' }, ...children.map((item) => ({ ...withLevel(item), treeLevel: '直属下级' }))]
 }
 
 function relationshipRows(data, account) {
@@ -66,6 +68,7 @@ function DownlinePage({ role, onToast, onNavigate }) {
   const { data } = useTeamAgent()
   const meta = ROLE_META[role] || ROLE_META.main
   const source = useMemo(() => roleAgents(data, role), [data, role])
+  const currentIdentity = source.find((item) => item.treeLevel === '当前账号')?.identity || meta.identity
   const [filters, setFilters] = useState({ keyword: '', status: '', model: '' })
   const [selected, setSelected] = useState(null)
   const [tab, setTab] = useState('base')
@@ -85,7 +88,7 @@ function DownlinePage({ role, onToast, onNavigate }) {
       <Field label="代理账号"><Input value={filters.keyword} onChange={(keyword) => setFilters({ ...filters, keyword })} placeholder="代理ID、账号或上级" /></Field>
       <Field label="代理状态"><Select value={filters.status} onChange={(status) => setFilters({ ...filters, status })} placeholder="全部状态" options={['启用', '停用']} /></Field>
       <Field label="代理模型"><Select value={filters.model} onChange={(model) => setFilters({ ...filters, model })} placeholder="全部模型" options={['负盈利模式', '普通代理']} /></Field>
-      <Field label="代理层级"><Input value={meta.identity} disabled /></Field>
+      <Field label="代理层级"><Input value={currentIdentity} disabled /></Field>
       <Field label="结算单元"><Input value={meta.unit} disabled /></Field>
       <Field label="生效周期"><Input value="2026-07" disabled /></Field>
     </FilterBar>

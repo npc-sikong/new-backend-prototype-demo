@@ -391,3 +391,85 @@ final result: passed
 - blocker: 应用内浏览器安全策略阻止本地页面自动截图，无法将实现截图与源图放入同一比较输入。
 
 final result: blocked
+
+## 返佣方案新增弹窗验收
+
+- source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-287562b6-6388-43bc-8fa5-bd139f803a8d.png`
+- implementation screenshot path: `/Users/sikon/Projects/新后台原型/.qa/rebate-plan-create.png`
+- combined comparison path: `/Users/sikon/Projects/新后台原型/.qa/rebate-plan-comparison-square.svg.png`
+- viewport: 应用内浏览器桌面视口 1140 × 641 px；弹窗宽度 980 px，并在当前视口内纵向滚动。
+- source and implementation dimensions: 参考图 952 × 1090 px；实现截图 1140 × 641 px；同一对照画布内分别按可用区域等比缩放。
+- state: 总控后台 / 返佣方案 / 新增返佣方案 / 层级返佣方案。
+- full-view comparison evidence: 新增弹窗沿用项目蓝色后台弹窗、切页、输入框、按钮和说明面板；新增入口、方案名称、级别表与底部操作完整可见。
+- focused region comparison evidence: 层级表按参考图依次展示“代理层级、返佣比例(0~1)、操作”，预置 0、1、2、3、4、5、6、7、9 级及对应 0.0100～0.5000 比例；添加级别与删除操作均可用。
+- findings: 参考图是纵向局部裁切，实现图位于现有桌面后台弹窗中，因此控件密度和可见行数按当前项目视口收敛；组件结构、字段顺序、数值格式、蓝色操作和说明内容一致，未发现遮挡、越界或错误换行。
+- interaction evidence: “添加级别”将删除按钮数从 9 增至 10，删除后恢复 9；层级方案和负盈利方案均可填写名称并保存到列表；负盈利切页保留扶持时长、扶持期、常规配置、活跃判定和等级表。
+- documentation evidence: 页面业务及需求说明和版本需求说明均更新至 2026-07-24 17:11，并记录新增按钮、两类方案切页、层级比例与负盈利两套配置。
+- verification: `npm run build`、`git diff --check`、文件行数检查和本地浏览器交互验证通过。
+
+final result: passed
+
+## H5代理后台底部导航调整验收
+
+- source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-fce4aca1-d680-42d6-bc79-da7077aa3a9c.png`
+- implementation screenshot path: `/Users/sikon/Projects/新后台原型/.qa/h5-agent-bottom-nav-implemented.jpg`
+- combined comparison path: `/Users/sikon/Projects/新后台原型/.qa/h5-agent-bottom-nav-comparison.png`
+- viewport: 应用内浏览器桌面视口 1164 × 655 px，页面使用现有窄屏手机预览容器；聚焦导航截图为 430 × 110 px。
+- state: H5代理后台 / 副线身份 / 会员列表，底部“更多”处于激活状态。
+- full-view comparison evidence: 保留原暗夜金融风、五等分导航、标准业务图标、激活指示条和手机容器底部圆角，仅调整导航内容及位置。
+- focused region comparison evidence: 导航顺序由“首页 / 看板 / 代理 / 财务 / 更多”调整为“首页 / 看板 / 财务 / 个人中心 / 更多”；财务使用钱包图标，个人中心使用用户图标。
+- interaction evidence: 点击第三项可进入财务中心，点击第四项可进入个人中心；切换为副线身份后导航顺序保持一致，四种身份共用同一固定底部结构。
+- navigation evidence: 代理列表和会员列表不再占用底部直达位置，仍按身份从首页“其它模块”或底部“更多”进入，原业务页面与权限未删减。
+- documentation evidence: H5页面业务及需求说明、版本需求说明和 `AGENTS.md` 已同步最新导航口径与修改时间。
+- verification: `npm run build`、`git diff --check`、文件行数检查、本地浏览器导航顺序与点击跳转验证通过。
+
+final result: passed
+
+## H5代理后台一级页面说明收纳验收
+
+- source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-03e6abbe-4283-47b7-bc30-acc8b130f63d.png`
+- implementation screenshot path: `/private/tmp/h5-agent-page-intro-removed.png`
+- viewport: 应用内浏览器桌面视口 1040 × 790 px；H5 手机容器 390 × 750 px。
+- source and implementation dimensions: 参考图 1742 × 1020 px；实现截图 1040 × 790 px。
+- state: H5代理后台 / 团队负责人 / 代理数据看板，业务说明抽屉关闭。
+- implementation evidence: 一级页面仅保留模块标题和“业务说明”入口，页面功能摘要、修改时间及修改记录不再直接占用一级页面空间；筛选区紧跟页面标题展示。
+- business note evidence: 打开“业务说明”后仍可查看页面功能说明、更新时间和本次修改记录，说明内容未删除。
+- DOM evidence: 页面说明容器内段落数量为 0、时间元素数量为 0，“业务说明”按钮存在，一级页面标题为“代理数据看板”。
+- console evidence: 当前页面无 warning 或 error 日志。
+- blocker: 应用内浏览器安全策略拒绝用于同屏视觉对比的组合页面地址，无法将参考图与实现截图合并到同一正式对照输入；未绕过该策略或改用其他浏览器。
+
+final result: blocked
+
+## H5代理资金操作抽屉验收
+
+- reference paths: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-f8c2fb9a-55ec-4f7f-9d5c-ff2ab802bfa4.png`、`/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-8c9babc4-feca-4352-99dd-6b6fa74623f0.png`、`/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-78bd7963-afbb-4f3d-9c13-cdc8acbabfa4.png`、`/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-4f8ed055-0e2b-4656-baff-48f8a1adf04a.png`
+- implementation screenshot paths: `/Users/sikon/Projects/新后台原型/.qa/h5-funds-recharge.jpg`、`/Users/sikon/Projects/新后台原型/.qa/h5-funds-withdraw.jpg`、`/Users/sikon/Projects/新后台原型/.qa/h5-funds-transfer.jpg`、`/Users/sikon/Projects/新后台原型/.qa/h5-funds-packet.jpg`
+- combined comparison paths: `/Users/sikon/Projects/新后台原型/.qa/h5-funds-recharge-comparison.jpg`、`/Users/sikon/Projects/新后台原型/.qa/h5-funds-withdraw-comparison.jpg`、`/Users/sikon/Projects/新后台原型/.qa/h5-funds-transfer-comparison.jpg`、`/Users/sikon/Projects/新后台原型/.qa/h5-funds-packet-comparison.jpg`
+- source dimensions: 快速充值 756 × 1366 px；余额提现 798 × 836 px；内部转账 722 × 626 px；发放红包 702 × 926 px。
+- implementation target: 现有H5代理后台388 px宽手机容器；四个弹窗统一适配为暗色底部抽屉，未复制桌面白色外壳。
+- full-view comparison evidence: 四个实现均保留参考图标题、英文副标题、关闭入口、字段顺序和底部主操作；充值长表单使用内部纵向滚动，提现、转账和红包按内容高度收敛。
+- focused comparison evidence: 快速充值保留24个渠道、协议和快捷金额；余额提现保留USDT/支付宝切换及收款卡；内部转账保留会员/代理切换和流水倍数；红包保留余额提示、定时发放、有效期和备注。
+- layout evidence: 四个抽屉宽度均为388 px；充值内容区 `386/386`、提现内容区 `386/386`、转账内容区 `386/386`、红包内容区 `386/386`，横向滚动检测均为否；金额单位和搜索/日期图标保持垂直居中。
+- interaction evidence: 完成100 USDT充值并生成 `+¥720.00` 收支记录；切换支付宝提现后收款账户和限额同步变化；内部转账切换到代理并提交 `¥88.00` 后生成扣款流水；红包可切换指定时间和7天有效期并显示日期字段。
+- findings: 参考图为桌面白色弹窗，实现按用户要求转换为H5暗色抽屉；颜色与容器形式属于目标端适配，字段、控件层级和操作含义保持一致。未发现遮挡、错误换行、横向溢出、底部按钮漂移或交互失效。
+- documentation evidence: H5财务中心业务说明、版本需求说明和 `AGENTS.md` 已同步四个抽屉的字段、资金规则、演示边界和验收口径。
+- verification: `npm run build`、`git diff --check`、文件行数限制和应用内浏览器核心交互验证通过。
+
+final result: passed
+
+## H5代理数据看板双底色验收
+
+- source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-982ddaa5-f81c-4086-9023-4cf86e217d2b.png`
+- implementation screenshot paths: `/Users/sikon/Projects/新后台原型/.qa/h5-agent-dashboard-tone-implemented.jpg`、`/Users/sikon/Projects/新后台原型/.qa/h5-agent-dashboard-tone-implemented-lower.jpg`
+- combined comparison path: `/Users/sikon/Projects/新后台原型/.qa/h5-agent-dashboard-tone-comparison.jpg`
+- viewport: 应用内浏览器 1163 × 654 px；H5代理后台使用现有390 px窄屏手机容器。
+- state: H5代理后台 / 团队负责人及多层级代理 / 代理数据看板。
+- full-view comparison evidence: 参考图使用浅蓝底和白底区分累计或当前状态数据与日期范围数据；H5实现保持现有暗夜风格，分别使用蓝色强调底和普通深色底表达相同分组，不引入白底。
+- focused comparison evidence: 本期佣金预估、当前余额、未结算佣金、已结算佣金、代理总人数、会员总数和30天未登录会员使用蓝色强调底；资金流水、新增代理、活跃代理、新增会员、活跃会员、付费会员、新增付费及推广会员使用普通深色底。
+- style evidence: 蓝色强调卡背景为 `rgb(21, 43, 71)`、边框为 `rgb(49, 84, 126)`；普通卡背景为 `rgb(15, 31, 50)`、边框为 `rgb(35, 55, 80)`，两者保持原圆角、间距、文字色和数字色。
+- role evidence: 团队负责人按身份隐藏不适用指标后仍保持正确底色；多层级代理完整7项蓝色强调指标均匹配参考分组。
+- findings: 两种暗色卡片层级清晰且不过度突出，手机端上下半部分均无遮挡、溢出或错误换行；字段、数值、筛选、明细入口及身份权限未改变。未发现P0、P1或P2问题。
+- documentation evidence: 代理数据看板业务说明、2.0版本需求说明和 `AGENTS.md` 已同步两种底色的业务含义与验收口径。
+- verification: `npm run build`、`git diff --check`、文件行数检查、同屏视觉对照及应用内浏览器DOM和计算样式检查通过。
+
+final result: passed

@@ -4,6 +4,9 @@ import { useTeamAgent } from '../team-agent/context'
 import {
   buildNegativeReportRows,
   NEGATIVE_COMMISSION_REPORT_COLUMNS,
+  NEGATIVE_REPORT_COUNT_KEYS,
+  NEGATIVE_REPORT_MONEY_KEYS,
+  NEGATIVE_REPORT_SIGNED_MONEY_KEYS,
   scopeNegativeReportRows,
 } from '../team-agent/negative-profit-report-page'
 import {
@@ -16,9 +19,9 @@ import {
   H5AgentSearch,
 } from './h5-agent-ui'
 
-const COUNT_KEYS = new Set(['teamMembers', 'subAgentCount', 'registeredCount', 'firstDepositCount', 'activeCount', 'newActiveCount'])
-const MONEY_KEYS = new Set(['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionNetIncome', 'currentDebt', 'totalDebt', 'commission'])
-const SIGNED_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'commissionNetIncome'])
+const COUNT_KEYS = new Set(NEGATIVE_REPORT_COUNT_KEYS)
+const MONEY_KEYS = new Set(NEGATIVE_REPORT_MONEY_KEYS)
+const SIGNED_KEYS = new Set(NEGATIVE_REPORT_SIGNED_MONEY_KEYS)
 const REPORT_FIELDS = NEGATIVE_COMMISSION_REPORT_COLUMNS
 
 const unique = (rows, key) => [...new Set(rows.map((row) => row[key]).filter(Boolean))]

@@ -46,7 +46,7 @@ const PORTAL_META = {
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', memberLockedFlow: '会员提现流水查询', agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理', revenue: '代理收益看板',
+    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', memberLockedFlow: '会员提现流水查询', agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', rebatePlans: '返佣方案', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理', revenue: '代理收益看板',
   },
   site: {
     agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理',
@@ -69,6 +69,7 @@ const MASTER_NAV = [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
     { id: 'cycle', label: '结算周期设置', mark: '改', icon: SettingOutlined },
     { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
+    { id: 'rebatePlans', label: '返佣方案', mark: '改', icon: SettingOutlined },
     { id: 'negativeProfitReport', label: '负盈利代理佣金报表', mark: '新', icon: FileTextOutlined },
     { id: 'teams', label: '团队代理管理', mark: '新', icon: TeamOutlined },
     { id: 'revenue', label: '代理收益看板', mark: '改', icon: WalletOutlined },

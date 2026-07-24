@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { DownOutlined, DownloadOutlined, FolderOpenOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { useTeamAgent } from './context'
+import { agentLevelLabel } from './team-management-helpers'
 import {
   Alert,
   Button,
@@ -298,7 +299,7 @@ function buildTeamMemberRows(data, bill, team) {
         agentType: '团队代理',
         recommender: firstPresent(agent.recommender, team.recommender, bill.recommender),
         agentIdentity: teamAgentIdentity,
-        agentLevel: isTeamLeader ? '团队负责人' : '副线',
+        agentLevel: isTeamLeader ? agentLevelLabel(agent, data.teams) : '副线',
         parentAccount: isTeamLeader ? agent.parent || bill.recommender || '—' : team.mainAgent || agent.parent || '—',
         teamMembers: valueOf('teamMembers'),
         subAgentCount: valueOf('subAgentCount'),
@@ -423,6 +424,7 @@ function buildRows(data, { includeRecommendations = false } = {}) {
       const team = data.teams.find((item) => item.id === bill.unitId || item.name === bill.unitName)
       const isNegativeMode = agent.model === '负盈利模式' || Number(bill.correctedNet || 0) < 0
       if (!isNegativeMode) return null
+      const displayLevel = agentLevelLabel(agent, data.teams)
       const memberRows = buildTeamMemberRows(data, bill, team)
       const statisticRange = statisticRangeOf(bill)
       const baseRow = {
@@ -440,7 +442,7 @@ function buildRows(data, { includeRecommendations = false } = {}) {
         agentType: '团队代理',
         recommender: firstPresent(bill.recommender, team?.recommender, agent.recommender),
         agentIdentity: agent.teamAgentType === '官方代理' || bill.agentType === '官方代理' ? '官方代理' : '普通代理',
-        agentLevel: bill.type === '团队佣金' ? '团队负责人' : '单线代理',
+        agentLevel: displayLevel === '—' ? (bill.type === '团队佣金' ? '团队负责人' : '单线代理') : displayLevel,
         parentAccount: agent.parent || bill.recommender || '—',
         teamMembers: bill.teamMembers ?? team?.lines?.length ?? (bill.type === '单线代理佣金' ? 1 : 0),
         subAgentCount: bill.subAgentCount ?? agent.subAgents ?? 0,
@@ -488,6 +490,9 @@ function buildRows(data, { includeRecommendations = false } = {}) {
 export const NEGATIVE_REPORT_COLUMNS = COLUMN_DEFS
 export const NEGATIVE_REPORT_COMMISSION_EXCLUDED_KEYS = COMMISSION_REPORT_EXCLUDED_KEYS
 export const NEGATIVE_COMMISSION_REPORT_COLUMNS = COMMISSION_REPORT_COLUMNS
+export const NEGATIVE_REPORT_COUNT_KEYS = COUNT_KEYS
+export const NEGATIVE_REPORT_MONEY_KEYS = MONEY_KEYS
+export const NEGATIVE_REPORT_SIGNED_MONEY_KEYS = [...SIGNED_MONEY_KEYS]
 export const buildNegativeReportRows = buildRows
 
 export function scopeSiteNegativeReportRows(rows) {

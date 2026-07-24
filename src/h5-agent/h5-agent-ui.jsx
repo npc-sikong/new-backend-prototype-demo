@@ -8,9 +8,9 @@ import {
   SearchOutlined,
 } from '@ant-design/icons'
 
-export function H5AgentPageIntro({ title, summary, updatedAt, onOpenNotes }) {
+export function H5AgentPageIntro({ title, onOpenNotes }) {
   return <section className="h5-agent-page-intro">
-    <div><h1>{title}</h1><p>{summary}</p><small>修改时间：{updatedAt}</small></div>
+    <div><h1>{title}</h1></div>
     <button type="button" onClick={onOpenNotes}><FileTextOutlined /><span>业务说明</span></button>
   </section>
 }

@@ -249,6 +249,7 @@
 .legacy-rebate-index { color: #5f6f82 !important; font-size: 14px !important; }
 .legacy-rebate-team-name { color: #286dba; font-weight: 700; }
 .legacy-rebate-detail-lines { display: grid; gap: 5px; color: #8ca4bf; font-size: 11px; font-weight: 700; line-height: 1.15; white-space: normal; }
+.legacy-rebate-detail-lines strong { margin-top: 3px; color: #2d5f96; font-size: 12px; }
 .legacy-rebate-table .ta-table-actions { gap: 14px; }
 .legacy-rebate-table .ta-table-link { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; }
 .settlement-legacy-screen .ta-section-header { min-height: 31px; margin-bottom: 10px; }
@@ -298,6 +299,10 @@
 .legacy-rebate-name-row > span { display: inline-flex; justify-content: flex-end; gap: 4px; }
 .legacy-rebate-name-row b { color: #ed5966; }
 .legacy-rebate-name-row .ta-input, .legacy-rebate-name-row .ta-select { height: 42px; font-size: 13px; }
+.legacy-create-rebate-tabs { margin: -4px -5px 2px; padding: 0; }
+.legacy-create-rebate-tabs button { min-width: 138px; height: 42px; justify-content: center; font-size: 13px; }
+.legacy-create-stage-tabs { margin: 0; padding: 0; background: transparent; }
+.legacy-create-stage-tabs button { min-width: 112px; justify-content: center; font-size: 12px; }
 .legacy-rebate-add-level { width: max-content; margin-left: 0; }
 .legacy-rebate-modal-grid { min-height: 500px; display: grid; grid-template-columns: 1180px minmax(120px, 1fr); border: 1px solid #e1e8f0; background: #fff; }
 .legacy-level-table { width: 100%; border-collapse: collapse; color: #56667a; table-layout: fixed; }
@@ -309,6 +314,11 @@
 .legacy-level-table th:nth-child(8), .legacy-level-table td:nth-child(8) { width: 94px; }
 .legacy-level-input { min-width: 106px; height: 34px; text-align: center; font-size: 13px; }
 .legacy-level-table .ta-table-link { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; }
+.legacy-reference-level-wrap { width: min(100%, 710px); border: 1px solid #e1e8f0; background: #fff; }
+.legacy-reference-level-table th:nth-child(1), .legacy-reference-level-table td:nth-child(1) { width: 240px; }
+.legacy-reference-level-table th:nth-child(2), .legacy-reference-level-table td:nth-child(2) { width: 290px; }
+.legacy-reference-level-table th:nth-child(3), .legacy-reference-level-table td:nth-child(3) { width: 180px; }
+.legacy-reference-level-table .legacy-level-input { width: 192px; }
 .legacy-rebate-blank { background: #fff; }
 .legacy-rebate-help { min-height: 116px; display: grid; align-content: center; gap: 9px; padding: 18px 20px; border-left: 4px solid #2b98f1; border-radius: 4px; color: #667486; background: #f6f8fa; font-size: 14px; line-height: 1.7; }
 .legacy-rebate-help strong { color: #2b98f1; }
