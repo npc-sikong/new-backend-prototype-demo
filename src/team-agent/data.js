@@ -27,13 +27,24 @@ function bill(row) {
   }
 }
 
+function recommendedCommission(row) {
+  return {
+    site: '旺财体育', cycle: '2026-07', periodStart: '2026-07-01', periodEnd: '2026-07-31', agentType: '团队代理',
+    agentIdentity: '普通代理', agentLevel: '单线代理', parentAccount: '无上级代理', teamMembers: 1, subAgentCount: 0,
+    registeredCount: 0, firstDepositCount: 0, activeCount: 0, newActiveCount: 0, depositAmount: 0, withdrawalAmount: 0,
+    totalWinLoss: 0, venueFee: 0, memberBonus: 0, activityRewards: 0, memberReferralReward: 0, memberRebate: 0,
+    accountAdjustment: 0, depositFee: 0, withdrawalFee: 0, manualOrderWinLoss: 0, netWinLossRaw: 0, lastBalance: 0,
+    correctedNet: 0, grade: '一星', rate: 0.3, payable: 0, becameAgentAt: '2026-06-01', joinedAt: '2026-07-01', ...row,
+  }
+}
+
 export const INITIAL_STATE = {
   ...LEGACY_STATE,
   agents: [
     agent({ id: '345', account: 'gaodashang', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'charles', boundMemberAccount: 'M100345', email: 'gao@example.com', registeredAt: '2026-05-08 13:20', settlementMode: '团队模式', identity: '团队负责人', unit: 'gaodashang01部', lineId: 'LINE-A', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: '无上级代理', subAgents: 8, members: 207, activeMembers: 68, newActiveMembers: 18, depositAmount: 486000, withdrawalAmount: 182000, totalWinLoss: 218000, validBetting: 1640000, plan: 'DW负盈利佣金方案', balance: 79806.45, lastLogin: '2026-07-15 09:22', subAgentDetails: [{ id: '373', account: 'WC002', registeredAt: '2026-06-02 12:30' }, { id: '374', account: 'LGNB', registeredAt: '2026-06-06 17:40' }, { id: '1750', account: 'dailiwc001a', registeredAt: '2026-06-18 09:15' }] }),
     agent({ id: '373', account: 'WC002', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'charles', parentId: '345', email: 'wc002@example.com', registeredAt: '2026-06-02 12:30', settlementMode: '团队模式', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-B', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'gaodashang', subAgents: 2, members: 31, activeMembers: 37, newActiveMembers: 11, depositAmount: 168000, withdrawalAmount: 62000, totalWinLoss: 146000, validBetting: 780000, plan: 'DW负盈利佣金方案', balance: 3100, lastLogin: '2026-07-14 18:36' }),
     agent({ id: '374', account: 'LGNB', model: '负盈利模式', agentType: '团队代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'WC002', parentId: '345', email: 'lgnb@example.com', registeredAt: '2026-06-06 17:40', settlementMode: '团队模式', identity: '副线', unit: 'gaodashang01部', lineId: 'LINE-C', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'gaodashang', subAgents: 1, members: 22, activeMembers: 23, newActiveMembers: 7, depositAmount: 92000, withdrawalAmount: 38000, totalWinLoss: 50000, validBetting: 410000, plan: 'DW负盈利佣金方案', balance: 2850, lastLogin: '2026-07-13 20:10' }),
-    agent({ id: '1749', account: 'dailiwc001', model: '负盈利模式', agentType: '单线代理', teamAgentType: '—', developer: 'apppay', parentId: '901', boundMemberAccount: 'M201749', email: 'dailiwc001@example.com', registeredAt: '2026-05-26 11:45', settlementMode: '单线代理', identity: '单线代理', unit: '单线代理01', lineId: 'SINGLE-001', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'apppay', subAgents: 1, members: 18, activeMembers: 46, newActiveMembers: 12, depositAmount: 214000, withdrawalAmount: 87000, totalWinLoss: 170000, validBetting: 920000, plan: 'DW负盈利佣金方案', balance: 68903.14, lastLogin: '2026-07-12 11:08' }),
+    agent({ id: '1749', account: 'dailiwc001', model: '负盈利模式', agentType: '团队代理', teamAgentType: '普通代理', developer: 'apppay', parentId: '901', boundMemberAccount: 'M201749', email: 'dailiwc001@example.com', registeredAt: '2026-05-26 11:45', settlementMode: '单线代理', identity: '单线代理', unit: '单线代理01', lineId: 'SINGLE-001', effectiveCycle: '2026-07', site: '旺财体育', status: '启用', parent: 'apppay', subAgents: 1, members: 18, activeMembers: 46, newActiveMembers: 12, depositAmount: 214000, withdrawalAmount: 87000, totalWinLoss: 170000, validBetting: 920000, plan: 'DW负盈利佣金方案', balance: 68903.14, lastLogin: '2026-07-12 11:08' }),
     agent({ id: '1750', account: 'dailiwc001a', model: '负盈利模式', agentType: '多层级代理', developer: 'market02', parentId: '1050', registeredAt: '2026-06-18 09:15', settlementMode: '原代理模式', identity: '—', unit: '—', lineId: '—', effectiveCycle: '—', site: '旺财体育', status: '启用', parent: 'hddaili', subAgents: 0, members: 4, activeMembers: 3, newActiveMembers: 1, depositAmount: 18800, withdrawalAmount: 7200, totalWinLoss: 9500, validBetting: 64000, plan: '多层级返佣方案', balance: 1920, lastLogin: '2026-07-10 16:16' }),
     agent({ id: '1774', account: 'charles', model: '普通代理', agentType: '多层级代理', developer: 'market03', registeredAt: '2026-06-22 15:20', settlementMode: '原代理模式', identity: '—', unit: '—', lineId: '—', effectiveCycle: '—', site: '旺财体育', status: '启用', parent: '无上级代理', subAgents: 0, members: 3, activeMembers: 2, newActiveMembers: 1, depositAmount: 12000, withdrawalAmount: 4800, totalWinLoss: -18000, validBetting: 38000, plan: '多层级返佣方案', balance: 1960, lastLogin: '2026-07-06 16:41' }),
     agent({ id: '1109', account: 'FEE0428_A8', model: '负盈利模式', agentType: '星级代理', developer: 'fee0428', email: 'fee0428@example.com', registeredAt: '2026-04-28 18:12', settlementMode: '原代理模式', identity: '—', unit: '—', lineId: '—', effectiveCycle: '—', site: '财神客栈', status: '启用', parent: '无上级代理', subAgents: 4, members: 7, activeMembers: 6, newActiveMembers: 2, depositAmount: 74000, withdrawalAmount: 21000, totalWinLoss: 42000, validBetting: 260000, plan: '星级返佣方案', balance: 15000, lastLogin: '2026-07-01 19:20' }),
@@ -41,7 +52,7 @@ export const INITIAL_STATE = {
   ],
   teams: [
     {
-      id: 'TEAM-001', code: 'DPT-001', name: 'gaodashang01部', teamType: '官方代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'charles', site: '旺财体育', currency: 'CNY', mainAgent: 'gaodashang', memberDetailPermission: false, createdAt: '2026-06-28 10:20', joinedAt: '2026-07-01 00:00', plan: 'DW负盈利佣金方案', status: '生效中', startCycle: '2026-07', endCycle: '长期', previousNegative: 60000,
+      id: 'TEAM-001', code: 'DPT-001', name: 'gaodashang01部', teamType: '官方代理', teamAgentType: '官方代理', developer: 'gaodashang', recommender: 'charles', site: '旺财体育', currency: 'CNY', mainAgent: 'gaodashang', canOpenSecondary: true, memberDetailPermission: false, createdAt: '2026-06-28 10:20', joinedAt: '2026-07-01 00:00', plan: 'DW负盈利佣金方案', status: '生效中', startCycle: '2026-07', endCycle: '长期', previousNegative: 60000,
       cumulativeReceived: 220000, successfulTransfers: 28000, processingOccupied: 15000, otherDeductions: 3200,
       metrics: { newActive: 36, activeMembers: 128, memberWinLoss: 520000, totalWinLoss: 520000, venueFee: 26000, memberBonus: 18000, memberRebate: 12000, accountAdjustment: 8000, manualOrderWinLoss: 5000, depositFee: 2500, withdrawalFee: 2500, expenses: 60000, adjustment: 8000, currentNet: 472000, lastBalance: -60000, balanceAdjustment: 0, assessmentNet: 412000, correctedNet: 412000, commissionableNet: 412000, commissionAdjustment: 0, grade: '五星', rate: 0.5, payable: 206000 },
       lines: [
@@ -88,6 +99,14 @@ export const INITIAL_STATE = {
     bill({ id: 'BILL-R-202607-001', type: '推荐奖励', unitId: 'SINGLE-001', unitName: '单线代理01', payee: 'apppay', agentType: '官方代理', becameAgentAt: '2026-04-20', totalWinLoss: 68000, netWinLossRaw: 68000, correctedNet: 68000, site: '旺财体育', cycle: '2026-07', grade: '—', rate: 0.1, netWinLoss: 68000, payable: 6800, issued: 0, state: '待审核', recommender: 'apppay', createdAt: '2026-07-14 02:07' }),
     bill({ id: 'BILL-T-202608-002', type: '团队佣金', unitId: 'TEAM-002', unitName: 'apppay01部', payee: 'apppay', agentType: '普通代理', teamType: '普通代理', teamMembers: 2, activeCount: 20, newActiveCount: 5, totalWinLoss: 65000, venueFee: 3250, memberBonus: 4000, activityRewards: 1500, memberReferralReward: 500, memberRebate: 2750, accountAdjustment: 0, manualOrderWinLoss: 0, depositFee: 2500, withdrawalFee: 2500, netWinLossRaw: 50000, lastBalance: 0, correctedNet: 50000, site: '旺财体育', cycle: '2026-08', grade: '一星', rate: 0.3, netWinLoss: 50000, payable: 15000, issued: 0, state: '待提交', recommender: '—', createdAt: '2026-07-14 14:20' }),
     bill({ id: 'BILL-S-202606-002', type: '单线代理佣金', unitId: 'SINGLE-003', unitName: '单线代理03', payee: 'charles', becameAgentAt: '2026-06-22', totalWinLoss: -18000, netWinLossRaw: -18000, lastBalance: 0, correctedNet: -18000, site: '旺财体育', cycle: '2026-06', grade: '零级', rate: 0, netWinLoss: -18000, payable: 0, issued: 0, state: '无佣金结转', recommender: '—', createdAt: '2026-07-01 02:03' }),
+  ],
+  recommendedCommissionRows: [
+    recommendedCommission({ id: 'REC-GAO-T-202607', recommender: 'gaodashang', teamName: '宏盛团队', agentId: '2301', agentAccount: 'hongsheng01', agentIdentity: '官方代理', agentLevel: '团队负责人', parentAccount: 'gaodashang', teamMembers: 4, subAgentCount: 62, registeredCount: 74, firstDepositCount: 16, activeCount: 49, newActiveCount: 13, depositAmount: 286000, withdrawalAmount: 104000, totalWinLoss: 96000, venueFee: 4800, memberBonus: 2400, activityRewards: 1600, memberReferralReward: 600, memberRebate: 2200, depositFee: 900, withdrawalFee: 900, netWinLossRaw: 84100, lastBalance: -6000, correctedNet: 78100, grade: '三星', rate: 0.4, payable: 31240 }),
+    recommendedCommission({ id: 'REC-GAO-S-202607', recommender: 'gaodashang', teamName: '嘉盈单线', agentId: '2302', agentAccount: 'jiaying01', parentAccount: 'gaodashang', subAgentCount: 18, registeredCount: 25, firstDepositCount: 7, activeCount: 16, newActiveCount: 5, depositAmount: 92000, withdrawalAmount: 36000, totalWinLoss: 42000, venueFee: 2100, memberBonus: 1200, activityRewards: 800, memberReferralReward: 300, memberRebate: 900, depositFee: 350, withdrawalFee: 350, netWinLossRaw: 36000, lastBalance: -2000, correctedNet: 34000, grade: '二星', rate: 0.3, payable: 10200 }),
+    recommendedCommission({ id: 'REC-WC-T-202607', recommender: 'WC002', teamName: '恒峰团队', agentId: '2311', agentAccount: 'hengfeng01', agentIdentity: '官方代理', agentLevel: '团队负责人', parentAccount: 'WC002', teamMembers: 3, subAgentCount: 41, registeredCount: 53, firstDepositCount: 12, activeCount: 35, newActiveCount: 9, depositAmount: 208000, withdrawalAmount: 76000, totalWinLoss: 73000, venueFee: 3650, memberBonus: 1900, activityRewards: 1200, memberReferralReward: 450, memberRebate: 1600, depositFee: 650, withdrawalFee: 650, netWinLossRaw: 63000, lastBalance: -5000, correctedNet: 58000, grade: '三星', rate: 0.35, payable: 20300 }),
+    recommendedCommission({ id: 'REC-WC-S-202607', recommender: 'WC002', teamName: '新锐单线', agentId: '2312', agentAccount: 'xinrui01', parentAccount: 'WC002', subAgentCount: 11, registeredCount: 16, firstDepositCount: 5, activeCount: 10, newActiveCount: 3, depositAmount: 61000, withdrawalAmount: 24000, totalWinLoss: 28000, venueFee: 1400, memberBonus: 750, activityRewards: 500, memberReferralReward: 200, memberRebate: 600, depositFee: 275, withdrawalFee: 275, netWinLossRaw: 24000, lastBalance: -3000, correctedNet: 21000, grade: '二星', rate: 0.3, payable: 6300 }),
+    recommendedCommission({ id: 'REC-DAILY-T-202607', recommender: 'dailiwc001', teamName: '启航团队', agentId: '2321', agentAccount: 'qihang01', agentLevel: '团队负责人', parentAccount: 'dailiwc001', teamMembers: 3, subAgentCount: 29, registeredCount: 38, firstDepositCount: 9, activeCount: 25, newActiveCount: 7, depositAmount: 148000, withdrawalAmount: 52000, totalWinLoss: 52000, venueFee: 2600, memberBonus: 1400, activityRewards: 900, memberReferralReward: 350, memberRebate: 1150, depositFee: 500, withdrawalFee: 500, netWinLossRaw: 45000, lastBalance: -2000, correctedNet: 43000, grade: '二星', rate: 0.3, payable: 12900 }),
+    recommendedCommission({ id: 'REC-DAILY-S-202607', recommender: 'dailiwc001', teamName: '远航单线', agentId: '2322', agentAccount: 'yuanhang01', parentAccount: 'dailiwc001', subAgentCount: 8, registeredCount: 12, firstDepositCount: 4, activeCount: 8, newActiveCount: 2, depositAmount: 43000, withdrawalAmount: 16000, totalWinLoss: 19000, venueFee: 950, memberBonus: 500, activityRewards: 300, memberReferralReward: 100, memberRebate: 400, depositFee: 175, withdrawalFee: 175, netWinLossRaw: 16500, lastBalance: -1500, correctedNet: 15000, grade: '一星', rate: 0.25, payable: 3750 }),
   ],
   internalSettlements: [
     { id: 'IS-202607-001', teamId: 'TEAM-001', teamName: 'gaodashang01部', mainAgent: 'gaodashang', secondaryAgent: 'WC002', cycle: '2026-07', amount: 28000, basis: '固定金额', source: '平台已到账余额', state: '成功', voucher: '结算凭证-A01', createdAt: '2026-07-14 10:20' },
@@ -746,34 +765,33 @@ PAGE_NOTES['master:version'] = {
   record: `修改时间：${NEGATIVE_REWARD_FIELDS_UPDATED_AT}；修改说明：同步负盈利佣金奖励明细字段；修改内容：结算与只读报表新增各活动奖励、会员推会员，并同步四端展示、团队拆分和总计。`,
 }
 
-const NEGATIVE_PLAN_TOOLTIP_UPDATED_AT = '2026-07-23 18:05'
-const NEGATIVE_PLAN_TOOLTIP_TEXT = '净输赢 = 所有下级会员盈亏值 − 所有运营费用'
+const NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT = '2026-07-24 15:28'
 PAGE_NOTES['master:plans'] = {
   ...PAGE_NOTES['master:plans'],
-  updatedAt: NEGATIVE_PLAN_TOOLTIP_UPDATED_AT,
-  fields: PAGE_NOTES['master:plans'].fields.replace('总输赢', '净输赢及问号提示'),
-  logic: `${PAGE_NOTES['master:plans'].logic} 负盈利方案的净输赢按“${NEGATIVE_PLAN_TOOLTIP_TEXT}”理解，字段右侧问号在鼠标悬停或键盘聚焦时展示该说明；本次仅补充解释，不改变门槛数值和佣金计算。`,
-  requirement: `${PAGE_NOTES['master:plans'].requirement} 负盈利方案净输赢字段需要提供可悬停的计算口径提示。`,
-  acceptance: `${PAGE_NOTES['master:plans'].acceptance} 修改DW负盈利佣金方案时，净输赢字段右侧显示问号，悬停或聚焦后完整展示计算说明。`,
-  record: `修改时间：${NEGATIVE_PLAN_TOOLTIP_UPDATED_AT}；修改说明：明确负盈利方案净输赢门槛口径；修改内容：净输赢字段右侧增加问号，悬停或聚焦后提示“${NEGATIVE_PLAN_TOOLTIP_TEXT}”，原门槛和返佣计算保持不变。`,
+  updatedAt: NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT,
+  fields: PAGE_NOTES['master:plans'].fields.replace('净输赢及问号提示', '总输赢'),
+  logic: `${PAGE_NOTES['master:plans'].logic} 负盈利佣金方案统一使用总输赢作为等级判定门槛，字段旁不展示问号说明；本次不改变原门槛数值、返佣等级或佣金计算。`,
+  requirement: '负盈利佣佣金方案编辑表将净输赢改为总输赢，并去除该字段右侧的问号说明。',
+  acceptance: '修改DW负盈利佣金方案时，列表详情、编辑表头和弹窗底部说明均显示总输赢，字段右侧不存在问号或悬停提示。',
+  record: `修改时间：${NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT}；修改说明：统一负盈利方案等级判定字段名称；修改内容：净输赢改为总输赢，去除问号说明，原门槛和返佣计算保持不变。`,
 }
 
 PAGE_NOTES['master:negativeProfit'] = {
   ...PAGE_NOTES['master:negativeProfit'],
-  updatedAt: NEGATIVE_PLAN_TOOLTIP_UPDATED_AT,
-  logic: `${PAGE_NOTES['master:negativeProfit'].logic} “负盈利佣佣金方案”修改弹窗中的净输赢字段右侧提供问号提示，说明${NEGATIVE_PLAN_TOOLTIP_TEXT}；该提示不改变现有方案值或结算结果。`,
-  requirement: `${PAGE_NOTES['master:negativeProfit'].requirement} 负盈利方案需通过问号悬停说明净输赢门槛口径。`,
-  acceptance: `${PAGE_NOTES['master:negativeProfit'].acceptance} 进入负盈利佣佣金方案并打开修改弹窗后，可在净输赢右侧悬停问号查看完整说明。`,
-  record: `修改时间：${NEGATIVE_PLAN_TOOLTIP_UPDATED_AT}；修改说明：帮助运营理解负盈利返佣等级的净输赢条件；修改内容：方案编辑表将原字段显示为净输赢，并增加问号悬停说明，不改变原门槛和计算逻辑。`,
+  updatedAt: NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:negativeProfit'].logic} “负盈利佣佣金方案”修改弹窗统一显示总输赢，不再展示该字段问号说明。`,
+  requirement: '负盈利佣佣金方案的等级门槛字段统一为总输赢，并移除问号提示。',
+  acceptance: '进入负盈利佣佣金方案并打开修改弹窗后，方案详情、表头和说明均使用总输赢，页面没有该字段问号提示。',
+  record: `修改时间：${NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT}；修改说明：统一负盈利方案等级门槛名称；修改内容：净输赢改为总输赢并移除问号说明，门槛数值及结算逻辑保持不变。`,
 }
 
 PAGE_NOTES['master:version'] = {
   ...PAGE_NOTES['master:version'],
-  updatedAt: NEGATIVE_PLAN_TOOLTIP_UPDATED_AT,
-  logic: `${PAGE_NOTES['master:version'].logic} 负盈利佣佣金方案的净输赢字段增加问号悬停说明，口径为${NEGATIVE_PLAN_TOOLTIP_TEXT}。`,
-  requirement: `${PAGE_NOTES['master:version'].requirement} 记录负盈利方案净输赢字段的悬停说明。`,
-  acceptance: `${PAGE_NOTES['master:version'].acceptance} 版本说明可跳转到负盈利代理佣金结算，并在方案修改弹窗验证净输赢问号提示。`,
-  record: `修改时间：${NEGATIVE_PLAN_TOOLTIP_UPDATED_AT}；修改说明：补充负盈利方案净输赢解释；修改内容：方案编辑表新增问号悬停提示并同步模块说明与验收口径。`,
+  updatedAt: NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:version'].logic} 负盈利佣佣金方案的等级门槛字段由净输赢改为总输赢，并去除问号说明。`,
+  requirement: '记录负盈利佣佣金方案总输赢字段及去除问号提示的最新调整。',
+  acceptance: '版本说明可跳转到负盈利代理佣金结算，并在方案修改弹窗验证总输赢表头及无问号说明。',
+  record: `修改时间：${NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT}；修改说明：同步负盈利方案等级门槛名称；修改内容：净输赢改为总输赢，移除问号说明并同步模块验收口径。`,
 }
 
 const RECOMMENDER_FIELD_UPDATED_AT = '2026-07-23 11:30'
@@ -1047,7 +1065,7 @@ const NEGATIVE_REPORT_AGENT_FIELDS_UPDATED_AT = '2026-07-24 01:34'
     ...current,
     updatedAt: NEGATIVE_REPORT_AGENT_FIELDS_UPDATED_AT,
     fields,
-    logic: `${current.logic} 代理资料字段按代理类型、代理身份、代理层级连续展示：代理类型仅为团队代理或单线代理；代理身份仅为官方代理或普通代理；代理层级仅为团队负责人、副线或单线代理。团队主记录、团队成员明细和单线代理记录使用各自对应值。`,
+    logic: `${current.logic} 代理资料字段按代理类型、代理身份、代理层级连续展示：负盈利业务的代理类型统一为团队代理；代理身份仅为官方代理或普通代理；代理层级仅为团队负责人、副线或单线代理。团队主记录、团队成员明细和单线代理记录使用各自对应值。`,
     requirement: '负盈利代理佣金报表在代理身份左侧增加代理类型、右侧增加代理层级，三项同步三后台、H5、字段筛选、详情和导出。',
     acceptance: '报表表头及字段筛选按代理类型、代理身份、代理层级连续展示；团队主记录显示团队代理/官方或普通代理/团队负责人，展开成员正确区分团队负责人和副线，单线记录显示单线代理层级；H5卡片、详情和横向核对同步。',
     boundary: `${current.boundary} 本次仅补充代理资料分类字段，不改变现有身份数据范围、金额计算、发放状态或只读边界。`,
@@ -1099,5 +1117,73 @@ PAGE_NOTES['master:version'] = {
   acceptance: '版本说明可跳转团队代理管理；列表无代理编号/账号筛选，详情无团队业绩查看，冻结说明包含团队负责人和全部副线代理，解除后恢复正常。',
   record: `修改时间：${TEAM_DETAIL_SIMPLIFIED_UPDATED_AT}；修改说明：同步团队详情精简及冻结规则；修改内容：移除代理编号/账号筛选和团队业绩查看，补充冻结团队与成员登录状态联动。`,
 }
+
+const AGENT_TYPE_LEVEL_UPDATED_AT = '2026-07-24 15:22'
+;['master:agents', 'site:agents', 'agent:agents'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+  const isMaster = key === 'master:agents'
+  PAGE_NOTES[key] = {
+    ...current,
+    updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
+    fields: `${current.fields.replace(/。$/, '')}；代理类型仅保留多层级代理、星级代理、团队代理，代理层级继续保留单线代理${isMaster ? '；新增团队负责人时展示团队名称和是否能开副线' : ''}。`,
+    logic: isMaster
+      ? '新增和修改代理时，单线代理不再作为代理类型，只能作为团队代理下的代理层级。新增任意代理均不填写代理名称；新增团队负责人必须填写团队名称，并可设置是否能开副线。开副线设置位于团队名称上方，单线说明与开关状态同行展示；关闭开关后，该团队负责人按单线经营，系统阻止继续开副线。'
+      : `${current.logic} 代理类型不展示单线代理，单线代理仅在代理层级中保留。`,
+    requirement: isMaster ? '代理类型去除单线代理；新增表单移除代理名称；团队负责人补充团队名称和是否能开副线开关。' : '同步代理类型与代理层级的最新口径。',
+    acceptance: isMaster ? '新增和修改弹窗的代理类型不出现单线代理；代理层级仍可选择单线代理；新增团队负责人时，开副线设置位于团队名称上方，说明与开启或关闭状态同行展示，关闭后新增副线被阻止。' : '代理列表及筛选的代理类型不出现单线代理，单线记录仍显示单线代理层级。',
+    boundary: `${current.boundary || ''} 本次只调整前端原型字段、选项和演示校验，不连接真实账号或团队服务。`,
+    comparison: NOTE_COMPARISONS[key],
+    record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：区分代理业务类型与代理层级；修改内容：代理类型去除单线代理，代理层级保留单线代理${isMaster ? '，新增团队负责人增加团队名称和是否能开副线，开副线设置移至团队名称上方且说明与状态同行展示，新增表单移除代理名称' : ''}。`,
+  }
+})
+
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  if (!current) return
+  PAGE_NOTES[key] = {
+    ...current,
+    updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
+    logic: `${current.logic} 负盈利业务的代理类型统一显示团队代理；单线代理仅作为代理层级展示。`,
+    requirement: '三后台及H5代理后台的负盈利报表不再把单线代理作为代理类型。',
+    acceptance: '代理类型仅显示团队代理；单线记录的代理层级仍显示单线代理。',
+    comparison: NOTE_COMPARISONS[key],
+    record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：统一负盈利报表代理类型；修改内容：单线记录的代理类型改为团队代理，代理层级继续显示单线代理。`,
+  }
+})
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
+  requirement: '归档三后台及H5当前有效模块；代理类型去除单线代理，单线代理保留为代理层级，并记录团队负责人新增字段和开副线规则。',
+  acceptance: '版本说明可跳转代理列表和负盈利代理佣金报表；新增弹窗、三后台报表及H5均按最新代理类型与代理层级口径展示。',
+  record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：同步代理类型与新增团队负责人规则；修改内容：记录代理类型去除单线代理、新增表单移除代理名称、团队负责人增加团队名称和开副线开关，并统一开关与说明的展示顺序。`,
+}
+
+PAGE_NOTES['master:negativeProfit'] = {
+  ...PAGE_NOTES['master:negativeProfit'],
+  updatedAt: NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT,
+  logic: `${PAGE_NOTES['master:negativeProfit'].logic} “负盈利佣佣金方案”修改弹窗统一显示总输赢，不再展示该字段问号说明。`,
+  requirement: '负盈利佣佣金方案的等级门槛字段统一为总输赢，并移除问号提示。',
+  acceptance: '进入负盈利佣佣金方案并打开修改弹窗后，方案详情、表头和说明均使用总输赢，页面没有该字段问号提示。',
+  comparison: NOTE_COMPARISONS['master:negativeProfit'],
+  record: `修改时间：${NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT}；修改说明：统一负盈利方案等级门槛名称；修改内容：净输赢改为总输赢并移除问号说明，门槛数值及结算逻辑保持不变。`,
+}
+
+PAGE_NOTES['master:version'] = {
+  ...PAGE_NOTES['master:version'],
+  updatedAt: NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT,
+  requirement: '归档三后台及H5当前有效模块；负盈利佣佣金方案等级门槛统一显示总输赢，并去除该字段问号说明。',
+  acceptance: '版本说明可跳转负盈利代理佣金结算；负盈利佣佣金方案详情、编辑表头和说明均显示总输赢，字段右侧没有问号提示。',
+  record: `修改时间：${NEGATIVE_PLAN_TOTAL_WIN_LOSS_UPDATED_AT}；修改说明：同步负盈利方案等级门槛名称；修改内容：净输赢改为总输赢，移除问号说明并更新模块验收口径。`,
+}
+
+const AGENT_RECOMMENDATION_REPORT_UPDATED_AT = '2026-07-24 15:32'
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = PAGE_NOTES[key]
+  const isAgent = key === 'agent:negativeProfitReport'
+  PAGE_NOTES[key] = { ...current, updatedAt: AGENT_RECOMMENDATION_REPORT_UPDATED_AT, fields: current.fields.includes('推荐人') ? current.fields : current.fields.replace('代理类型', '代理类型、推荐人'), logic: `${current.logic} 推荐人按代理推荐关系展示。${isAgent ? '团队负责人展开本人团队后同步查看全部团队成员及本人推荐的团队和单线；副线与单线代理仅展示本人主记录，展开后查看本人推荐的团队和单线。推荐团队只显示汇总且不能再次展开，推荐数据不重复计入本人主记录总计。' : ''}`, requirement: `${current.requirement}；补充推荐人字段${isAgent ? '及三种身份推荐数据展开范围' : ''}。`, acceptance: `${current.acceptance}；可核对推荐人。${isAgent ? '推荐团队使用绿色、推荐单线使用金色，推荐团队无二次展开入口。' : ''}`, comparison: NOTE_COMPARISONS[key], record: `修改时间：${AGENT_RECOMMENDATION_REPORT_UPDATED_AT}；修改说明：补充推荐代理经营与佣金核对；修改内容：增加推荐人，代理后台展开本人记录后同步展示推荐团队和推荐单线。` }
+})
+PAGE_NOTES['master:version'] = { ...PAGE_NOTES['master:version'], updatedAt: AGENT_RECOMMENDATION_REPORT_UPDATED_AT, requirement: '归档三后台及H5当前有效模块；同步负盈利代理佣金报表推荐人及代理端推荐数据展开范围。', acceptance: '版本说明可跳转负盈利代理佣金报表；代理后台与H5三种身份可从本人记录展开推荐团队和推荐单线，推荐团队不可二次展开。', record: `修改时间：${AGENT_RECOMMENDATION_REPORT_UPDATED_AT}；修改说明：同步推荐代理佣金核对范围；修改内容：记录本人范围、推荐数据展开、专属颜色和推荐团队不可二次展开规则。` }
 
 export const P1_ROADMAP = ['副线批量开设与范围调整', '内部结算模板', '主线自有资金提前结算', '方案计算预演', '推荐奖励期限与阶梯', '历史余额受控移交']

@@ -22,6 +22,7 @@ const SIGNED_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWi
 const REPORT_FIELDS = NEGATIVE_COMMISSION_REPORT_COLUMNS
 
 const unique = (rows, key) => [...new Set(rows.map((row) => row[key]).filter(Boolean))]
+const rowSearchText = (row) => `${row.agentAccount}${row.agentId}${row.teamName}${row.parentAccount}${row.recommender}${row.memberRows.map((item) => `${item.agentAccount}${item.agentId}${item.teamName}${item.recommender}`).join('')}`.toLowerCase()
 const money = (value, signed = false) => {
   const amount = Number(value || 0)
   const sign = amount < 0 ? '-' : signed && amount > 0 ? '+' : ''
@@ -46,7 +47,7 @@ function detailItems(row) {
 
 function AuditTable({ rows, fields, totals }) {
   return <div className="h5-agent-audit-wrap"><table className="h5-agent-audit-table"><thead><tr>{fields.map((field) => <th key={field.key}>{field.label}</th>)}</tr></thead><tbody>
-    {rows.map((row) => <tr key={row.id} className={row.rowType === 'member' ? 'is-member' : ''}>{fields.map((field) => <td key={field.key}>{displayValue(field, row)}</td>)}</tr>)}
+    {rows.map((row) => <tr key={row.id} className={row.isRecommended ? `is-recommended is-${row.rowType === 'recommended-team' ? 'team' : 'single'}` : row.rowType === 'member' ? 'is-member' : ''}>{fields.map((field) => <td key={field.key}>{displayValue(field, row)}</td>)}</tr>)}
     {!rows.length && <tr><td colSpan={fields.length}>暂无数据</td></tr>}
     {!!rows.length && <tr className="h5-agent-audit-total">{fields.map((field, index) => <td key={field.key}>{index === 0 ? '总计' : totals[field.key] ?? '—'}</td>)}</tr>}
   </tbody></table></div>
@@ -62,8 +63,8 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
   const [visibleKeys, setVisibleKeys] = useState(() => REPORT_FIELDS.map((field) => field.key))
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
-  const allRows = useMemo(() => scopeNegativeReportRows(buildNegativeReportRows(data), role), [data, role])
-  const rows = allRows.filter((row) => (!filters.keyword || `${row.agentAccount}${row.agentId}${row.teamName}${row.parentAccount}`.toLowerCase().includes(filters.keyword.toLowerCase()))
+  const allRows = useMemo(() => scopeNegativeReportRows(buildNegativeReportRows(data, { includeRecommendations: true }), role), [data, role])
+  const rows = allRows.filter((row) => (!filters.keyword || rowSearchText(row).includes(filters.keyword.toLowerCase()))
     && (!filters.cycle || row.cycle === filters.cycle)
     && (!filters.dateFrom || row.periodEnd >= filters.dateFrom)
     && (!filters.dateTo || row.periodStart <= filters.dateTo)
@@ -104,6 +105,7 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
         <div className="h5-agent-record-summary h5-agent-record-values">
           <div><span>统计时间</span><b>{row.statisticTime}</b></div>
           <div><span>代理类型</span><b>{row.agentType}</b></div>
+          <div><span>推荐人</span><b>{row.recommender}</b></div>
           <div><span>代理层级</span><b>{row.agentLevel}</b></div>
           <div><span>冲正后净输赢</span><b className={tone(row.correctedNet) ? `is-${tone(row.correctedNet)}` : ''}>{money(row.correctedNet, true)}</b></div>
           <div><span>佣金净收益</span><b className={tone(row.commissionNetIncome) ? `is-${tone(row.commissionNetIncome)}` : ''}>{money(row.commissionNetIncome, true)}</b></div>
@@ -112,12 +114,12 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
           <div><span>佣金</span><b>{money(row.commission)}</b></div>
           <div><span>下级会员</span><b>{row.subAgentCount}</b></div>
         </div>
-        {row.memberRows.length > 0 && <button type="button" className="h5-agent-inline-action h5-agent-expand-members" onClick={() => setExpanded((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])}>{expanded.includes(row.id) ? <MinusOutlined /> : <PlusOutlined />}{expanded.includes(row.id) ? '收起团队成员' : `展开 ${row.memberRows.length} 名团队成员`}</button>}
+        {row.memberRows.length > 0 && <button type="button" className="h5-agent-inline-action h5-agent-expand-members" onClick={() => setExpanded((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])}>{expanded.includes(row.id) ? <MinusOutlined /> : <PlusOutlined />}{expanded.includes(row.id) ? `收起${row.expansionLabel || '团队成员'}` : `展开${row.expansionLabel || '团队成员'}（${row.memberRows.length}）`}</button>}
         <footer><span /><button type="button" className="h5-agent-card-detail" onClick={() => setSelected(row)}>查看全部字段</button></footer>
       </article>]
-      if (expanded.includes(row.id)) cards.push(...row.memberRows.map((member) => <article className="h5-agent-record-card is-member" key={member.id}>
-        <header><div><strong>{member.agentAccount}</strong><small>{member.agentAccount === row.agentAccount ? '团队负责人' : '副线'} · {member.agentId}</small></div><span className="h5-agent-status is-brand">{member.agentIdentity}</span></header>
-        <div className="h5-agent-record-summary h5-agent-record-values"><div><span>代理类型</span><b>{member.agentType}</b></div><div><span>代理层级</span><b>{member.agentLevel}</b></div><div><span>冲正后净输赢</span><b>{money(member.correctedNet, true)}</b></div><div><span>佣金净收益</span><b>{money(member.commissionNetIncome, true)}</b></div><div><span>本期欠款</span><b>{money(member.currentDebt)}</b></div><div><span>总欠款</span><b>{money(member.totalDebt)}</b></div><div><span>佣金</span><b>{money(member.commission)}</b></div><div><span>下级会员</span><b>{member.subAgentCount}</b></div></div>
+      if (expanded.includes(row.id)) cards.push(...row.memberRows.map((member) => <article className={`h5-agent-record-card ${member.isRecommended ? `is-recommended is-${member.rowType === 'recommended-team' ? 'team' : 'single'}` : 'is-member'}`} key={member.id}>
+        <header><div><strong>{member.agentAccount}</strong><small>{member.isRecommended ? member.recommendationLabel : member.agentLevel} · {member.agentId}</small></div><span className="h5-agent-status is-brand">{member.isRecommended ? member.recommendationLabel : member.agentIdentity}</span></header>
+        <div className="h5-agent-record-summary h5-agent-record-values"><div><span>代理类型</span><b>{member.agentType}</b></div><div><span>推荐人</span><b>{member.recommender}</b></div><div><span>代理层级</span><b>{member.agentLevel}</b></div><div><span>冲正后净输赢</span><b>{money(member.correctedNet, true)}</b></div><div><span>佣金净收益</span><b>{money(member.commissionNetIncome, true)}</b></div><div><span>本期欠款</span><b>{money(member.currentDebt)}</b></div><div><span>总欠款</span><b>{money(member.totalDebt)}</b></div><div><span>佣金</span><b>{money(member.commission)}</b></div><div><span>下级会员</span><b>{member.subAgentCount}</b></div></div>
         <footer><span /><button type="button" className="h5-agent-card-detail" onClick={() => setSelected(member)}>查看全部字段</button></footer>
       </article>))
       return cards

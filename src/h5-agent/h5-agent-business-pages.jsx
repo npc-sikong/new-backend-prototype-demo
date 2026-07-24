@@ -147,8 +147,8 @@ function RowsSheet({ config, onClose }) {
 }
 
 function agentTypeDisplay(row) {
-  if (['多层级代理', '星级代理', '团队代理', '单线代理'].includes(row.agentType)) return row.agentType
-  if (row.settlementMode === '单线代理') return '单线代理'
+  if (row.agentType === '单线代理' || row.settlementMode === '单线代理') return '团队代理'
+  if (['多层级代理', '星级代理', '团队代理'].includes(row.agentType)) return row.agentType
   if (row.settlementMode === '团队模式') return '团队代理'
   if (row.agentType === '官方代理') return '星级代理'
   return '多层级代理'
@@ -224,7 +224,7 @@ export function H5AgentListPage({ role = 'main', onToast = EMPTY_FN }) {
 
     <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} onReset={() => setFilters(emptyFilters)} resultCount={rows.length}>
       <Field label="代理ID"><input value={filters.id} onChange={(event) => setFilters({ ...filters, id: event.target.value })} placeholder="请输入代理ID" /></Field>
-      {!isMultiLevel && <Field label="代理类型"><select value={filters.agentType} onChange={(event) => setFilters({ ...filters, agentType: event.target.value })}><option value="">全部类型</option>{['多层级代理', '星级代理', '团队代理', '单线代理'].map((value) => <option key={value}>{value}</option>)}</select></Field>}
+      {!isMultiLevel && <Field label="代理类型"><select value={filters.agentType} onChange={(event) => setFilters({ ...filters, agentType: event.target.value })}><option value="">全部类型</option>{['多层级代理', '星级代理', '团队代理'].map((value) => <option key={value}>{value}</option>)}</select></Field>}
       <Field label="代理状态"><select value={filters.status} onChange={(event) => setFilters({ ...filters, status: event.target.value })}><option value="">全部状态</option>{unique(sourceRows, 'status').map((value) => <option key={value} value={value}>{value === '启用' ? '正常' : value}</option>)}</select></Field>
       {!isMultiLevel && <Field label="谷歌验证"><select value={filters.google} onChange={(event) => setFilters({ ...filters, google: event.target.value })}><option value="">全部状态</option><option>未绑定</option></select></Field>}
       {!isMultiLevel && <Field label="代理注册时间"><input type="date" value={filters.registeredFrom} onChange={(event) => setFilters({ ...filters, registeredFrom: event.target.value })} /></Field>}

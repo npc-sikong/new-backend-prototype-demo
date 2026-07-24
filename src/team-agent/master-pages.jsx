@@ -70,15 +70,17 @@ function AgentRadioGroup({ value, options, onChange }) {
     return <label key={item.value}><input type="radio" checked={value === item.value} onChange={() => onChange(item.value)} /><span>{item.label}</span></label>
   })}</div>
 }
+function AgentSwitch({ checked, onChange, note }) {
+  return <label className="agent-switch"><input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} /><span aria-hidden="true" /><b>{checked ? '开启' : '关闭'}</b>{note && <em>{note}</em>}</label>
+}
 function AgentFormDivider() {
   return <div className="agent-modal-divider" />
 }
-const AGENT_TYPE_OPTIONS = ['多层级代理', '星级代理', '团队代理', '单线代理']
+const AGENT_TYPE_OPTIONS = ['多层级代理', '星级代理', '团队代理']
 const TEAM_AGENT_TYPE_OPTIONS = ['官方代理', '普通代理']
-const TEAM_AGENT_ADD_IDENTITY_OPTIONS = ['团队负责人', '副线']
+const TEAM_AGENT_ADD_IDENTITY_OPTIONS = ['团队负责人', '副线', '单线代理']
 const TEAM_AGENT_IDENTITY_OPTIONS = ['团队负责人', '副线', '单线代理']
 const NEGATIVE_PROFIT_PLAN = 'DW负盈利佣金方案'
-const SINGLE_PLAN_OPTIONS = [NEGATIVE_PROFIT_PLAN]
 const REVERSAL_AGENT_TYPE_OPTIONS = ['团队代理', '星级代理', '层级代理']
 const REVERSAL_FILTER_DEFAULTS = { cycle: '', site: '', agentType: '', keyword: '' }
 const RETURN_FILTER_DEFAULTS = { date: '', site: '', type: '', agentType: '', flow: '', keyword: '' }
@@ -102,18 +104,18 @@ const ROLE_ACCOUNTS = { main: ['gaodashang', 'WC002', 'LGNB'], secondary: ['WC00
 const accountsFor = (role) => ROLE_ACCOUNTS[role] || ROLE_ACCOUNTS.main
 const inPortalScope = (row, portal, role, accountKey = 'account') => portal === 'master' || (portal === 'site' ? row.site === '旺财体育' : accountsFor(role).includes(row[accountKey]))
 function normalizeAgentType(agent) {
+  if (agent.agentType === '单线代理' || agent.settlementMode === '单线代理') return '团队代理'
   if (AGENT_TYPE_OPTIONS.includes(agent.agentType)) return agent.agentType
-  if (agent.settlementMode === '单线代理') return '单线代理'
   if (agent.settlementMode === '团队模式') return '团队代理'
   if (agent.agentType === '官方代理') return '星级代理'
   return '多层级代理'
 }
+const isSingleLevelAgent = (agent) => agent?.identity === '单线代理' || agent?.settlementMode === '单线代理'
 function normalizeTeamIdentity(identity) {
   if (identity === '单线代理') return '单线代理'
   return identity || '副线'
 }
 function teamAgentPayload(type, identity = '团队负责人', plan = NEGATIVE_PROFIT_PLAN, teamAgentType = '官方代理') {
-  if (type === '单线代理') return { settlementMode: '单线代理', identity: '单线代理', teamAgentType: '—', plan: NEGATIVE_PROFIT_PLAN }
   if (type !== '团队代理') return { settlementMode: '原代理模式', identity: '—', teamAgentType: '—', plan: plan || (type === '星级代理' ? '星级返佣方案' : '多层级返佣方案') }
   return {
     settlementMode: identity === '单线代理' ? '单线代理' : '团队模式',
@@ -125,7 +127,6 @@ function teamAgentPayload(type, identity = '团队负责人', plan = NEGATIVE_PR
 function planOptionsForAgentType(type, teamOptions = []) {
   if (type === '团队代理') return [NEGATIVE_PROFIT_PLAN]
   if (type === '星级代理') return STAR_PLAN_OPTIONS
-  if (type === '单线代理') return SINGLE_PLAN_OPTIONS
   return LEGACY_PLAN_OPTIONS
 }
 function defaultPlanForAgentType(type, teamOptions = []) {
@@ -157,7 +158,6 @@ function levelDisplay(agent) {
   if (type === '多层级代理' && agent.level) return agent.level
   if (type === '多层级代理') return `${Math.max(1, Math.min(10, Number(agent.subAgents || 0) + 1))}层代理`
   if (type === '团队代理') return normalizeTeamIdentity(agent.identity)
-  if (type === '单线代理') return '单线代理'
   return '-'
 }
 function teamAgentTypeDisplay(agent) {
@@ -176,7 +176,7 @@ function agentRank(agent) {
   return ''
 }
 function commissionRateHint(agentType, rank) {
-  if (['团队代理', '单线代理'].includes(agentType)) return `按${NEGATIVE_PROFIT_PLAN}计算`
+  if (agentType === '团队代理') return `按${NEGATIVE_PROFIT_PLAN}计算`
   if (agentType === '星级代理') return '30.00%'
   const level = Number(String(rank || '').match(/\d+/)?.[0] || 6)
   return `${Math.min(80, 10 + level * 5).toFixed(2)}%`
@@ -186,9 +186,9 @@ function withCurrentOption(options, value) {
   return [...options, { value, label: value }]
 }
 function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' }) {
-  const { data, addAgent, updateAgent } = useTeamAgent()
+  const { data, addAgent, updateAgent, createTeam } = useTeamAgent()
   const emptyFilters = { id: '', account: '', site: '', agentType: '', status: '', google: '', registeredFrom: '' }
-  const defaultAgentForm = { account: '', agentName: '', password: '', site: '旺财体育', agentType: '多层级代理', teamAgentType: '官方代理', identity: '团队负责人', targetTeamId: '', parent: '无上级代理', recommender: '—', plan: '多层级返佣方案', carryAllFees: '否', status: '启用', remark: '' }
+  const defaultAgentForm = { account: '', password: '', site: '旺财体育', agentType: '多层级代理', teamAgentType: '官方代理', identity: '团队负责人', teamName: '', canOpenSecondary: true, targetTeamId: '', parent: '无上级代理', recommender: '—', plan: '多层级返佣方案', carryAllFees: '否', status: '启用', remark: '' }
   const [filters, setFilters] = useState(emptyFilters)
   const [showAdd, setShowAdd] = useState(false)
   const [modal, setModal] = useState(null)
@@ -235,7 +235,8 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     setModal(type)
     if (type === 'edit') {
       const typeValue = normalizeAgentType(target)
-      const identity = typeValue === '单线代理' ? '单线代理' : normalizeTeamIdentity(target.identity)
+      const identity = isSingleLevelAgent(target) ? '单线代理' : normalizeTeamIdentity(target.identity)
+      const ownedTeam = data.teams.find((team) => team.mainAgent === target.account && team.status !== '已解散')
       setEditForm({
         account: target.account, agentName: target.agentName || target.account,
         site: target.site || '旺财体育',
@@ -250,7 +251,8 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
         migratePendingCost: target.migratePendingCost || '否',
         joinSite: target.site || '旺财体育',
         targetTeamId: data.teams.find((team) => team.site === (target.site || '旺财体育') && (team.name === target.unit || team.lines?.some((line) => line.agent === target.account)))?.id || '',
-        newTeamName: `${target.account}团队`,
+        teamName: ownedTeam?.name || `${target.account}团队`,
+        canOpenSecondary: ownedTeam?.canOpenSecondary !== false,
         status: target.status || '启用',
         remark: target.remark || '',
       })
@@ -273,32 +275,38 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
       onToast('请填写密码', 'error')
       return
     }
-    if (form.agentType === '团队代理' && !String(form.agentName || '').trim()) {
-      onToast('请填写代理名称', 'error')
+    if (form.agentType === '团队代理' && form.identity === '团队负责人' && !String(form.teamName || '').trim()) {
+      onToast('请填写团队名称', 'error')
       return
     }
     if (form.agentType === '团队代理' && form.identity === '副线' && (!form.targetTeamId || teamAgentTypeFor(data.teams.find((team) => team.id === form.targetTeamId)) !== form.teamAgentType)) {
       onToast(form.targetTeamId ? '副线代理身份必须与所选团队一致' : '请选择副线要加入的团队', 'error')
       return
     }
-    const identity = form.agentType === '团队代理' ? form.identity : form.agentType === '单线代理' ? '单线代理' : form.identity
+    const identity = form.agentType === '团队代理' ? form.identity : form.identity
     const targetTeam = data.teams.find((team) => team.id === form.targetTeamId)
     const teamAgentType = form.teamAgentType
-    const parent = form.agentType === '单线代理' ? form.parent : identity === '副线' ? targetTeam?.mainAgent : '无上级代理'
+    const parent = identity === '副线' ? targetTeam?.mainAgent : identity === '单线代理' ? form.parent : '无上级代理'
     const parentAgent = data.agents.find((agent) => agent.account === parent)
-    const recommender = form.agentType === '团队代理' ? form.recommender || '—' : form.agentType === '单线代理' && parent !== '无上级代理' ? parent : '—'
-    const payload = { ...form, identity, teamAgentType, parent, parentId: parentAgent?.id || '—', recommender, unit: targetTeam?.name || '—', effectiveCycle: targetTeam?.startCycle || '—', ...teamAgentPayload(form.agentType, identity, form.plan, teamAgentType) }
-    showResult(addAgent(payload), onToast, () => setShowAdd(false))
+    const recommender = form.agentType === '团队代理' ? form.recommender || '—' : '—'
+    const unit = targetTeam?.name || (identity === '团队负责人' ? form.teamName.trim() : identity === '单线代理' ? `${form.account.trim()}单线` : '—')
+    const result = addAgent({ ...form, identity, teamAgentType, parent, parentId: parentAgent?.id || '—', recommender, unit, effectiveCycle: targetTeam?.startCycle || '—', ...teamAgentPayload(form.agentType, identity, form.plan, teamAgentType) })
+    if (!result.ok) return onToast(result.message, 'error')
+    if (form.agentType === '团队代理' && identity === '团队负责人') {
+      const teamResult = createTeam({ name: form.teamName, mainAgent: form.account, mainId: result.id, teamType: teamAgentType, site: form.site, plan: form.plan, canOpenSecondary: form.canOpenSecondary })
+      if (!teamResult.ok) return onToast(teamResult.message, 'error')
+    }
+    onToast(result.message, 'success'); setShowAdd(false)
   }
 
   function saveEditAgent() {
-    const wasSingle = normalizeAgentType(selected) === '单线代理'; if (editForm.agentType === '团队代理' && !String(editForm.agentName || '').trim()) return onToast('请填写代理名称', 'error')
+    const wasSingle = isSingleLevelAgent(selected); if (editForm.agentType === '团队代理' && !String(editForm.agentName || '').trim()) return onToast('请填写代理名称', 'error')
     if (editForm.agentType === '团队代理' && editForm.identity === '副线' && !editForm.targetTeamId) {
       onToast('请选择要加入的团队', 'error')
       return
     }
-    if (wasSingle && editForm.agentType === '团队代理' && editForm.identity === '团队负责人' && !String(editForm.newTeamName || '').trim()) {
-      onToast('请填写新的团队名称', 'error')
+    if (editForm.agentType === '团队代理' && editForm.identity === '团队负责人' && !String(editForm.teamName || '').trim()) {
+      onToast('请填写团队名称', 'error')
       return
     }
     const targetTeam = data.teams.find((team) => team.id === editForm.targetTeamId)
@@ -308,12 +316,13 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
       parent: editForm.agentType === '团队代理' && editForm.identity === '副线' ? lockedSecondaryParent : editForm.parent || '无上级代理',
       recommender: editForm.agentType === '团队代理' ? editForm.recommender || '—' : recommenderOf(selected),
       site: wasSingle && editForm.agentType === '团队代理' && editForm.identity === '副线' ? editForm.joinSite : editForm.site,
-      unit: editForm.agentType === '单线代理' ? (selected.unit && selected.unit !== '—' ? selected.unit : `${selected.account}单线`) : wasSingle && editForm.agentType === '团队代理' ? (editForm.identity === '副线' ? targetTeam?.name : editForm.newTeamName) : editForm.agentType === '团队代理' ? selected.unit : '—',
-      lineId: editForm.agentType === '单线代理' ? (selected.lineId && selected.lineId !== '—' ? selected.lineId : 'SINGLE-NEW') : wasSingle && editForm.agentType === '团队代理' && editForm.identity === '副线' ? '待分配' : editForm.agentType === '团队代理' ? selected.lineId : '—',
+      unit: editForm.agentType === '团队代理' ? (editForm.identity === '副线' ? targetTeam?.name : editForm.identity === '团队负责人' ? editForm.teamName : selected.unit || `${selected.account}单线`) : '—',
+      lineId: editForm.agentType === '团队代理' ? (wasSingle && editForm.identity === '副线' ? '待分配' : selected.lineId) : '—',
       status: editForm.status || '启用',
       remark: editForm.remark || '',
       carryAllFees: editForm.carryAllFees || '否',
       migratePendingCost: editForm.migratePendingCost || '否',
+      teamName: editForm.teamName, canOpenSecondary: editForm.canOpenSecondary,
       ...teamAgentPayload(editForm.agentType, editForm.identity, editForm.plan, editForm.teamAgentType),
     }
     if (editForm.agentType === '星级代理') payload.starLevel = editForm.rank || defaultRankForAgentType('星级代理')
@@ -322,11 +331,11 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
   }
 
   function changeAddAgentType(value) {
-    setForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? '团队负责人' : value === '单线代理' ? '单线代理' : current.identity, targetTeamId: '', parent: '无上级代理', recommender: '—' }))
+    setForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? '团队负责人' : current.identity, targetTeamId: '', parent: '无上级代理', recommender: '—' }))
   }
 
   function changeEditAgentType(value) {
-    setEditForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? (TEAM_AGENT_IDENTITY_OPTIONS.includes(current.identity) ? current.identity : '团队负责人') : value === '单线代理' ? '单线代理' : current.identity, rank: defaultRankForAgentType(value) }))
+    setEditForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? (TEAM_AGENT_IDENTITY_OPTIONS.includes(current.identity) ? current.identity : '团队负责人') : current.identity, rank: defaultRankForAgentType(value) }))
   }
 
   const columns = [
@@ -382,11 +391,11 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
           <Field label="代理类型" required><Select value={form.agentType} onChange={changeAddAgentType} options={AGENT_TYPE_OPTIONS} /></Field>
           {form.agentType === '团队代理' && <Field label="代理身份" required><Select value={form.teamAgentType} onChange={(value) => setForm({ ...form, teamAgentType: value, targetTeamId: '' })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field>}
           {form.agentType === '团队代理' && <Field label="代理层级" required><Select value={form.identity} onChange={(value) => setForm({ ...form, identity: value, targetTeamId: value === '副线' ? form.targetTeamId : '' })} options={TEAM_AGENT_ADD_IDENTITY_OPTIONS} /></Field>}
-          {form.agentType === '团队代理' && <Field label="代理名称" required><Input value={form.agentName} onChange={(value) => setForm({ ...form, agentName: value })} placeholder={form.identity === '副线' ? '请输入副线代理名称' : '请输入代理名称'} /></Field>}
+          {form.agentType === '团队代理' && form.identity === '团队负责人' && <><Field label="是否能开副线"><AgentSwitch checked={form.canOpenSecondary} onChange={(checked) => setForm({ ...form, canOpenSecondary: checked })} note="不能开副线的团队负责人类型为单线" /></Field><Field label="团队名称" required><Input value={form.teamName} onChange={(value) => setForm({ ...form, teamName: value })} placeholder="请输入团队名称" /></Field></>}
           {form.agentType === '团队代理' && form.identity === '副线' && <Field label="加入团队" required><Select value={form.targetTeamId} onChange={(value) => setForm({ ...form, targetTeamId: value })} placeholder="请选择同身份团队" options={addJoinTeamOptions} /></Field>}
           {form.agentType === '团队代理' && form.identity === '副线' && <Field label="上级代理" help="由所选团队自动确定，不允许手动修改"><Input value={data.teams.find((team) => team.id === form.targetTeamId)?.mainAgent || '选择团队后自动带出'} disabled /></Field>}
+          {form.agentType === '团队代理' && form.identity === '单线代理' && <Field label="上级代理"><Select value={form.parent} onChange={(value) => setForm({ ...form, parent: value })} options={parentOptions} /></Field>}
           {form.agentType === '团队代理' && <Field label="推荐人"><Select value={form.recommender} onChange={(value) => setForm({ ...form, recommender: value })} options={recommenderOptions} /></Field>}
-          {form.agentType === '单线代理' && <><Field label="代理层级" required><Input value="单线代理" disabled /></Field><Field label="上级代理"><Select value={form.parent} onChange={(value) => setForm({ ...form, parent: value })} options={parentOptions} /></Field></>}
         </FormGrid>
         <AgentFormDivider />
         <FormGrid columns={1}>
@@ -407,8 +416,8 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
           <Field label="佣金方案"><Select value={editForm.plan} onChange={(value) => setEditForm({ ...editForm, plan: value })} options={editPlanOptions} /></Field>
           <Field label="代理类型" required><Select value={editForm.agentType} onChange={changeEditAgentType} options={AGENT_TYPE_OPTIONS} /></Field>
           {editForm.agentType === '团队代理'
-            ? <><Field label="代理身份" required><Select value={editForm.teamAgentType} onChange={(value) => setEditForm({ ...editForm, teamAgentType: value, targetTeamId: '' })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field><Field label="代理层级" required><Select value={editForm.identity} onChange={(value) => setEditForm({ ...editForm, identity: value, targetTeamId: '' })} options={TEAM_AGENT_IDENTITY_OPTIONS} /></Field><Field label="代理名称" required><Input value={editForm.agentName || ''} onChange={(value) => setEditForm({ ...editForm, agentName: value })} placeholder={editForm.identity === '副线' ? '请输入副线代理名称' : '请输入代理名称'} /></Field>{editForm.identity === '副线' && <>{normalizeAgentType(selected || {}) === '单线代理' && <Field label="加入站点" required><Select value={editForm.joinSite} onChange={(value) => setEditForm({ ...editForm, joinSite: value, targetTeamId: '' })} options={SITE_OPTIONS} /></Field>}<Field label="加入团队" required><Select value={editForm.targetTeamId} onChange={(value) => setEditForm({ ...editForm, targetTeamId: value })} placeholder="请选择同身份团队" options={joinTeamOptions} /></Field></>}{normalizeAgentType(selected || {}) === '单线代理' && editForm.identity === '团队负责人' && <Field label="新团队名称" required><Input value={editForm.newTeamName} onChange={(value) => setEditForm({ ...editForm, newTeamName: value })} placeholder="请输入新的团队名称" /></Field>}</>
-            : editForm.agentType === '单线代理' ? <Field label="代理层级" required><Input value="单线代理" disabled /></Field> : <Field label="代理层级" required><Select value={editForm.rank} onChange={(value) => setEditForm({ ...editForm, rank: value })} options={editForm.agentType === '星级代理' ? STAR_LEVEL_OPTIONS : LEVEL_OPTIONS} /></Field>}
+            ? <><Field label="代理身份" required><Select value={editForm.teamAgentType} onChange={(value) => setEditForm({ ...editForm, teamAgentType: value, targetTeamId: '' })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field><Field label="代理层级" required><Select value={editForm.identity} onChange={(value) => setEditForm({ ...editForm, identity: value, targetTeamId: '' })} options={TEAM_AGENT_IDENTITY_OPTIONS} /></Field><Field label="代理名称" required><Input value={editForm.agentName || ''} onChange={(value) => setEditForm({ ...editForm, agentName: value })} placeholder={editForm.identity === '副线' ? '请输入副线代理名称' : '请输入代理名称'} /></Field>{editForm.identity === '副线' && <>{isSingleLevelAgent(selected) && <Field label="加入站点" required><Select value={editForm.joinSite} onChange={(value) => setEditForm({ ...editForm, joinSite: value, targetTeamId: '' })} options={SITE_OPTIONS} /></Field>}<Field label="加入团队" required><Select value={editForm.targetTeamId} onChange={(value) => setEditForm({ ...editForm, targetTeamId: value })} placeholder="请选择同身份团队" options={joinTeamOptions} /></Field></>}{editForm.identity === '团队负责人' && <><Field label="是否能开副线"><AgentSwitch checked={editForm.canOpenSecondary !== false} onChange={(checked) => setEditForm({ ...editForm, canOpenSecondary: checked })} note="不能开副线的团队负责人类型为单线" /></Field><Field label="团队名称" required><Input value={editForm.teamName || ''} onChange={(value) => setEditForm({ ...editForm, teamName: value })} placeholder="请输入团队名称" /></Field></>}</>
+            : <Field label="代理层级" required><Select value={editForm.rank} onChange={(value) => setEditForm({ ...editForm, rank: value })} options={editForm.agentType === '星级代理' ? STAR_LEVEL_OPTIONS : LEVEL_OPTIONS} /></Field>}
           {editForm.agentType === '团队代理' && <Field label="推荐人"><Select value={editForm.recommender} onChange={(value) => setEditForm({ ...editForm, recommender: value })} options={editRecommenderOptions} /></Field>}
           <Field label="返佣比例"><div className="agent-static-value">{commissionRateHint(editForm.agentType, editForm.rank)} <small>站点上限：80.00%，代理返佣必须低于站点返佣</small></div></Field>
         </FormGrid>

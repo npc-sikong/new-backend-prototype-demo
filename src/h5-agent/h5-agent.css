@@ -271,6 +271,9 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-icon-action.active { color: #fff; border-color: #3474d8; background: #1d55ae; }
 .h5-agent-expand-members { width: 100%; justify-content: center; margin-top: 10px; border-style: dashed; }
 .h5-agent-record-card.is-member { margin-left: 10px; border-color: #3466a7; background: #15365d; box-shadow: inset 3px 0 0 #4b8cf2, 0 8px 20px rgba(0, 0, 0, .16); }
+.h5-agent-record-card.is-recommended { margin-left: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, .18); }
+.h5-agent-record-card.is-recommended.is-team { border-color: #2c8f79; background: #143d3d; box-shadow: inset 3px 0 0 #47c29d, 0 8px 20px rgba(0, 0, 0, .18); }
+.h5-agent-record-card.is-recommended.is-single { border-color: #aa7632; background: #42331f; box-shadow: inset 3px 0 0 #e4a84c, 0 8px 20px rgba(0, 0, 0, .18); }
 .h5-agent-record-card > .h5-agent-form-actions, .h5-agent-detail-list .h5-agent-form-actions { width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 10px; }
 .h5-agent-record-card > .h5-agent-form-actions .h5-agent-inline-action, .h5-agent-detail-list .h5-agent-form-actions .h5-agent-inline-action { min-width: 0; justify-content: center; padding: 0 4px; }
 .h5-agent-status.is-warning { color: #ffc978; border-color: #6e5129; background: #382a19; }
@@ -283,6 +286,10 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-audit-table th:first-child { z-index: 4; }
 .h5-agent-audit-table tr.is-member td { background: #17385f; }
 .h5-agent-audit-table tr.is-member td:first-child { background: #1a416e; }
+.h5-agent-audit-table tr.is-recommended.is-team td { background: #153e3d; }
+.h5-agent-audit-table tr.is-recommended.is-team td:first-child { background: #1b4b47; }
+.h5-agent-audit-table tr.is-recommended.is-single td { background: #43331f; }
+.h5-agent-audit-table tr.is-recommended.is-single td:first-child { background: #503c22; }
 .h5-agent-audit-table .h5-agent-audit-total td { color: #dce7f6; background: #14263b; font-weight: 800; }
 .h5-agent-audit-table .h5-agent-audit-total td:first-child { background: #182d47; }
 .h5-agent-audit-table tr:last-child td { border-bottom: 0; }

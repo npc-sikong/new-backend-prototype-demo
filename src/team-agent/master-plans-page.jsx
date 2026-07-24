@@ -7,8 +7,7 @@ function ActionLink({ children, onClick, disabled = false }) {
   return <button className="ta-table-link" disabled={disabled} onClick={onClick}>{children}</button>
 }
 
-const REBATE_UPDATED_AT = '2026-07-23 18:05'
-const NET_WIN_LOSS_TOOLTIP = 'TIPS：净输赢 = 所有下级会员盈亏值 − 所有运营费用'
+const REBATE_UPDATED_AT = '2026-07-24 15:28'
 const REBATE_TYPE_OPTIONS = [
   { value: 'level', label: '层级代理' },
   { value: 'star', label: '星级代理' },
@@ -61,11 +60,6 @@ function rebateDetailLabel(row, detail, totalWinLossLabel) {
   if (row.mode === 'star') return `${detail.level} 星级代理 / 返佣 ${rebatePercent(detail.rate)}`
   if (row.mode === 'team') return `${detail.level} 级团队 / ${rebateConditionText(detail, totalWinLossLabel)} / 返佣 ${rebatePercent(detail.rate)}`
   return `${detail.level} 级代理 / 返佣 ${rebatePercent(detail.rate)}`
-}
-
-function NetWinLossHeader({ showTip }) {
-  if (!showTip) return '总输赢'
-  return <span className="legacy-field-tip-label">净输赢<span className="legacy-field-help-mark" tabIndex="0" aria-label={NET_WIN_LOSS_TOOLTIP} data-tip={NET_WIN_LOSS_TOOLTIP}>?</span></span>
 }
 
 function defaultRebateDetails(mode) {
@@ -140,7 +134,7 @@ export function MasterPlansPage({ onToast, portal = 'master', negativeOnly = fal
   const rebateColumns = [
     { key: 'sequence', label: '序号', cellClassName: 'legacy-rebate-index' },
     { key: 'name', label: '返佣方案名称', render: (value, row) => <span className={row.mode === 'team' ? 'legacy-rebate-team-name' : ''}>{value}</span> },
-    { key: 'details', label: '方案详情', render: (value, row) => <div className="legacy-rebate-detail-lines">{row.mode === 'team' && <span>活跃会员：{rebateRuleText(row.activeRule)}；新增活跃：{rebateRuleText(row.newActiveRule)}</span>}{value.map((detail) => <span key={`${row.id}-${detail.level}`}>{rebateDetailLabel(row, detail, negativeOnly ? '净输赢' : '总输赢')}</span>)}</div> },
+    { key: 'details', label: '方案详情', render: (value, row) => <div className="legacy-rebate-detail-lines">{row.mode === 'team' && <span>活跃会员：{rebateRuleText(row.activeRule)}；新增活跃：{rebateRuleText(row.newActiveRule)}</span>}{value.map((detail) => <span key={`${row.id}-${detail.level}`}>{rebateDetailLabel(row, detail, '总输赢')}</span>)}</div> },
     { key: 'createdAt', label: '创建时间' }, { key: 'operator', label: '最后操作人' }, { key: 'operatedAt', label: '操作时间' },
     { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><ActionLink onClick={() => openEditor(row)}><EditOutlined /> 修改</ActionLink><ActionLink onClick={() => openEditor(row)}><SettingOutlined /> 配置</ActionLink></div> },
   ].filter((column) => portal !== 'agent' || !['operator', 'operatedAt', 'action'].includes(column.key))
@@ -151,7 +145,7 @@ export function MasterPlansPage({ onToast, portal = 'master', negativeOnly = fal
     <td><ActionLink onClick={() => removeLevel(index)}><DeleteOutlined /> 删除</ActionLink></td>
   </tr>)
   const renderRuleFields = (rules, setRules) => <div className="legacy-active-rule"><div><strong>团队方案判定条件</strong><p>活跃会员和新增活跃均按“充值金额或有效投注满足一项”计入，并跟随当前方案保存。</p></div><div className="legacy-active-rule-fields"><Field label="活跃充值 ≥"><Input type="number" min="0" value={rules.activeRule.depositThreshold} onChange={(value) => setRules({ ...rules, activeRule: { ...rules.activeRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="活跃投注 ≥"><Input type="number" min="0" value={rules.activeRule.validBetThreshold} onChange={(value) => setRules({ ...rules, activeRule: { ...rules.activeRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增充值 ≥"><Input type="number" min="0" value={rules.newActiveRule.depositThreshold} onChange={(value) => setRules({ ...rules, newActiveRule: { ...rules.newActiveRule, depositThreshold: value === '' ? '' : Number(value) } })} /></Field><Field label="新增投注 ≥"><Input type="number" min="0" value={rules.newActiveRule.validBetThreshold} onChange={(value) => setRules({ ...rules, newActiveRule: { ...rules.newActiveRule, validBetThreshold: value === '' ? '' : Number(value) } })} /></Field></div></div>
-  const renderLevelTable = (mode, details, updateDetail, removeLevel, prefix) => <div className="legacy-rebate-modal-grid"><table className="legacy-level-table"><thead><tr><th>{mode === 'star' ? '代理星级' : mode === 'team' ? '团队级别' : '代理层级'}</th>{mode === 'team' && <><th>新增活跃</th><th>活跃会员</th><th><NetWinLossHeader showTip={negativeOnly} /></th></>}<th>返佣比例(%)</th><th>操作</th></tr></thead><tbody>{renderLevelRows(mode, details, updateDetail, removeLevel, prefix)}</tbody></table><div className="legacy-rebate-blank" /></div>
+  const renderLevelTable = (mode, details, updateDetail, removeLevel, prefix) => <div className="legacy-rebate-modal-grid"><table className="legacy-level-table"><thead><tr><th>{mode === 'star' ? '代理星级' : mode === 'team' ? '团队级别' : '代理层级'}</th>{mode === 'team' && <><th>新增活跃</th><th>活跃会员</th><th>总输赢</th></>}<th>返佣比例(%)</th><th>操作</th></tr></thead><tbody>{renderLevelRows(mode, details, updateDetail, removeLevel, prefix)}</tbody></table><div className="legacy-rebate-blank" /></div>
 
   return <>
     <section className="legacy-rebate-screen">
@@ -163,7 +157,7 @@ export function MasterPlansPage({ onToast, portal = 'master', negativeOnly = fal
       <div className="legacy-rebate-modal-body"><div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={createName} onChange={setCreateName} placeholder="请输入方案名称" /></div><div className="legacy-rebate-name-row"><span><b>*</b> 方案类型</span><Select value={createType} onChange={changeCreateType} options={REBATE_TYPE_OPTIONS} /></div>{createType === 'team' && renderRuleFields(createRules, setCreateRules)}<Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addCreateLevel}>添加级别</Button>{renderLevelTable(createType, createDetails, updateCreateDetail, removeCreateLevel, 'create')}<div className="legacy-rebate-help"><strong>说明：</strong><p>1、层级代理和星级代理只配置对应级别的返佣比例。</p><p>2、团队代理可配置新增活跃、活跃会员、总输赢条件，并绑定活跃会员与新增活跃判定条件。</p><p>3、返佣比例以百分比填写，高层级已设置值不能低于低层级。</p></div></div>
     </Modal>
     <Modal open={!!editing} title="修改佣金方案" onClose={() => setEditing(null)} onConfirm={saveEditor} width={1380}>
-      <div className="legacy-rebate-modal-body"><div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={negativeOnly ? 'DW负盈利佣金方案' : editName} onChange={setEditName} disabled={negativeOnly} /></div>{editing?.mode === 'team' && renderRuleFields(editRules, setEditRules)}<Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addEditLevel}>添加级别</Button>{renderLevelTable(editing?.mode || 'level', editDetails, updateEditDetail, removeEditLevel, 'edit')}<div className="legacy-rebate-help"><strong>说明：</strong><p>1、层级代理和星级代理只配置对应级别的返佣比例。</p><p>2、团队代理可配置新增活跃、活跃会员、{negativeOnly ? '净输赢' : '总输赢'}条件，并绑定活跃会员与新增活跃判定条件。</p><p>3、返佣比例以百分比填写，高层级已设置值不能低于低层级。</p></div></div>
+      <div className="legacy-rebate-modal-body"><div className="legacy-rebate-name-row"><span><b>*</b> 方案名称</span><Input value={negativeOnly ? 'DW负盈利佣金方案' : editName} onChange={setEditName} disabled={negativeOnly} /></div>{editing?.mode === 'team' && renderRuleFields(editRules, setEditRules)}<Button icon={<PlusOutlined />} className="legacy-rebate-add-level" onClick={addEditLevel}>添加级别</Button>{renderLevelTable(editing?.mode || 'level', editDetails, updateEditDetail, removeEditLevel, 'edit')}<div className="legacy-rebate-help"><strong>说明：</strong><p>1、层级代理和星级代理只配置对应级别的返佣比例。</p><p>2、团队代理可配置新增活跃、活跃会员、总输赢条件，并绑定活跃会员与新增活跃判定条件。</p><p>3、返佣比例以百分比填写，高层级已设置值不能低于低层级。</p></div></div>
     </Modal>
   </>
 }

@@ -47,7 +47,8 @@ function accountOf(record) {
 }
 
 function agentTypeOf(record) {
-  return pick(record, ['agentType', 'roleLabel', 'role'])
+  const value = pick(record, ['agentType', 'roleLabel', 'role'])
+  return value === '单线代理' ? '团队代理' : value
 }
 
 function withdrawalTypeOf(record) {

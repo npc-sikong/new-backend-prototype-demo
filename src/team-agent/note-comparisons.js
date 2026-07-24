@@ -102,15 +102,15 @@ export const NOTE_COMPARISONS = {
     '原总控后台 / 返佣方案',
     '原页面维护返佣方案名称、代理星级或层级及对应返佣比例，并提供方案详情和基础编辑操作。',
     {
-      fields: ['菜单名称改为“佣金方案”', '方案类型', '新增活跃门槛', '活跃会员门槛', '净输赢门槛及悬停说明', 'DW负盈利佣金方案', '团队级别', '团队返佣比例', '活跃会员判定条件', '新增活跃判定条件'],
+      fields: ['菜单名称改为“佣金方案”', '方案类型', '新增活跃门槛', '活跃会员门槛', '总输赢门槛', 'DW负盈利佣金方案', '团队级别', '团队返佣比例', '活跃会员判定条件', '新增活跃判定条件'],
       types: ['团队佣金方案'],
       views: ['新增代理方案弹窗', '原修改佣金方案弹窗增加团队方案配置和方案内活跃判定条件'],
       actions: ['新增层级代理、星级代理或团队代理方案', '设置方案内活跃会员和新增活跃判定条件', '在原返佣方案列表中修改或配置团队佣金比例及层级门槛'],
-      rules: ['新增方案保存后进入原返佣方案列表', '层级代理和星级代理只配置返佣比例', '团队代理与单线代理统一引用DW负盈利佣金方案', '负盈利方案的净输赢等于所有下级会员盈亏值减去所有运营费用', '净输赢字段右侧问号悬停或聚焦后展示计算说明', '团队方案的新增活跃、活跃会员、净输赢门槛留空则不生效', '活跃会员和新增活跃均按本方案的充值金额或有效投注门槛判定，满足一项即计入', '返佣比例按百分比展示', '所有已设置值高层级不得低于低层级', '佣金方案详情页不再展示推荐奖励切页'],
+      rules: ['新增方案保存后进入原返佣方案列表', '层级代理和星级代理只配置返佣比例', '团队代理与单线代理统一引用DW负盈利佣金方案', '负盈利方案等级判定字段统一显示总输赢', '总输赢字段不展示问号或悬停说明', '团队方案的新增活跃、活跃会员、总输赢门槛留空则不生效', '活跃会员和新增活跃均按本方案的充值金额或有效投注门槛判定，满足一项即计入', '返佣比例按百分比展示', '所有已设置值高层级不得低于低层级', '佣金方案详情页不再展示推荐奖励切页'],
     },
     {
-      updatedAt: '2026-07-23 18:05',
-      record: '修改时间：2026-07-23 18:05；修改说明：明确负盈利方案净输赢口径；修改内容：净输赢字段右侧增加问号，悬停或聚焦后提示净输赢等于所有下级会员盈亏值减去所有运营费用。',
+      updatedAt: '2026-07-24 15:28',
+      record: '修改时间：2026-07-24 15:28；修改说明：统一负盈利方案等级判定字段名称；修改内容：净输赢改为总输赢，并去除字段右侧问号及悬停说明。',
     },
   ),
   'master:settlement': changed(
@@ -640,10 +640,10 @@ NOTE_COMPARISONS['master:negativeProfit'] = {
   additions: {
     ...NOTE_COMPARISONS['master:negativeProfit'].additions,
     views: [...NOTE_COMPARISONS['master:negativeProfit'].additions.views, '负盈利佣佣金方案切页', '佣金记录切页'],
-    rules: [...NOTE_COMPARISONS['master:negativeProfit'].additions.rules, '字段筛选提供全选和反选并去除仅序号', '修改发放录入减少余额并实时显示减少后剩余', '减少额度以负数显示在佣金调整字段', '负盈利佣佣金方案切页仅保留DW负盈利佣金方案', '负盈利方案净输赢字段右侧问号悬停后说明所有下级会员盈亏值减去所有运营费用', '佣金记录保留原内容并合并为切页', '修改发放弹窗不展示转入下期结余字段'],
+    rules: [...NOTE_COMPARISONS['master:negativeProfit'].additions.rules, '字段筛选提供全选和反选并去除仅序号', '修改发放录入减少余额并实时显示减少后剩余', '减少额度以负数显示在佣金调整字段', '负盈利佣佣金方案切页仅保留DW负盈利佣金方案', '负盈利方案等级门槛统一显示总输赢且不展示问号说明', '佣金记录保留原内容并合并为切页', '修改发放弹窗不展示转入下期结余字段'],
   },
-  updatedAt: '2026-07-23 18:05',
-  record: '修改时间：2026-07-23 18:05；修改说明：帮助运营理解负盈利方案净输赢条件；修改内容：方案编辑表的净输赢字段右侧增加问号悬停说明，原门槛数值和结算逻辑保持不变。',
+  updatedAt: '2026-07-24 15:28',
+  record: '修改时间：2026-07-24 15:28；修改说明：统一负盈利方案等级门槛名称；修改内容：方案编辑表将净输赢改为总输赢，并移除问号说明，原门槛数值和结算逻辑保持不变。',
 }
 
 NOTE_COMPARISONS['master:teams'] = {
@@ -915,6 +915,93 @@ if (NOTE_COMPARISONS['master:version']) {
   }
 }
 
+NOTE_COMPARISONS['master:negativeProfit'] = {
+  ...NOTE_COMPARISONS['master:negativeProfit'],
+  additions: {
+    ...NOTE_COMPARISONS['master:negativeProfit'].additions,
+    fields: [...new Set([...(NOTE_COMPARISONS['master:negativeProfit'].additions?.fields || []).filter((field) => !field.includes('净输赢门槛')), '负盈利佣金方案总输赢门槛'])],
+    rules: [...new Set([...(NOTE_COMPARISONS['master:negativeProfit'].additions?.rules || []).filter((rule) => !rule.includes('净输赢字段右侧') && !rule.includes('问号悬停')), '负盈利佣佣金方案统一使用总输赢门槛且不展示问号说明'])],
+  },
+  updatedAt: '2026-07-24 15:28',
+  record: '修改时间：2026-07-24 15:28；修改说明：统一负盈利方案等级门槛名称；修改内容：净输赢改为总输赢并移除问号说明，原门槛及返佣计算保持不变。',
+}
+
+if (NOTE_COMPARISONS['master:version']) {
+  const current = NOTE_COMPARISONS['master:version']
+  NOTE_COMPARISONS['master:version'] = {
+    ...current,
+    additions: {
+      ...current.additions,
+      fields: [...new Set([...(current.additions?.fields || []), '负盈利佣佣金方案总输赢门槛'])],
+      rules: [...new Set([...(current.additions?.rules || []), '负盈利佣佣金方案去除净输赢名称及问号说明'])],
+    },
+    updatedAt: '2026-07-24 15:28',
+    record: '修改时间：2026-07-24 15:28；修改说明：同步负盈利方案等级门槛名称；修改内容：版本说明记录净输赢改为总输赢并移除问号说明。',
+  }
+}
+
+const AGENT_RECOMMENDATION_REPORT_UPDATED_AT = '2026-07-24 15:32'
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = NOTE_COMPARISONS[key]
+  if (!current) return
+  const isAgent = key === 'agent:negativeProfitReport'
+  NOTE_COMPARISONS[key] = {
+    ...current,
+    additions: {
+      ...current.additions,
+      fields: [...new Set([...(current.additions?.fields || []), '推荐人'])],
+      views: [...new Set([...(current.additions?.views || []), ...(isAgent ? ['本人记录展开明细', '推荐团队汇总明细', '推荐单线明细'] : [])])],
+      rules: [...new Set([...(current.additions?.rules || []), '代理类型右侧展示推荐人', ...(isAgent ? ['团队负责人展开本人团队成员及本人推荐数据', '副线和单线代理展开本人记录后展示本人推荐数据', '推荐团队不可再次展开', '推荐数据不重复计入本人主记录总计'] : [])])],
+    },
+    updatedAt: AGENT_RECOMMENDATION_REPORT_UPDATED_AT,
+    record: `修改时间：${AGENT_RECOMMENDATION_REPORT_UPDATED_AT}；修改说明：补充推荐代理经营与佣金核对；修改内容：报表展示推荐人，代理后台三种身份展开本人记录后同步展示推荐团队和推荐单线，使用专属颜色且推荐团队不可二次展开。`,
+  }
+})
+
+if (NOTE_COMPARISONS['master:version']) {
+  const current = NOTE_COMPARISONS['master:version']
+  NOTE_COMPARISONS['master:version'] = {
+    ...current,
+    additions: { ...current.additions, fields: [...new Set([...(current.additions?.fields || []), '负盈利代理佣金报表推荐人'])], rules: [...new Set([...(current.additions?.rules || []), '代理后台及H5负盈利佣金报表展开本人记录后同步展示推荐团队和推荐单线'])] },
+    updatedAt: AGENT_RECOMMENDATION_REPORT_UPDATED_AT,
+    record: `修改时间：${AGENT_RECOMMENDATION_REPORT_UPDATED_AT}；修改说明：同步推荐代理佣金核对范围；修改内容：版本说明记录三种代理身份的本人范围、推荐数据展开、专属颜色及推荐团队不可二次展开规则。`,
+  }
+}
+
+const AGENT_TYPE_LEVEL_UPDATED_AT = '2026-07-24 15:22'
+;['master:agents', 'site:agents', 'agent:agents'].forEach((key) => {
+  const current = NOTE_COMPARISONS[key]
+  if (!current) return
+  const additions = current.additions || {}
+  const isMaster = key === 'master:agents'
+  NOTE_COMPARISONS[key] = {
+    ...current,
+    additions: {
+      ...additions,
+      fields: [...new Set((additions.fields || []).filter((item) => !item.includes('代理类型新增“单线代理”') && !item.includes('团队代理新增“代理名称”')).concat(isMaster ? ['团队负责人新增“团队名称”', '团队负责人新增“是否能开副线”'] : []))],
+      types: [...new Set((additions.types || []).filter((item) => !item.includes('单线代理类型')).concat(['代理类型仅保留多层级代理、星级代理、团队代理', '代理层级继续保留单线代理']))],
+      actions: [...new Set((additions.actions || []).filter((item) => !item.includes('新增单线代理') && !item.includes('填写代理名称')).concat(isMaster ? ['新增任意代理时不填写代理名称', '新增团队负责人时先设置是否能开副线，再填写团队名称'] : []))],
+      rules: [...new Set((additions.rules || []).filter((item) => !item.includes('代理类型仅显示团队代理或单线代理')).concat(['单线代理不再作为代理类型，仅作为团队代理下的代理层级', '不能开副线的团队负责人按单线经营']))],
+    },
+    updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
+    record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：区分代理业务类型与代理层级；修改内容：代理类型去除单线代理，代理层级继续保留单线代理；新增团队负责人补充团队名称和是否能开副线，开副线设置位于团队名称上方且单线说明与状态同行展示，新增表单移除代理名称。`,
+  }
+})
+
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = NOTE_COMPARISONS[key]
+  if (!current) return
+  NOTE_COMPARISONS[key] = {
+    ...current,
+    additions: {
+      ...current.additions,
+      rules: [...new Set((current.additions?.rules || []).filter((rule) => rule !== '代理类型仅显示团队代理或单线代理').concat(['负盈利业务的代理类型统一显示团队代理', '单线代理仅在代理层级中展示']))],
+    },
+    updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
+    record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：统一负盈利报表代理类型；修改内容：单线记录的代理类型改为团队代理，代理层级仍显示单线代理，并同步三后台与H5。`,
+  }
+})
+
 const NEGATIVE_REPORT_AGENT_FIELDS_COMPARISON_AT = '2026-07-24 01:34'
 const insertNegativeReportAgentFields = (fields = []) => {
   const next = fields.filter((field) => !['代理类型', '代理身份', '代理层级'].includes(field))
@@ -935,7 +1022,7 @@ const insertNegativeReportAgentFields = (fields = []) => {
       rules: [
         ...(current.additions.rules || []).filter((rule) => !rule.includes('代理类型、代理身份、代理层级')),
         '代理资料字段按代理类型、代理身份、代理层级连续展示',
-        '代理类型仅显示团队代理或单线代理',
+        '负盈利业务的代理类型统一显示团队代理',
         '代理身份仅显示官方代理或普通代理',
         '代理层级仅显示团队负责人、副线或单线代理',
         '团队成员明细使用成员本人对应的代理层级',
@@ -999,4 +1086,50 @@ if (NOTE_COMPARISONS['master:version']) {
     updatedAt: TEAM_DETAIL_SIMPLIFIED_COMPARISON_AT,
     record: `修改时间：${TEAM_DETAIL_SIMPLIFIED_COMPARISON_AT}；修改说明：同步团队详情最新结构与冻结规则；修改内容：版本说明记录移除代理编号/账号筛选、团队业绩查看及团队成员登录状态联动。`,
   }
+}
+
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = NOTE_COMPARISONS[key]
+  if (!current) return
+  NOTE_COMPARISONS[key] = {
+    ...current,
+    additions: { ...current.additions, rules: [...new Set((current.additions?.rules || []).filter((rule) => rule !== '代理类型仅显示团队代理或单线代理').concat(['负盈利业务的代理类型统一显示团队代理', '单线代理仅在代理层级中展示']))] },
+    updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
+    record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：统一负盈利报表代理类型；修改内容：单线记录的代理类型改为团队代理，代理层级仍显示单线代理，并同步三后台与H5。`,
+  }
+})
+
+if (NOTE_COMPARISONS['master:version']) {
+  const current = NOTE_COMPARISONS['master:version']
+  NOTE_COMPARISONS['master:version'] = {
+    ...current,
+    additions: { ...current.additions, fields: [...new Set([...(current.additions?.fields || []), '代理类型与代理层级口径', '团队负责人团队名称与开副线权限'])], rules: [...new Set([...(current.additions?.rules || []), '单线代理不再作为代理类型，仅作为代理层级'])] },
+    updatedAt: AGENT_TYPE_LEVEL_UPDATED_AT,
+    record: `修改时间：${AGENT_TYPE_LEVEL_UPDATED_AT}；修改说明：同步代理类型与团队负责人新增规则；修改内容：版本说明记录代理类型去除单线代理、团队负责人增加团队名称和开副线权限。`,
+  }
+}
+
+if (NOTE_COMPARISONS['master:version']) {
+  const current = NOTE_COMPARISONS['master:version']
+  NOTE_COMPARISONS['master:version'] = {
+    ...current,
+    additions: {
+      ...current.additions,
+      fields: [...new Set([...(current.additions?.fields || []), '负盈利佣佣金方案总输赢门槛'])],
+      rules: [...new Set([...(current.additions?.rules || []), '负盈利佣佣金方案去除净输赢名称及问号说明'])],
+    },
+    updatedAt: '2026-07-24 15:28',
+    record: '修改时间：2026-07-24 15:28；修改说明：同步负盈利方案等级门槛名称；修改内容：版本说明记录净输赢改为总输赢并移除问号说明。',
+  }
+}
+
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => {
+  const current = NOTE_COMPARISONS[key]
+  if (!current) return
+  NOTE_COMPARISONS[key] = { ...current, updatedAt: AGENT_RECOMMENDATION_REPORT_UPDATED_AT, record: `修改时间：${AGENT_RECOMMENDATION_REPORT_UPDATED_AT}；修改说明：补充推荐代理经营与佣金核对；修改内容：报表展示推荐人，代理后台三种身份展开本人记录后同步展示推荐团队和推荐单线，使用专属颜色且推荐团队不可二次展开。` }
+})
+
+if (NOTE_COMPARISONS['master:version']) {
+  const current = NOTE_COMPARISONS['master:version']
+  NOTE_COMPARISONS['master:version'] = { ...current, updatedAt: AGENT_RECOMMENDATION_REPORT_UPDATED_AT, record: `修改时间：${AGENT_RECOMMENDATION_REPORT_UPDATED_AT}；修改说明：同步推荐代理佣金核对范围；修改内容：版本说明记录三种代理身份的本人范围、推荐数据展开、专属颜色及推荐团队不可二次展开规则。` }
 }
