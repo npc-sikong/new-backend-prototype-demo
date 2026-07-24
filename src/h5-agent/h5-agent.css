@@ -181,7 +181,7 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-home-activity .h5-agent-timeline p span { color: #64758e; font-size: 9px; }
 
 /* 底部导航 */
-.h5-agent-bottom-nav { position: absolute; inset: auto 0 0; z-index: 22; height: 66px; display: grid; grid-template-columns: repeat(5, 1fr); padding: 5px 8px 4px; border-top: 1px solid #1b2a3e; background: rgba(8, 19, 33, .97); backdrop-filter: blur(18px); }
+.h5-agent-bottom-nav { position: absolute; inset: auto 0 0; z-index: 22; height: 66px; display: grid; grid-template-columns: repeat(4, 1fr); padding: 5px 8px 4px; border-top: 1px solid #1b2a3e; background: rgba(8, 19, 33, .97); backdrop-filter: blur(18px); }
 .h5-agent-bottom-nav button { position: relative; display: grid; align-content: center; justify-items: center; gap: 4px; color: #75849b; font-size: 10px; }
 .h5-agent-bottom-nav button .anticon { font-size: 19px; }
 .h5-agent-bottom-nav button.active { color: var(--ha-blue); }
@@ -209,6 +209,11 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-list-card > header > div:nth-child(2), .h5-agent-record-card > header > div:first-child { min-width: 0; flex: 1; }
 .h5-agent-list-card > header b, .h5-agent-record-card > header strong { display: block; overflow: hidden; color: #f1f5fb; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .h5-agent-list-card > header span, .h5-agent-record-card > header small { display: block; overflow: hidden; margin-top: 3px; color: #71829a; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.h5-agent-record-account-line { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.h5-agent-record-account-line > i { flex: none; color: #71829a; font-size: 9px; font-style: normal; }
+.h5-agent-record-account-line > strong { min-width: 0; }
+.h5-agent-record-account-line > button, .h5-agent-audit-account > button { flex: none; padding: 0; border: 0; color: #72a9f5; background: transparent; font-size: 9px; white-space: nowrap; }
+.h5-agent-audit-account { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .h5-agent-list-card > header > .anticon { color: #65778e; }
 .h5-agent-card-avatar { width: 38px; height: 38px; display: grid; place-items: center; flex: none; border-radius: 13px; color: #83adff; background: var(--ha-blue-soft); font-size: 17px; }
 .h5-agent-card-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 11px; }

@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { useTeamAgent } from '../team-agent/context'
 import {
   buildNegativeReportRows,
@@ -48,9 +47,9 @@ function detailItems(row) {
   }))
 }
 
-function AuditTable({ rows, fields, totals }) {
+function AuditTable({ rows, fields, totals, expanded, onToggle }) {
   return <div className="h5-agent-audit-wrap"><table className="h5-agent-audit-table"><thead><tr>{fields.map((field) => <th key={field.key}>{field.label}</th>)}</tr></thead><tbody>
-    {rows.map((row) => <tr key={row.id} className={row.isRecommended ? `is-recommended is-${row.rowType === 'recommended-team' ? 'team' : 'single'}` : row.rowType === 'member' ? 'is-member' : ''}>{fields.map((field) => <td key={field.key}>{displayValue(field, row)}</td>)}</tr>)}
+    {rows.map((row) => <tr key={row.id} className={row.isRecommended ? `is-recommended is-${row.rowType === 'recommended-team' ? 'team' : 'single'}` : row.rowType === 'member' ? 'is-member' : ''}>{fields.map((field) => <td key={field.key}>{field.key === 'agentAccount' && row.expandable ? <span className="h5-agent-audit-account"><span>{row.agentAccount}</span><button type="button" onClick={() => onToggle(row)}>（{expanded.includes(row.id) ? '收起' : '展开'}）</button></span> : displayValue(field, row)}</td>)}</tr>)}
     {!rows.length && <tr><td colSpan={fields.length}>暂无数据</td></tr>}
     {!!rows.length && <tr className="h5-agent-audit-total">{fields.map((field, index) => <td key={field.key}>{index === 0 ? '总计' : totals[field.key] ?? '—'}</td>)}</tr>}
   </tbody></table></div>
@@ -94,6 +93,7 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
   const toggleField = (key) => setVisibleKeys((current) => current.includes(key)
     ? current.length > 1 ? current.filter((item) => item !== key) : current
     : [...current, key])
+  const toggleRow = (row) => setExpanded((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])
   const invertFields = () => setVisibleKeys((current) => {
     const next = REPORT_FIELDS.filter((field) => !current.includes(field.key)).map((field) => field.key)
     return next.length ? next : REPORT_FIELDS.map((field) => field.key)
@@ -102,38 +102,41 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
   return <section className="h5-agent-page h5-agent-negative-page">
     <H5AgentSearch value={filters.keyword} onChange={(value) => setFilter('keyword', value)} onFilter={() => setFilterOpen(true)} placeholder="代理账号、编号、团队或上级" />
     <div className="h5-agent-result-meta"><span>当前筛选 {rows.length} 条</span><div><button type="button" onClick={() => onToast(`负盈利代理佣金报表已导出 ${rows.length} 条`)}>导出</button><button type="button" onClick={() => onToast('负盈利代理佣金报表文件已下载')}>下载文件</button><button type="button" onClick={() => setAudit((value) => !value)}>{audit ? '卡片查看' : '横向核对'}</button></div></div>
-    {audit ? <AuditTable rows={visibleRows} fields={visibleFields} totals={totals} /> : <div className="h5-agent-card-list">{roots.flatMap((row) => {
+    {audit ? <AuditTable rows={visibleRows} fields={visibleFields} totals={totals} expanded={expanded} onToggle={toggleRow} /> : <div className="h5-agent-card-list">{roots.flatMap((row) => {
       const cards = [<article className="h5-agent-record-card" key={row.id}>
-        <header><div><strong>{row.agentAccount}</strong><small>{row.cycle} · {row.teamName}</small></div><span className="h5-agent-status is-brand">{row.agentIdentity}</span></header>
+        <header><div><div className="h5-agent-record-account-line"><i>#{row.index}</i><strong>{row.agentAccount}</strong>{row.expandable && <button type="button" onClick={() => toggleRow(row)}>（{expanded.includes(row.id) ? '收起' : '展开'}）</button>}</div><small>{row.cycle} · {row.teamName}</small></div><span className="h5-agent-status is-brand">{row.agentIdentity}</span></header>
         <div className="h5-agent-record-summary h5-agent-record-values">
           <div><span>统计时间</span><b>{row.statisticTime}</b></div>
           <div><span>代理类型</span><b>{row.agentType}</b></div>
           <div><span>推荐人</span><b>{row.recommender}</b></div>
           <div><span>代理层级</span><b>{row.agentLevel}</b></div>
-          <div><span>冲正后净输赢</span><b className={tone(row.correctedNet) ? `is-${tone(row.correctedNet)}` : ''}>{money(row.correctedNet, true)}</b></div>
+          <div><span>总输赢</span><b className={tone(row.totalWinLoss) ? `is-${tone(row.totalWinLoss)}` : ''}>{money(row.totalWinLoss, true)}</b></div>
+          <div><span>返佣比例</span><b>{Number(row.rate || 0) * 100}%</b></div>
+          <div><span>运营费用</span><b>{money(row.operatingExpense)}</b></div>
+          <div><span>三方场馆费用</span><b>{money(row.thirdPartyVenueFee)}</b></div>
+          <div><span>充值手续费</span><b>{money(row.depositWithdrawalFee)}</b></div>
           <div><span>佣金净收益</span><b className={tone(row.commissionNetIncome) ? `is-${tone(row.commissionNetIncome)}` : ''}>{money(row.commissionNetIncome, true)}</b></div>
           <div><span>本期欠款</span><b>{money(row.currentDebt)}</b></div>
           <div><span>总欠款</span><b>{money(row.totalDebt)}</b></div>
           <div><span>佣金</span><b>{money(row.commission)}</b></div>
           <div><span>下级会员</span><b>{row.subAgentCount}</b></div>
         </div>
-        {row.memberRows.length > 0 && <button type="button" className="h5-agent-inline-action h5-agent-expand-members" onClick={() => setExpanded((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])}>{expanded.includes(row.id) ? <MinusOutlined /> : <PlusOutlined />}{expanded.includes(row.id) ? `收起${row.expansionLabel || '团队成员'}` : `展开${row.expansionLabel || '团队成员'}（${row.memberRows.length}）`}</button>}
         <footer><span /><button type="button" className="h5-agent-card-detail" onClick={() => setSelected(row)}>查看全部字段</button></footer>
       </article>]
       if (expanded.includes(row.id)) cards.push(...row.memberRows.map((member) => <article className={`h5-agent-record-card ${member.isRecommended ? `is-recommended is-${member.rowType === 'recommended-team' ? 'team' : 'single'}` : 'is-member'}`} key={member.id}>
-        <header><div><strong>{member.agentAccount}</strong><small>{member.isRecommended ? member.recommendationLabel : member.agentLevel} · {member.agentId}</small></div><span className="h5-agent-status is-brand">{member.isRecommended ? member.recommendationLabel : member.agentIdentity}</span></header>
-        <div className="h5-agent-record-summary h5-agent-record-values"><div><span>代理类型</span><b>{member.agentType}</b></div><div><span>推荐人</span><b>{member.recommender}</b></div><div><span>代理层级</span><b>{member.agentLevel}</b></div><div><span>冲正后净输赢</span><b>{money(member.correctedNet, true)}</b></div><div><span>佣金净收益</span><b>{money(member.commissionNetIncome, true)}</b></div><div><span>本期欠款</span><b>{money(member.currentDebt)}</b></div><div><span>总欠款</span><b>{money(member.totalDebt)}</b></div><div><span>佣金</span><b>{money(member.commission)}</b></div><div><span>下级会员</span><b>{member.subAgentCount}</b></div></div>
+        <header><div><div className="h5-agent-record-account-line"><i>#{member.index}</i><strong>{member.agentAccount}</strong></div><small>{member.isRecommended ? member.recommendationLabel : member.agentLevel} · {member.agentId}</small></div><span className="h5-agent-status is-brand">{member.isRecommended ? member.recommendationLabel : member.agentIdentity}</span></header>
+        <div className="h5-agent-record-summary h5-agent-record-values"><div><span>代理类型</span><b>{member.agentType}</b></div><div><span>推荐人</span><b>{member.recommender}</b></div><div><span>代理层级</span><b>{member.agentLevel}</b></div><div><span>总输赢</span><b>{money(member.totalWinLoss, true)}</b></div><div><span>返佣比例</span><b>{Number(member.rate || 0) * 100}%</b></div><div><span>运营费用</span><b>{money(member.operatingExpense)}</b></div><div><span>三方场馆费用</span><b>{money(member.thirdPartyVenueFee)}</b></div><div><span>充值手续费</span><b>{money(member.depositWithdrawalFee)}</b></div><div><span>佣金净收益</span><b>{money(member.commissionNetIncome, true)}</b></div><div><span>本期欠款</span><b>{money(member.currentDebt)}</b></div><div><span>总欠款</span><b>{money(member.totalDebt)}</b></div><div><span>佣金</span><b>{money(member.commission)}</b></div><div><span>下级会员</span><b>{member.subAgentCount}</b></div></div>
         <footer><span /><button type="button" className="h5-agent-card-detail" onClick={() => setSelected(member)}>查看全部字段</button></footer>
       </article>))
       return cards
     })}{!roots.length && <H5AgentEmpty title="暂无负盈利佣金报表记录" />}</div>}
     <H5AgentPagination total={rows.length} page={safePage} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={(value) => { setPageSize(value); setPage(1) }} />
     <section className="h5-agent-panel h5-agent-formula-panel"><h2>负盈利代理佣金报表口径</h2><H5AgentFields columns={1} items={[
-      { label: '净输赢', value: '总输赢 - 场馆费 - 红利 - 返水 + 账户调整 - 存款手续费 - 提款手续费 + 补单输赢' },
-      { label: '冲正后净输赢', value: '净输赢 + 上周期结余' },
+      { label: '运营费用', value: '各活动奖励 + 会员推会员 + 返水 + 礼金 + 人工发彩金 + 余额宝利息' },
+      { label: '佣金净收益', value: '（总输赢 + 上周期结余）× 返佣比例 −（运营费用 + 三方场馆费用 + 充值手续费 + 上周期结余运营费用）× 运营分摊比例' },
       { label: '本期欠款', value: 'MAX(0，-净输赢)' },
-      { label: '总欠款', value: 'MAX(0，-冲正后净输赢)' },
-      { label: '佣金', value: 'MAX(0，冲正后净输赢 × 佣金比例)' },
+      { label: '总欠款', value: 'MAX(0，-（净输赢 + 上周期结余）)' },
+      { label: '佣金', value: 'MAX(0，（净输赢 + 上周期结余）× 返佣比例)' },
     ]} /><p className="h5-agent-dashboard-alert">统计日期按记录统计区间与查询日期区间存在重叠进行匹配；本页仅查询与导出，不提供结算操作。</p></section>
     <H5AgentFilterSheet open={filterOpen} title="负盈利佣金报表筛选" onClose={() => setFilterOpen(false)} onReset={reset} onApply={() => { setFilterOpen(false); onToast(`已查询 ${rows.length} 条负盈利代理佣金报表`) }}>
       <H5AgentFormField label="佣金周期"><select value={filters.cycle} onChange={(event) => setFilter('cycle', event.target.value)}><option value="">全部周期</option>{unique(allRows, 'cycle').map((item) => <option key={item}>{item}</option>)}</select></H5AgentFormField>

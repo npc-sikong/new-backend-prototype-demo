@@ -599,14 +599,14 @@ NOTE_COMPARISONS['master:version'] = {
   ...NOTE_COMPARISONS['master:version'],
   additions: {
     ...NOTE_COMPARISONS['master:version'].additions,
-    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理登录', '代理身份', '首页额度卡', '资金快捷操作', '其它模块入口', '首页', '看板', '财务', '个人中心', '更多', '底部导航', '移动端验收尺寸'],
+    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理登录', '代理身份', '首页额度卡', '资金快捷操作', '其它模块入口', '首页', '看板', '财务', '个人中心', '底部导航', '移动端验收尺寸'],
     types: [...NOTE_COMPARISONS['master:version'].additions.types, 'H5代理后台需求'],
     views: [...NOTE_COMPARISONS['master:version'].additions.views, '负盈利代理佣金报表模块卡片', '站点后台与代理后台同步页面清单', 'H5代理登录页', 'H5首页紧凑额度卡与资金操作', 'H5首页其它模块入口', 'H5底部单一导航'],
     actions: [...NOTE_COMPARISONS['master:version'].additions.actions, '从版本说明跳转至负盈利代理佣金报表', '从版本说明跳转至 H5代理后台'],
-    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '负盈利代理佣金报表在总控、站点和代理后台分别按权限提供只读入口', '站点后台负盈利代理佣金报表仅展示旺财体育本站代理数据', '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置在总控和站点代理管理下使用独立入口', '周结频率可选一周、二周或三周', '代理后台三身份冲正统计去除级差、垫付和回款字段', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5代理登录后进入对应身份首页', 'H5首页额度卡和四项资金操作高度缩小约25%', 'H5首页资金操作下展示当前身份其它模块入口', 'H5底部导航固定为首页、看板、财务、个人中心、更多', 'H5代理列表和会员列表通过其它模块或更多进入', 'H5一级页面不展示跨模块切页', 'H5一级页面左上返回首页', 'H5只重排现有字段和功能，不新增或删减业务能力', 'H5身份与页面状态不改变原四门户和原H5前端'],
+    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '负盈利代理佣金报表在总控、站点和代理后台分别按权限提供只读入口', '站点后台负盈利代理佣金报表仅展示旺财体育本站代理数据', '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置在总控和站点代理管理下使用独立入口', '周结频率可选一周、二周或三周', '代理后台三身份冲正统计去除级差、垫付和回款字段', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5代理登录后进入对应身份首页', 'H5首页额度卡和四项资金操作高度缩小约25%', 'H5首页资金操作下展示当前身份其它模块入口', 'H5底部导航固定为首页、看板、财务、个人中心，不展示更多', 'H5代理列表和会员列表通过首页其它模块进入', 'H5一级页面不展示跨模块切页', 'H5一级页面左上返回首页', 'H5只重排现有字段和功能，不新增或删减业务能力', 'H5身份与页面状态不改变原四门户和原H5前端'],
   },
-  updatedAt: '2026-07-24 17:47',
-  record: '修改时间：2026-07-24 17:47；修改说明：同步H5代理后台底部导航；修改内容：记录财务移至第三项、代理入口改为个人中心并移至第四项，代理列表和会员列表继续从其它模块或更多进入。',
+  updatedAt: '2026-07-24 22:14',
+  record: '修改时间：2026-07-24 22:14；修改说明：同步H5代理后台底部导航；修改内容：移除“更多”，底部保留首页、看板、财务、个人中心，代理列表和会员列表从首页其它模块进入。',
 }
 
 const MODULE_MERGE_UPDATED_AT = '2026-07-20 17:19'
@@ -810,12 +810,12 @@ NOTE_COMPARISONS['site:negativeProfitReport'] = created(
 
 const NEGATIVE_SETTLEMENT_COMPARISON_UPDATED_AT = '2026-07-23 23:57'
 const NEGATIVE_SETTLEMENT_COMPARISON_ADDITIONS = {
-  fields: ['总输赢', '上周期结余总输赢', '返佣比例', '运营费用', '上周期结余运营费用', '三方场馆费用', '充值手续费', '运营分摊比例', '上周期结余佣金', '佣金净收益', '佣金调整', '佣金'],
+  fields: ['总输赢', '返佣比例', '运营费用', '三方场馆费用', '充值手续费', '运营分摊比例', '上周期结余佣金', '佣金净收益', '欠站点额度', '欠站点总额度', '佣金调整', '佣金'],
   types: ['团队主记录', '团队成员明细', '单线代理记录'],
   filters: ['佣金周期', '代理身份', '佣金状态', '审核状态', '字段筛选', '代理或团队关键字'],
   views: ['负盈利待结算宽表', '运营费用六项明细弹窗', '字段TIPS弹窗', '团队成员展开明细', '当前筛选结果总计', '负盈利佣佣金方案切页', '佣金记录切页'],
   actions: ['查询', '重置', '字段全选或反选', '查看运营费用明细', '查看字段TIPS', '确认', '不发放', '修改发放', '分页', '导出', '下载文件'],
-  rules: ['去除原人数、存提款、奖励明细、净输赢、上周期结余、冲正后净输赢、返佣等级和旧佣金比例字段', '运营费用由活动奖励、会员推会员、返水、礼金、人工发彩金和余额宝利息相加', '佣金净收益按当期及上周期总输赢扣除按分摊比例承担的当期和上周期运营成本计算', '佣金等于佣金净收益加上周期结余佣金及佣金调整', '列表中的充值手续费汇总计算公式所需的充提手续费', '每个结算字段名称右侧均可点击问号查看口径', '团队成员逐列合计与团队主记录一致', '负盈利代理佣金报表保持原只读字段和计算口径'],
+  rules: ['去除原人数、存提款、奖励明细、净输赢、上周期结余、冲正后净输赢、返佣等级、旧佣金比例和上周期结余总输赢字段', '运营费用由活动奖励、会员推会员、返水、礼金、人工发彩金和余额宝利息相加', '佣金净收益按本期总输赢扣除本期费用分摊计算', '不展示或计算上周期结余总输赢及上周期结余运营费用', '欠站点额度和欠站点总额度分别按本期及累计负向净输赢计算', '佣金等于佣金净收益加上周期结余佣金及佣金调整', '列表中的充值手续费汇总计算公式所需的充提手续费', '每个结算字段名称右侧均可点击问号查看口径', '团队成员逐列合计与团队主记录一致', '负盈利代理佣金报表保持原只读字段和计算口径'],
 }
 
 NOTE_COMPARISONS['master:negativeProfit'] = {
@@ -1185,3 +1185,6 @@ if (NOTE_COMPARISONS['master:version']) {
   const current = NOTE_COMPARISONS['master:version']
   NOTE_COMPARISONS['master:version'] = { ...current, additions: { ...current.additions, fields: [...new Set([...(current.additions?.fields || []), 'H5四项资金操作完整字段'])], views: [...new Set([...(current.additions?.views || []), 'H5快速充值、余额提现、内部转账、发放红包底部抽屉'])], rules: [...new Set([...(current.additions?.rules || []), 'H5资金抽屉保持手机端排版且无横向溢出'])] }, updatedAt: H5_AGENT_FUNDS_COMPARISON_AT, record: `修改时间：${H5_AGENT_FUNDS_COMPARISON_AT}；修改说明：同步H5四项资金操作抽屉；修改内容：版本说明记录独立表单、完整字段、固定主按钮及移动端验收。` }
 }
+;['master:negativeProfit', 'site:negativeProfit'].forEach((key) => { const current = NOTE_COMPARISONS[key]; if (!current) return; const oldFields = (current.additions?.fields || []).map((item) => item === '上级账号' ? '上级代理' : item).filter((item) => !['序号', '代理名称', '展开/收起', '审核专员', '审核人员', '审核时间', '审核状态', '维护人', '上周期结余总输赢', '上周期结余运营费用', '欠站点额度', '欠站点总额度'].includes(item)); const debtIndex = oldFields.indexOf('佣金净收益') + 1 || oldFields.length; oldFields.splice(debtIndex, 0, '欠站点额度', '欠站点总额度'); NOTE_COMPARISONS[key] = { ...current, additions: { ...current.additions, fields: ['序号（无问号）', '代理名称（右侧展开/收起）', ...oldFields], filters: (current.additions?.filters || []).filter((item) => item !== '审核状态'), views: [...new Set([...(current.additions?.views || []).filter((item) => !['负盈利佣佣金方案切页', '负盈利佣金方案切页'].includes(item)), '推荐团队与推荐单线代理展开明细'])], rules: [...new Set([...(current.additions?.rules || []).filter((item) => !item.includes('显示“+”') && !item.includes('显示“−”') && !item.includes('上周期结余总输赢') && !item.includes('上周期结余运营费用')), '序号位于首列、无问号且团队展开入口紧跟代理名称', '冻结表头层级低于左侧菜单', '展开明细包含推荐团队和推荐单线代理', '推荐数据只读、不可二次展开且不计入主记录总计', '结算页不展示审核专员、审核时间、审核状态和维护人', '佣金状态仅使用待发放、已发放、不发放', '上级账号改为上级代理', '去除上周期结余总输赢及其佣金公式项', '去除上周期结余运营费用字段及佣金公式项', '佣金净收益右侧依次展示欠站点额度和欠站点总额度', '返佣方案为独立模块，结算页只保留结算与佣金记录'])] }, updatedAt: '2026-07-25 05:49', record: '修改时间：2026-07-25 05:49；修改说明：精简负盈利结算结余字段；修改内容：移除上周期结余总输赢，并同步佣金净收益公式、字段筛选、团队拆分、总计和TIPS。' } })
+;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => { const current = NOTE_COMPARISONS[key]; if (!current) return; const removed = new Set(['红利', '各活动奖励', '会员推会员', '返水', '上周期结余', '补单输赢', '冲正后净输赢', '佣金比例', '序号', '序号（无问号）', '代理名称', '代理名称（右侧展开/收起）', '展开/收起']); const kept = (current.additions?.fields || []).filter((item) => !removed.has(item)); NOTE_COMPARISONS[key] = { ...current, additions: { ...current.additions, fields: ['序号（无问号）', '代理名称（右侧展开/收起）', ...kept, '总输赢右侧：返佣比例', '运营费用', '三方场馆费用', '充值手续费'], views: [...new Set([...(current.additions?.views || []), '推荐团队与推荐单线代理展开明细'])], rules: [...new Set([...(current.additions?.rules || []), '报表不展示红利、各活动奖励、会员推会员、返水、上周期结余、补单输赢和冲正后净输赢字段', '总输赢右侧依次展示返佣比例、运营费用、三方场馆费用和充值手续费', '四项新增字段同步字段筛选、团队拆分、总计、详情、导出和H5', '负盈利代理佣金结算保持独立字段与操作', '序号位于首列且无独立加减号或问号', '冻结表头层级低于左侧菜单', '展开或收起入口紧跟代理账号', '展开明细包含推荐团队和推荐单线代理', '推荐数据只读、不可二次展开且不计入主记录总计'])] }, updatedAt: '2026-07-25 05:54', record: '修改时间：2026-07-25 05:54；修改说明：精简负盈利佣金报表并补充成本汇总字段；修改内容：移除七个字段，在总输赢右侧增加返佣比例、运营费用、三方场馆费用和充值手续费，并同步四端。' } })
+NOTE_COMPARISONS['master:version'] = { ...NOTE_COMPARISONS['master:version'], updatedAt: '2026-07-25 05:54', additions: { ...NOTE_COMPARISONS['master:version'].additions, fields: [...new Set([...(NOTE_COMPARISONS['master:version'].additions?.fields || []), '负盈利代理佣金报表返佣比例', '负盈利代理佣金报表运营费用', '负盈利代理佣金报表三方场馆费用', '负盈利代理佣金报表充值手续费'])], rules: [...new Set([...(NOTE_COMPARISONS['master:version'].additions?.rules || []), '负盈利代理佣金报表移除七个明细及结余字段', '总输赢右侧增加四项返佣与成本汇总字段', '三后台及H5同步同名报表且结算表保持独立'])] }, record: '修改时间：2026-07-25 05:54；修改说明：同步负盈利佣金报表字段调整；修改内容：记录七项移除、四项新增、四端同步及结算表独立边界。' }

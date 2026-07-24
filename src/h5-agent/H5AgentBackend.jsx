@@ -79,7 +79,6 @@ function bottomTabsForRole() {
     { id: 'dashboard', page: 'dashboard', label: '看板', icon: DashboardOutlined },
     { id: 'finance', page: 'finance', label: '财务', icon: WalletOutlined },
     { id: 'profile', page: 'profile', label: '个人中心', icon: UserOutlined },
-    { id: 'more', page: 'all', label: '更多', icon: AppstoreOutlined },
   ]
 }
 
@@ -128,15 +127,13 @@ export function H5AgentBackend({ onBack, onToast = () => {} }) {
   const [financeAction, setFinanceAction] = useState(null)
   const [roleOpen, setRoleOpen] = useState(false)
   const [notesOpen, setNotesOpen] = useState(false)
-  const [functionsOpen, setFunctionsOpen] = useState(false)
   const page = pageByRole[role]
   const note = H5_AGENT_NOTES[page]
   const bottomTabs = useMemo(() => bottomTabsForRole(), [])
-  const directPages = bottomTabs.map((item) => item.page).filter((item) => item !== 'all')
-  const activeBottom = bottomTabs.find((item) => item.page === page)?.id || (page === 'home' ? 'home' : 'more')
+  const directPages = bottomTabs.map((item) => item.page)
+  const activeBottom = bottomTabs.find((item) => item.page === page)?.id || null
 
   const navigate = (nextPage) => {
-    if (nextPage === 'all') return setFunctionsOpen(true)
     if (!pageAllowed(role, nextPage)) return onToast('当前身份无该页面权限', 'warning')
     setPageByRole((current) => ({ ...current, [role]: nextPage }))
   }
@@ -196,7 +193,6 @@ export function H5AgentBackend({ onBack, onToast = () => {} }) {
     <H5AgentSheet open={roleOpen} title="切换代理身份" description="身份切换后仅展示该角色授权范围。" onClose={() => setRoleOpen(false)} className="h5-agent-role-sheet">
       <div className="h5-agent-role-options">{H5_AGENT_ROLES.map((item) => <button type="button" key={item.id} className={role === item.id ? 'active' : ''} onClick={() => changeRole(item.id)}><span>{item.account.slice(0, 1)}</span><div><strong>{item.label}</strong><p>{item.account} · {item.scope}</p></div>{role === item.id && <i>当前</i>}</button>)}</div>
     </H5AgentSheet>
-    <H5AgentSheet open={functionsOpen} title="更多功能" description={`${roleMeta(role).label}可使用的其他业务模块`} onClose={() => setFunctionsOpen(false)} className="h5-agent-functions-sheet"><H5AgentAllFunctions role={role} excludedPages={directPages} onNavigate={(target) => { setFunctionsOpen(false); navigate(target) }} /></H5AgentSheet>
     <H5AgentNotesSheet note={note} open={notesOpen} onClose={() => setNotesOpen(false)} />
   </section></main>
 }

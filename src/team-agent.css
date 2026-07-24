@@ -125,35 +125,34 @@
 .negative-field-filter-options span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .negative-profit-report-screen .ta-panel-body > .negative-profit-report-table { width: calc(100% + 26px); max-width: calc(100% + 26px); margin: -12px -13px 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; border-width: 0 0 1px; border-radius: 0; }
 .negative-profit-report-table .ta-table { width: max-content; min-width: 100%; }
-.negative-profit-report-table .negative-expand-column, .negative-profit-report-table .negative-expand-cell { position: sticky; left: 0; z-index: 3; width: 42px; min-width: 42px; max-width: 42px; padding: 0; text-align: center; background: #f8fafc; }
-.negative-profit-report-table .negative-expand-column { z-index: 5; }
-.negative-profit-report-table .negative-agent-name-column, .negative-profit-report-table .negative-agent-name-cell { position: sticky; left: 42px; z-index: 3; min-width: 132px; background: #f8fafc; box-shadow: 8px 0 14px rgba(49, 73, 99, .06); }
-.negative-profit-report-table .negative-agent-name-column { z-index: 5; }
+.negative-profit-report-table .negative-index-column, .negative-profit-report-table .negative-index-cell { position: sticky; left: 0; z-index: 3; width: 64px; min-width: 64px; max-width: 64px; text-align: center; background: #f8fafc; }
+.negative-profit-report-table .negative-index-column { z-index: 4; }
+.negative-profit-report-table .negative-agent-name-column, .negative-profit-report-table .negative-agent-name-cell { position: sticky; left: 64px; z-index: 3; min-width: 156px; background: #f8fafc; box-shadow: 8px 0 14px rgba(49, 73, 99, .06); }
+.negative-profit-report-table .negative-agent-name-column { z-index: 4; }
 .negative-profit-report-table .negative-operation-column, .negative-profit-report-table .negative-operation-cell { position: sticky; right: 0; z-index: 3; min-width: 164px; background: #fff; box-shadow: -8px 0 14px rgba(49, 73, 99, .07); }
-.negative-profit-report-table .negative-operation-column { z-index: 5; background: #f8fafc; }
+.negative-profit-report-table .negative-operation-column { z-index: 4; background: #f8fafc; }
 .negative-column-label { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .negative-column-label > button { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 1px solid #8fc7f1; border-radius: 50%; color: #268fdc; background: #fff; font-size: 10px; font-weight: 800; line-height: 1; cursor: pointer; }
 .negative-column-label > button:hover, .negative-column-label > button:focus-visible { color: #fff; border-color: #278fdc; background: #278fdc; outline: none; }
 .negative-cost-detail-button { padding: 0; border: 0; border-bottom: 1px dashed #2b91e2; color: #2b91e2; background: transparent; cursor: pointer; }
 .negative-cost-detail-button:hover, .negative-cost-detail-button:focus-visible { border-bottom-style: solid; outline: none; }
 .negative-profit-report-table .negative-profit-member-row td { border-top-color: #c9def2; background: #e6f2ff; }
-.negative-profit-report-table .negative-profit-member-row .negative-expand-cell { background: #e6f2ff; }
-.negative-profit-report-table .negative-profit-member-row .negative-agent-name-cell, .negative-profit-report-table .negative-profit-member-row .negative-operation-cell { background: #e6f2ff; }
-.negative-profit-report-table .negative-profit-member-row:hover td, .negative-profit-report-table .negative-profit-member-row:hover .negative-expand-cell { background: #d9ebfd; }
+.negative-profit-report-table .negative-profit-member-row .negative-index-cell, .negative-profit-report-table .negative-profit-member-row .negative-agent-name-cell, .negative-profit-report-table .negative-profit-member-row .negative-operation-cell { background: #e6f2ff; }
+.negative-profit-report-table .negative-profit-member-row:hover td, .negative-profit-report-table .negative-profit-member-row:hover .negative-index-cell { background: #d9ebfd; }
 .negative-profit-report-table .negative-profit-member-row:hover .negative-agent-name-cell, .negative-profit-report-table .negative-profit-member-row:hover .negative-operation-cell { background: #d9ebfd; }
 .negative-agent-account-wrap { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .negative-recommendation-tag { display: inline-flex; align-items: center; min-height: 20px; padding: 1px 6px; border: 1px solid currentColor; border-radius: 4px; font-size: 10px; font-weight: 700; line-height: 1; }
 .negative-recommendation-tag.is-team { color: #16835f; background: #effbf6; }
 .negative-recommendation-tag.is-single { color: #a96106; background: #fff8e8; }
 .negative-profit-report-table .negative-profit-recommended-team-row td { border-top-color: #b9e2d2; background: #e8f7f0; }
-.negative-profit-report-table .negative-profit-recommended-team-row .negative-expand-cell, .negative-profit-report-table .negative-profit-recommended-team-row .negative-agent-name-cell, .negative-profit-report-table .negative-profit-recommended-team-row .negative-operation-cell { background: #e8f7f0; }
-.negative-profit-report-table .negative-profit-recommended-team-row:hover td, .negative-profit-report-table .negative-profit-recommended-team-row:hover .negative-expand-cell, .negative-profit-report-table .negative-profit-recommended-team-row:hover .negative-agent-name-cell, .negative-profit-report-table .negative-profit-recommended-team-row:hover .negative-operation-cell { background: #d9f0e6; }
+.negative-profit-report-table .negative-profit-recommended-team-row .negative-index-cell, .negative-profit-report-table .negative-profit-recommended-team-row .negative-agent-name-cell, .negative-profit-report-table .negative-profit-recommended-team-row .negative-operation-cell { background: #e8f7f0; }
+.negative-profit-report-table .negative-profit-recommended-team-row:hover td, .negative-profit-report-table .negative-profit-recommended-team-row:hover .negative-index-cell, .negative-profit-report-table .negative-profit-recommended-team-row:hover .negative-agent-name-cell, .negative-profit-report-table .negative-profit-recommended-team-row:hover .negative-operation-cell { background: #d9f0e6; }
 .negative-profit-report-table .negative-profit-recommended-single-row td { border-top-color: #eed6a4; background: #fff4dc; }
-.negative-profit-report-table .negative-profit-recommended-single-row .negative-expand-cell, .negative-profit-report-table .negative-profit-recommended-single-row .negative-agent-name-cell, .negative-profit-report-table .negative-profit-recommended-single-row .negative-operation-cell { background: #fff4dc; }
-.negative-profit-report-table .negative-profit-recommended-single-row:hover td, .negative-profit-report-table .negative-profit-recommended-single-row:hover .negative-expand-cell, .negative-profit-report-table .negative-profit-recommended-single-row:hover .negative-agent-name-cell, .negative-profit-report-table .negative-profit-recommended-single-row:hover .negative-operation-cell { background: #fbe9c5; }
-.negative-expand-button { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 1px solid #69aee5; border-radius: 3px; color: #2588d8; background: #fff; font-size: 10px; cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease; }
-.negative-expand-button:hover { border-color: #2588d8; color: #126faf; background: #edf7ff; }
-.negative-expand-button:focus-visible { outline: 2px solid rgba(43,152,241,.3); outline-offset: 1px; }
+.negative-profit-report-table .negative-profit-recommended-single-row .negative-index-cell, .negative-profit-report-table .negative-profit-recommended-single-row .negative-agent-name-cell, .negative-profit-report-table .negative-profit-recommended-single-row .negative-operation-cell { background: #fff4dc; }
+.negative-profit-report-table .negative-profit-recommended-single-row:hover td, .negative-profit-report-table .negative-profit-recommended-single-row:hover .negative-index-cell, .negative-profit-report-table .negative-profit-recommended-single-row:hover .negative-agent-name-cell, .negative-profit-report-table .negative-profit-recommended-single-row:hover .negative-operation-cell { background: #fbe9c5; }
+.negative-account-expand-button { padding: 0; border: 0; color: #2588d8; background: transparent; font-size: 10px; cursor: pointer; white-space: nowrap; }
+.negative-account-expand-button:hover { color: #126faf; text-decoration: underline; }
+.negative-account-expand-button:focus-visible { outline: 2px solid rgba(43,152,241,.3); outline-offset: 1px; }
 .negative-member-account { position: relative; padding-left: 12px; font-weight: 600; }
 .negative-member-account::before { content: ''; position: absolute; top: 50%; left: 0; width: 7px; height: 1px; background: #8eb9da; }
 .negative-profit-report-table .ta-table tfoot td { height: 42px; border-top: 2px solid #dfe9f3; color: #52677d; background: #f8fbff; font-size: 10px; font-weight: 700; white-space: nowrap; }
