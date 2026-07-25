@@ -244,6 +244,7 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-card-metrics > div, .h5-agent-card-metrics > button, .h5-agent-record-summary > span, .h5-agent-record-values > div { min-width: 0; min-height: 47px; display: grid; align-content: center; gap: 5px; padding: 7px; border-radius: 11px; background: #091726; text-align: left; }
 .h5-agent-card-metrics span, .h5-agent-record-summary > span, .h5-agent-record-values span { overflow: hidden; color: #687a92; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
 .h5-agent-card-metrics b, .h5-agent-record-summary b, .h5-agent-record-values b { overflow: hidden; color: #dce6f4; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.h5-agent-cost-link { width: fit-content; max-width: 100%; padding: 0; border: 0; border-bottom: 1px solid currentColor; color: #58a6ff; background: transparent; font: inherit; font-weight: 800; font-variant-numeric: tabular-nums; cursor: pointer; }
 .h5-agent-card-metrics .is-positive, .h5-agent-card-metrics .positive { color: var(--ha-green); }
 .h5-agent-card-metrics .is-negative, .h5-agent-card-metrics .negative { color: var(--ha-red); }
 .h5-agent-list-card > footer, .h5-agent-record-card > footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 11px; padding-top: 10px; border-top: 1px solid rgba(70, 91, 118, .26); }

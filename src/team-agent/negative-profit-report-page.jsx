@@ -22,7 +22,7 @@ import {
 } from './ui'
 
 const FILTER_DEFAULTS = { cycle: '', dateFrom: '', dateTo: '', agentIdentity: '', commissionState: '', keyword: '' }
-const MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'previousWinLossBalance', 'operatingExpense', 'thirdPartyVenueFee', 'depositWithdrawalFee', 'previousCommissionBalance', 'commissionNetIncome', 'currentDebt', 'totalDebt', 'commissionAdjustment', 'settlementCommission', 'commission']
+const MONEY_KEYS = ['depositAmount', 'withdrawalAmount', 'totalWinLoss', 'historicalTotalWinLoss', 'venueFee', 'memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'previousWinLossBalance', 'operatingExpense', 'historicalOperatingExpense', 'thirdPartyVenueFee', 'depositWithdrawalFee', 'previousCommissionBalance', 'commissionNetIncome', 'currentDebt', 'totalDebt', 'commissionAdjustment', 'settlementCommission', 'commission']
 
 const COLUMN_DEFS = [
   { key: 'index', label: '序号', className: 'negative-index-column', cellClassName: 'negative-index-cell' },
@@ -78,14 +78,15 @@ const SETTLEMENT_COLUMN_DEFS = [
   columnOf('agentIdentity'),
   columnOf('parentAccount', '上级代理'),
   columnOf('totalWinLoss'),
-  columnOf('rate', '返佣比例'),
+  { key: 'historicalTotalWinLoss', label: '历史总输赢' },
   { key: 'operatingExpense', label: '运营费用' },
+  { key: 'historicalOperatingExpense', label: '历史运营费用' },
   { key: 'thirdPartyVenueFee', label: '三方场馆费用' },
-  { key: 'depositWithdrawalFee', label: '充值手续费' },
-  { key: 'operatingShareRate', label: '运营分摊比例' },
-  { key: 'previousCommissionBalance', label: '上周期结余佣金' },
+  { key: 'depositWithdrawalFee', label: '充提手续费' },
+  columnOf('rebateLevel'),
+  columnOf('rate', '返佣比例'),
+  { key: 'previousCommissionBalance', label: '历史结余佣金' },
   { key: 'commissionNetIncome', label: '佣金净收益' },
-  { key: 'currentDebt', label: '欠站点额度' },
   { key: 'totalDebt', label: '欠站点总额度' },
   columnOf('commissionAdjustment'),
   { key: 'settlementCommission', label: '佣金' },
@@ -109,14 +110,15 @@ const FIELD_TIPS = {
   agentLevel: '当前代理在负盈利业务中的层级，仅展示团队负责人、副线或单线代理。',
   parentAccount: '当前代理关系中的直接上级代理；无上级时显示横线。',
   totalWinLoss: '本周期全部直属及授权下级会员产生的总输赢。',
+  historicalTotalWinLoss: '历史周期累计带入、用于本期负盈利佣金核对的总输赢。',
   rate: '当前代理命中方案对应的返佣比例。',
   operatingExpense: '活动奖励、会员推会员、返水、礼金、人工发彩金和余额宝利息的合计；点击金额可查看明细。',
+  historicalOperatingExpense: '历史周期累计带入的运营费用；点击金额可查看历史六项费用明细。',
   thirdPartyVenueFee: '本周期三方场馆按约定费率收取的费用合计。',
-  depositWithdrawalFee: '本原型汇总展示本周期充值及提现处理手续费，佣金公式中按充提手续费参与计算。',
-  operatingShareRate: '代理需要承担运营费用、三方场馆费用及充提手续费的分摊比例。',
-  previousCommissionBalance: '上一结算周期未发放、需要带入本周期的佣金额度。',
-  commissionNetIncome: '总输赢计佣结果扣除按比例分摊的运营与场馆等费用后的佣金净额。',
-  currentDebt: '本期净输赢为负时形成的欠站点额度；本期净输赢为正或零时显示0。',
+  depositWithdrawalFee: '本周期充值及提现处理手续费合计，统一按充提手续费参与佣金核对。',
+  rebateLevel: '依据当前返佣方案条件命中的返佣等级。',
+  previousCommissionBalance: '历史周期未发放、需要带入本周期的佣金额度。',
+  commissionNetIncome: '本期与历史总输赢计佣结果扣除本期及历史运营费用、三方场馆费用和充提手续费后的佣金净额。',
   totalDebt: '本期冲正后净输赢为负时仍未抵扣完成的欠站点总额度。',
   commissionAdjustment: '运营人员对本期最终佣金进行的增加或减少调整，减少时显示负数。',
   settlementCommission: '按本页公式计算的本期最终佣金，确认、不发放和修改发放均以此金额为准。',
@@ -132,23 +134,26 @@ const FIELD_TIPS = {
 const ALL_KEYS = COLUMN_DEFS.map((column) => column.key)
 const AGENT_HIDDEN_KEYS = new Set(['adjustmentReason'])
 const COMMISSION_REPORT_EXCLUDED_KEYS = new Set(['commissionAdjustment', 'commissionState', 'issuedBy', 'issuedAt', 'adjustmentReason'])
-const COMMISSION_REPORT_REMOVED_KEYS = new Set(['memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'manualOrderWinLoss', 'lastBalance', 'correctedNet'])
+const COMMISSION_REPORT_REMOVED_KEYS = new Set(['memberBonus', 'activityRewards', 'memberReferralReward', 'memberRebate', 'accountAdjustment', 'depositFee', 'withdrawalFee', 'manualOrderWinLoss', 'lastBalance', 'correctedNet'])
 const STATISTIC_TIME_COLUMN = { key: 'statisticTime', label: '统计时间' }
 const COMMISSION_REPORT_COLUMNS = COLUMN_DEFS
   .flatMap((column) => {
     if (column.key === 'cycle') return [column, STATISTIC_TIME_COLUMN]
     if (column.key === 'totalWinLoss') return [
       column,
-      { key: 'rate', label: '返佣比例' },
+      { key: 'historicalTotalWinLoss', label: '历史总输赢' },
       { key: 'operatingExpense', label: '运营费用' },
+      { key: 'historicalOperatingExpense', label: '历史运营费用' },
       { key: 'thirdPartyVenueFee', label: '三方场馆费用' },
-      { key: 'depositWithdrawalFee', label: '充值手续费' },
+      { key: 'depositWithdrawalFee', label: '充提手续费' },
+      { key: 'rebateLevel', label: '返佣等级' },
+      { key: 'rate', label: '返佣比例' },
+      { key: 'previousCommissionBalance', label: '历史结余佣金' },
     ]
-    if (column.key === 'rate') return []
+    if (['rebateLevel', 'rate'].includes(column.key)) return []
     if (column.key === 'commission') return [
       { key: 'commissionNetIncome', label: '佣金净收益' },
-      { key: 'currentDebt', label: '本期欠款' },
-      { key: 'totalDebt', label: '总欠款' },
+      { key: 'totalDebt', label: '欠站点总额' },
       column,
     ]
     return [column]
@@ -157,7 +162,7 @@ const COMMISSION_REPORT_COLUMNS = COLUMN_DEFS
 const ROLE_ACCOUNTS = { main: ['gaodashang'], secondary: ['WC002'], independent: ['dailiwc001'] }
 const COUNT_KEYS = ['teamMembers', 'subAgentCount', 'registeredCount', 'firstDepositCount', 'activeCount', 'newActiveCount']
 const COUNT_KEY_SET = new Set(COUNT_KEYS)
-const SIGNED_MONEY_KEYS = new Set(['totalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'previousCommissionBalance', 'commissionNetIncome', 'commissionAdjustment', 'settlementCommission'])
+const SIGNED_MONEY_KEYS = new Set(['totalWinLoss', 'historicalTotalWinLoss', 'accountAdjustment', 'manualOrderWinLoss', 'netWinLossRaw', 'lastBalance', 'correctedNet', 'previousCommissionBalance', 'commissionNetIncome', 'commissionAdjustment', 'settlementCommission'])
 
 const unique = (rows, key) => Array.from(new Set(rows.map((row) => row[key]).filter(Boolean)))
 const formatDate = (value) => String(value || '—').slice(0, 16)
@@ -179,28 +184,41 @@ function operatingBreakdownOf(source) {
   }
 }
 
+function historicalOperatingBreakdownOf(source) {
+  return {
+    activityRewards: Number(source.historicalActivityRewards ?? source.previousActivityRewards ?? 0),
+    memberReferralReward: Number(source.historicalMemberReferralReward ?? source.previousMemberReferralReward ?? 0),
+    memberRebate: Number(source.historicalMemberRebate ?? source.previousMemberRebate ?? 0),
+    giftAmount: Number(source.historicalGiftAmount ?? source.previousGiftAmount ?? 0),
+    manualBonus: Number(source.historicalManualBonus ?? source.previousManualBonus ?? 0),
+    yuebaoInterest: Number(source.historicalYuebaoInterest ?? source.previousYuebaoInterest ?? 0),
+  }
+}
+
 function settlementMetricsOf(source) {
   const operatingExpenseBreakdown = operatingBreakdownOf(source)
   const operatingExpense = Number(source.operatingExpense ?? sumBreakdown(operatingExpenseBreakdown))
-  const previousWinLossBalance = Number(source.previousWinLossBalance ?? source.lastBalance ?? 0)
-  const previousOperatingExpense = Number(source.previousOperatingExpense || 0)
+  const historicalTotalWinLoss = Number(source.historicalTotalWinLoss ?? source.previousWinLossBalance ?? source.lastBalance ?? 0)
+  const historicalOperatingExpenseBreakdown = historicalOperatingBreakdownOf(source)
+  const historicalOperatingExpense = Number(source.historicalOperatingExpense ?? source.previousOperatingExpense ?? sumBreakdown(historicalOperatingExpenseBreakdown))
   const thirdPartyVenueFee = Number(source.thirdPartyVenueFee ?? source.venueFee ?? 0)
   const depositWithdrawalFee = Number(source.depositWithdrawalFee ?? (Number(source.depositFee || 0) + Number(source.withdrawalFee || 0)))
-  const operatingShareRate = Number(source.operatingShareRate ?? source.rate ?? 0)
   const previousCommissionBalance = Number(source.previousCommissionBalance || 0)
-  const commissionNetIncome = (Number(source.totalWinLoss || 0) + previousWinLossBalance) * Number(source.rate || 0)
-    - (operatingExpense + thirdPartyVenueFee + depositWithdrawalFee + previousOperatingExpense) * operatingShareRate
+  const commissionNetIncome = (Number(source.totalWinLoss || 0) + historicalTotalWinLoss) * Number(source.rate || 0)
+    - operatingExpense - historicalOperatingExpense - thirdPartyVenueFee - depositWithdrawalFee
   const currentDebt = Number(source.currentDebt ?? Math.max(0, -Number(source.netWinLossRaw || 0)))
   const totalDebt = Number(source.totalDebt ?? Math.max(0, -Number(source.correctedNet || 0)))
   const settlementCommission = commissionNetIncome + previousCommissionBalance + Number(source.commissionAdjustment || 0)
   return {
-    previousWinLossBalance,
+    previousWinLossBalance: historicalTotalWinLoss,
+    historicalTotalWinLoss,
     operatingExpense,
     operatingExpenseBreakdown,
-    previousOperatingExpense,
+    previousOperatingExpense: historicalOperatingExpense,
+    historicalOperatingExpense,
+    historicalOperatingExpenseBreakdown,
     thirdPartyVenueFee,
     depositWithdrawalFee,
-    operatingShareRate,
     previousCommissionBalance,
     commissionNetIncome,
     currentDebt,
@@ -210,11 +228,7 @@ function settlementMetricsOf(source) {
 }
 
 function settlementPageMetricsOf(source) {
-  return settlementMetricsOf({
-    ...source,
-    previousWinLossBalance: 0,
-    previousOperatingExpense: 0,
-  })
+  return settlementMetricsOf(source)
 }
 
 function HeaderTipLabel({ column, onOpen }) {
@@ -351,7 +365,6 @@ function buildTeamMemberRows(data, bill, team) {
         previousCommissionBalance: valueOf('previousCommissionBalance'),
         currentDebt: valueOf('currentDebt'),
         totalDebt: valueOf('totalDebt'),
-        operatingShareRate: bill.operatingShareRate ?? bill.rate ?? 0,
       }),
     }
   })
@@ -690,9 +703,9 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
       ...column,
       label: isCommissionReport || column.key === 'index' ? column.label : <HeaderTipLabel column={column} onOpen={setFieldTip} />,
       render: (value, row) => {
-        if (column.key === 'operatingExpense' && !isCommissionReport) return <button type="button" className="negative-cost-detail-button" onClick={() => setOperatingDetail(row)}><Money value={value} /></button>
+        if (['operatingExpense', 'historicalOperatingExpense'].includes(column.key)) return <button type="button" className="negative-cost-detail-button" onClick={() => setOperatingDetail({ row, fieldKey: column.key })}><Money value={value} /></button>
         if (MONEY_KEYS.includes(column.key)) return <Money value={value} signed={SIGNED_MONEY_KEYS.has(column.key)} />
-        if (['rate', 'operatingShareRate'].includes(column.key)) return <Percent value={value} />
+        if (column.key === 'rate') return <Percent value={value} />
         if (column.key === 'commissionState') return <StatusTag>{value}</StatusTag>
         if (column.key === 'agentAccount') return <span className="negative-agent-account-wrap"><b className={`ta-primary-text ${row.rowType === 'member' ? 'negative-member-account' : ''}`}>{value}</b>{row.expandable && <button type="button" className="negative-account-expand-button" aria-label={`${expandedTeamIds.includes(row.id) ? '收起' : '展开'} ${row.agentAccount} ${row.expansionLabel || '团队成员'}`} onClick={() => toggleTeam(row)}>（{expandedTeamIds.includes(row.id) ? '收起' : '展开'}）</button>}{row.isRecommended && <span className={`negative-recommendation-tag is-${row.rowType === 'recommended-team' ? 'team' : 'single'}`}>{row.recommendationLabel}</span>}</span>
         return value
@@ -731,29 +744,29 @@ export function NegativeProfitReportPage({ onToast, portal = 'master', role = 'm
     <FormulaPanel title={`${pageTitle}口径`} items={[
       ...(isCommissionReport ? [
         { label: '运营费用', formula: '各活动奖励 + 会员推会员 + 返水 + 礼金 + 人工发彩金 + 余额宝利息' },
-        { label: '佣金净收益', formula: '（总输赢 + 上周期结余）× 返佣比例 −（运营费用 + 三方场馆费用 + 充值手续费 + 上周期结余运营费用）× 运营分摊比例' },
-        { label: '本期欠款', formula: 'MAX(0，-净输赢)' },
-        { label: '总欠款', formula: 'MAX(0，-（净输赢 + 上周期结余）)' },
-        { label: '佣金', formula: 'MAX(0，（净输赢 + 上周期结余）× 返佣比例)' },
+        { label: '历史运营费用', formula: '历史各活动奖励 + 历史会员推会员 + 历史返水 + 历史礼金 + 历史人工发彩金 + 历史余额宝利息' },
+        { label: '佣金净收益', formula: '（总输赢 + 历史总输赢）× 返佣比例 − 运营费用 − 历史运营费用 − 三方场馆费用 − 充提手续费' },
+        { label: '欠站点总额', formula: 'MAX(0，-（净输赢 + 历史总输赢）)' },
+        { label: '佣金', formula: '佣金净收益 + 历史结余佣金' },
       ] : [
         { label: '运营费用', formula: '活动奖励 + 会员推会员 + 返水 + 礼金 + 人工发彩金 + 余额宝利息' },
-        { label: '佣金净收益', formula: '总输赢 × 返佣比例 −（运营费用 + 三方场馆费用 + 充提手续费）× 运营分摊比例' },
-        { label: '欠站点额度', formula: 'MAX(0，-净输赢)' },
+        { label: '历史运营费用', formula: '历史各活动奖励 + 历史会员推会员 + 历史返水 + 历史礼金 + 历史人工发彩金 + 历史余额宝利息' },
+        { label: '佣金净收益', formula: '（总输赢 + 历史总输赢）× 返佣比例 − 运营费用 − 历史运营费用 − 三方场馆费用 − 充提手续费' },
         { label: '欠站点总额度', formula: 'MAX(0，-冲正后净输赢)' },
-        { label: '佣金', formula: '佣金净收益 + 上周期结余佣金 + 佣金调整' },
+        { label: '佣金', formula: '佣金净收益 + 历史结余佣金 + 佣金调整' },
       ]),
-    ]} warning={isCommissionReport ? '统计日期筛选按区间重叠口径匹配记录；本页仅用于查询与导出，不提供结算操作。' : '结算页展示负盈利模式代理账单，并按最新盈亏、成本分摊和佣金公式核对；刷新演示数据后恢复初始模拟数据。'} />
-    {!isCommissionReport && <Modal open={!!operatingDetail} title="运营费用明细" description={operatingDetail ? `${operatingDetail.agentAccount} · ${operatingDetail.cycle} · 点击字段金额查看` : ''} onClose={() => setOperatingDetail(null)} onConfirm={() => setOperatingDetail(null)} confirmText="知道了" showCancel={false} width={640}>
+    ]} warning={isCommissionReport ? '统计日期筛选按区间重叠口径匹配记录；本页仅用于查询与导出，不提供结算操作。' : '结算页展示负盈利模式代理账单，并按最新盈亏、运营费用和佣金公式核对；刷新演示数据后恢复初始模拟数据。'} />
+    <Modal open={!!operatingDetail} title={operatingDetail?.fieldKey === 'historicalOperatingExpense' ? '历史运营费用明细' : '运营费用明细'} description={operatingDetail ? `${operatingDetail.row.agentAccount} · ${operatingDetail.row.cycle} · 点击字段金额查看` : ''} onClose={() => setOperatingDetail(null)} onConfirm={() => setOperatingDetail(null)} confirmText="知道了" showCancel={false} width={640}>
       {operatingDetail && <DataTable minWidth={520} columns={[{ key: 'name', label: '费用项目' }, { key: 'amount', label: '费用额度', render: (value) => <Money value={value} /> }]} rows={[
-        { id: 'activityRewards', name: '活动奖励', amount: operatingDetail.operatingExpenseBreakdown.activityRewards },
-        { id: 'memberReferralReward', name: '会员推会员', amount: operatingDetail.operatingExpenseBreakdown.memberReferralReward },
-        { id: 'memberRebate', name: '返水', amount: operatingDetail.operatingExpenseBreakdown.memberRebate },
-        { id: 'giftAmount', name: '礼金', amount: operatingDetail.operatingExpenseBreakdown.giftAmount },
-        { id: 'manualBonus', name: '人工发彩金', amount: operatingDetail.operatingExpenseBreakdown.manualBonus },
-        { id: 'yuebaoInterest', name: '余额宝利息', amount: operatingDetail.operatingExpenseBreakdown.yuebaoInterest },
-        { id: 'total', name: '运营费用合计', amount: operatingDetail.operatingExpense },
+        { id: 'activityRewards', name: '活动奖励', amount: (operatingDetail.fieldKey === 'historicalOperatingExpense' ? operatingDetail.row.historicalOperatingExpenseBreakdown : operatingDetail.row.operatingExpenseBreakdown).activityRewards },
+        { id: 'memberReferralReward', name: '会员推会员', amount: (operatingDetail.fieldKey === 'historicalOperatingExpense' ? operatingDetail.row.historicalOperatingExpenseBreakdown : operatingDetail.row.operatingExpenseBreakdown).memberReferralReward },
+        { id: 'memberRebate', name: '返水', amount: (operatingDetail.fieldKey === 'historicalOperatingExpense' ? operatingDetail.row.historicalOperatingExpenseBreakdown : operatingDetail.row.operatingExpenseBreakdown).memberRebate },
+        { id: 'giftAmount', name: '礼金', amount: (operatingDetail.fieldKey === 'historicalOperatingExpense' ? operatingDetail.row.historicalOperatingExpenseBreakdown : operatingDetail.row.operatingExpenseBreakdown).giftAmount },
+        { id: 'manualBonus', name: '人工发彩金', amount: (operatingDetail.fieldKey === 'historicalOperatingExpense' ? operatingDetail.row.historicalOperatingExpenseBreakdown : operatingDetail.row.operatingExpenseBreakdown).manualBonus },
+        { id: 'yuebaoInterest', name: '余额宝利息', amount: (operatingDetail.fieldKey === 'historicalOperatingExpense' ? operatingDetail.row.historicalOperatingExpenseBreakdown : operatingDetail.row.operatingExpenseBreakdown).yuebaoInterest },
+        { id: 'total', name: operatingDetail.fieldKey === 'historicalOperatingExpense' ? '历史运营费用合计' : '运营费用合计', amount: operatingDetail.row[operatingDetail.fieldKey] },
       ]} />}
-    </Modal>}
+    </Modal>
     {!isCommissionReport && <Modal open={!!fieldTip} title={fieldTip ? `${fieldTip.label} TIPS` : '字段 TIPS'} description="字段口径说明" onClose={() => setFieldTip(null)} onConfirm={() => setFieldTip(null)} confirmText="知道了" showCancel={false} width={520}>
       <Alert title={fieldTip?.label || '字段说明'}>{fieldTip?.text}</Alert>
     </Modal>}

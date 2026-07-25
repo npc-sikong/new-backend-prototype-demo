@@ -47,9 +47,23 @@ function detailItems(row) {
   }))
 }
 
-function AuditTable({ rows, fields, totals, expanded, onToggle }) {
+function operatingDetailItems(detail) {
+  const historical = detail?.fieldKey === 'historicalOperatingExpense'
+  const breakdown = historical ? detail?.row.historicalOperatingExpenseBreakdown : detail?.row.operatingExpenseBreakdown
+  return [
+    { label: '活动奖励', value: money(breakdown?.activityRewards) },
+    { label: '会员推会员', value: money(breakdown?.memberReferralReward) },
+    { label: '返水', value: money(breakdown?.memberRebate) },
+    { label: '礼金', value: money(breakdown?.giftAmount) },
+    { label: '人工发彩金', value: money(breakdown?.manualBonus) },
+    { label: '余额宝利息', value: money(breakdown?.yuebaoInterest) },
+    { label: historical ? '历史运营费用合计' : '运营费用合计', value: money(detail?.row[detail?.fieldKey]) },
+  ]
+}
+
+function AuditTable({ rows, fields, totals, expanded, onToggle, onOperatingDetail }) {
   return <div className="h5-agent-audit-wrap"><table className="h5-agent-audit-table"><thead><tr>{fields.map((field) => <th key={field.key}>{field.label}</th>)}</tr></thead><tbody>
-    {rows.map((row) => <tr key={row.id} className={row.isRecommended ? `is-recommended is-${row.rowType === 'recommended-team' ? 'team' : 'single'}` : row.rowType === 'member' ? 'is-member' : ''}>{fields.map((field) => <td key={field.key}>{field.key === 'agentAccount' && row.expandable ? <span className="h5-agent-audit-account"><span>{row.agentAccount}</span><button type="button" onClick={() => onToggle(row)}>（{expanded.includes(row.id) ? '收起' : '展开'}）</button></span> : displayValue(field, row)}</td>)}</tr>)}
+    {rows.map((row) => <tr key={row.id} className={row.isRecommended ? `is-recommended is-${row.rowType === 'recommended-team' ? 'team' : 'single'}` : row.rowType === 'member' ? 'is-member' : ''}>{fields.map((field) => <td key={field.key}>{field.key === 'agentAccount' && row.expandable ? <span className="h5-agent-audit-account"><span>{row.agentAccount}</span><button type="button" onClick={() => onToggle(row)}>（{expanded.includes(row.id) ? '收起' : '展开'}）</button></span> : ['operatingExpense', 'historicalOperatingExpense'].includes(field.key) ? <button type="button" className="h5-agent-cost-link" onClick={() => onOperatingDetail({ row, fieldKey: field.key })}>{displayValue(field, row)}</button> : displayValue(field, row)}</td>)}</tr>)}
     {!rows.length && <tr><td colSpan={fields.length}>暂无数据</td></tr>}
     {!!rows.length && <tr className="h5-agent-audit-total">{fields.map((field, index) => <td key={field.key}>{index === 0 ? '总计' : totals[field.key] ?? '—'}</td>)}</tr>}
   </tbody></table></div>
@@ -60,6 +74,7 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
   const [filters, setFilters] = useState({ keyword: '', cycle: '', dateFrom: '', dateTo: '', identity: '' })
   const [filterOpen, setFilterOpen] = useState(false)
   const [selected, setSelected] = useState(null)
+  const [operatingDetail, setOperatingDetail] = useState(null)
   const [expanded, setExpanded] = useState([])
   const [audit, setAudit] = useState(false)
   const [visibleKeys, setVisibleKeys] = useState(() => REPORT_FIELDS.map((field) => field.key))
@@ -102,7 +117,7 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
   return <section className="h5-agent-page h5-agent-negative-page">
     <H5AgentSearch value={filters.keyword} onChange={(value) => setFilter('keyword', value)} onFilter={() => setFilterOpen(true)} placeholder="代理账号、编号、团队或上级" />
     <div className="h5-agent-result-meta"><span>当前筛选 {rows.length} 条</span><div><button type="button" onClick={() => onToast(`负盈利代理佣金报表已导出 ${rows.length} 条`)}>导出</button><button type="button" onClick={() => onToast('负盈利代理佣金报表文件已下载')}>下载文件</button><button type="button" onClick={() => setAudit((value) => !value)}>{audit ? '卡片查看' : '横向核对'}</button></div></div>
-    {audit ? <AuditTable rows={visibleRows} fields={visibleFields} totals={totals} expanded={expanded} onToggle={toggleRow} /> : <div className="h5-agent-card-list">{roots.flatMap((row) => {
+    {audit ? <AuditTable rows={visibleRows} fields={visibleFields} totals={totals} expanded={expanded} onToggle={toggleRow} onOperatingDetail={setOperatingDetail} /> : <div className="h5-agent-card-list">{roots.flatMap((row) => {
       const cards = [<article className="h5-agent-record-card" key={row.id}>
         <header><div><div className="h5-agent-record-account-line"><i>#{row.index}</i><strong>{row.agentAccount}</strong>{row.expandable && <button type="button" onClick={() => toggleRow(row)}>（{expanded.includes(row.id) ? '收起' : '展开'}）</button>}</div><small>{row.cycle} · {row.teamName}</small></div><span className="h5-agent-status is-brand">{row.agentIdentity}</span></header>
         <div className="h5-agent-record-summary h5-agent-record-values">
@@ -111,13 +126,16 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
           <div><span>推荐人</span><b>{row.recommender}</b></div>
           <div><span>代理层级</span><b>{row.agentLevel}</b></div>
           <div><span>总输赢</span><b className={tone(row.totalWinLoss) ? `is-${tone(row.totalWinLoss)}` : ''}>{money(row.totalWinLoss, true)}</b></div>
-          <div><span>返佣比例</span><b>{Number(row.rate || 0) * 100}%</b></div>
-          <div><span>运营费用</span><b>{money(row.operatingExpense)}</b></div>
+          <div><span>历史总输赢</span><b className={tone(row.historicalTotalWinLoss) ? `is-${tone(row.historicalTotalWinLoss)}` : ''}>{money(row.historicalTotalWinLoss, true)}</b></div>
+          <div><span>运营费用</span><button type="button" className="h5-agent-cost-link" onClick={() => setOperatingDetail({ row, fieldKey: 'operatingExpense' })}>{money(row.operatingExpense)}</button></div>
+          <div><span>历史运营费用</span><button type="button" className="h5-agent-cost-link" onClick={() => setOperatingDetail({ row, fieldKey: 'historicalOperatingExpense' })}>{money(row.historicalOperatingExpense)}</button></div>
           <div><span>三方场馆费用</span><b>{money(row.thirdPartyVenueFee)}</b></div>
-          <div><span>充值手续费</span><b>{money(row.depositWithdrawalFee)}</b></div>
+          <div><span>充提手续费</span><b>{money(row.depositWithdrawalFee)}</b></div>
+          <div><span>返佣等级</span><b>{row.rebateLevel}</b></div>
+          <div><span>返佣比例</span><b>{Number(row.rate || 0) * 100}%</b></div>
+          <div><span>历史结余佣金</span><b>{money(row.previousCommissionBalance, true)}</b></div>
           <div><span>佣金净收益</span><b className={tone(row.commissionNetIncome) ? `is-${tone(row.commissionNetIncome)}` : ''}>{money(row.commissionNetIncome, true)}</b></div>
-          <div><span>本期欠款</span><b>{money(row.currentDebt)}</b></div>
-          <div><span>总欠款</span><b>{money(row.totalDebt)}</b></div>
+          <div><span>欠站点总额</span><b>{money(row.totalDebt)}</b></div>
           <div><span>佣金</span><b>{money(row.commission)}</b></div>
           <div><span>下级会员</span><b>{row.subAgentCount}</b></div>
         </div>
@@ -125,7 +143,7 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
       </article>]
       if (expanded.includes(row.id)) cards.push(...row.memberRows.map((member) => <article className={`h5-agent-record-card ${member.isRecommended ? `is-recommended is-${member.rowType === 'recommended-team' ? 'team' : 'single'}` : 'is-member'}`} key={member.id}>
         <header><div><div className="h5-agent-record-account-line"><i>#{member.index}</i><strong>{member.agentAccount}</strong></div><small>{member.isRecommended ? member.recommendationLabel : member.agentLevel} · {member.agentId}</small></div><span className="h5-agent-status is-brand">{member.isRecommended ? member.recommendationLabel : member.agentIdentity}</span></header>
-        <div className="h5-agent-record-summary h5-agent-record-values"><div><span>代理类型</span><b>{member.agentType}</b></div><div><span>推荐人</span><b>{member.recommender}</b></div><div><span>代理层级</span><b>{member.agentLevel}</b></div><div><span>总输赢</span><b>{money(member.totalWinLoss, true)}</b></div><div><span>返佣比例</span><b>{Number(member.rate || 0) * 100}%</b></div><div><span>运营费用</span><b>{money(member.operatingExpense)}</b></div><div><span>三方场馆费用</span><b>{money(member.thirdPartyVenueFee)}</b></div><div><span>充值手续费</span><b>{money(member.depositWithdrawalFee)}</b></div><div><span>佣金净收益</span><b>{money(member.commissionNetIncome, true)}</b></div><div><span>本期欠款</span><b>{money(member.currentDebt)}</b></div><div><span>总欠款</span><b>{money(member.totalDebt)}</b></div><div><span>佣金</span><b>{money(member.commission)}</b></div><div><span>下级会员</span><b>{member.subAgentCount}</b></div></div>
+        <div className="h5-agent-record-summary h5-agent-record-values"><div><span>代理类型</span><b>{member.agentType}</b></div><div><span>推荐人</span><b>{member.recommender}</b></div><div><span>代理层级</span><b>{member.agentLevel}</b></div><div><span>总输赢</span><b>{money(member.totalWinLoss, true)}</b></div><div><span>历史总输赢</span><b>{money(member.historicalTotalWinLoss, true)}</b></div><div><span>运营费用</span><button type="button" className="h5-agent-cost-link" onClick={() => setOperatingDetail({ row: member, fieldKey: 'operatingExpense' })}>{money(member.operatingExpense)}</button></div><div><span>历史运营费用</span><button type="button" className="h5-agent-cost-link" onClick={() => setOperatingDetail({ row: member, fieldKey: 'historicalOperatingExpense' })}>{money(member.historicalOperatingExpense)}</button></div><div><span>三方场馆费用</span><b>{money(member.thirdPartyVenueFee)}</b></div><div><span>充提手续费</span><b>{money(member.depositWithdrawalFee)}</b></div><div><span>返佣等级</span><b>{member.rebateLevel}</b></div><div><span>返佣比例</span><b>{Number(member.rate || 0) * 100}%</b></div><div><span>历史结余佣金</span><b>{money(member.previousCommissionBalance, true)}</b></div><div><span>佣金净收益</span><b>{money(member.commissionNetIncome, true)}</b></div><div><span>欠站点总额</span><b>{money(member.totalDebt)}</b></div><div><span>佣金</span><b>{money(member.commission)}</b></div><div><span>下级会员</span><b>{member.subAgentCount}</b></div></div>
         <footer><span /><button type="button" className="h5-agent-card-detail" onClick={() => setSelected(member)}>查看全部字段</button></footer>
       </article>))
       return cards
@@ -133,10 +151,10 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
     <H5AgentPagination total={rows.length} page={safePage} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={(value) => { setPageSize(value); setPage(1) }} />
     <section className="h5-agent-panel h5-agent-formula-panel"><h2>负盈利代理佣金报表口径</h2><H5AgentFields columns={1} items={[
       { label: '运营费用', value: '各活动奖励 + 会员推会员 + 返水 + 礼金 + 人工发彩金 + 余额宝利息' },
-      { label: '佣金净收益', value: '（总输赢 + 上周期结余）× 返佣比例 −（运营费用 + 三方场馆费用 + 充值手续费 + 上周期结余运营费用）× 运营分摊比例' },
-      { label: '本期欠款', value: 'MAX(0，-净输赢)' },
-      { label: '总欠款', value: 'MAX(0，-（净输赢 + 上周期结余）)' },
-      { label: '佣金', value: 'MAX(0，（净输赢 + 上周期结余）× 返佣比例)' },
+      { label: '历史运营费用', value: '历史各活动奖励 + 历史会员推会员 + 历史返水 + 历史礼金 + 历史人工发彩金 + 历史余额宝利息' },
+      { label: '佣金净收益', value: '（总输赢 + 历史总输赢）× 返佣比例 − 运营费用 − 历史运营费用 − 三方场馆费用 − 充提手续费' },
+      { label: '欠站点总额', value: 'MAX(0，-（净输赢 + 历史总输赢）)' },
+      { label: '佣金', value: '佣金净收益 + 历史结余佣金' },
     ]} /><p className="h5-agent-dashboard-alert">统计日期按记录统计区间与查询日期区间存在重叠进行匹配；本页仅查询与导出，不提供结算操作。</p></section>
     <H5AgentFilterSheet open={filterOpen} title="负盈利佣金报表筛选" onClose={() => setFilterOpen(false)} onReset={reset} onApply={() => { setFilterOpen(false); onToast(`已查询 ${rows.length} 条负盈利代理佣金报表`) }}>
       <H5AgentFormField label="佣金周期"><select value={filters.cycle} onChange={(event) => setFilter('cycle', event.target.value)}><option value="">全部周期</option>{unique(allRows, 'cycle').map((item) => <option key={item}>{item}</option>)}</select></H5AgentFormField>
@@ -146,5 +164,6 @@ export function H5NegativeProfitReportPage({ role = 'main', onToast = () => {} }
       <div className="h5-agent-field-filter"><header><span>字段筛选（{visibleKeys.length}/{REPORT_FIELDS.length}）</span><div><button type="button" onClick={() => setVisibleKeys(REPORT_FIELDS.map((field) => field.key))}>全选</button><button type="button" onClick={invertFields}>反选</button></div></header><div>{REPORT_FIELDS.map((field) => <label key={field.key}><input type="checkbox" checked={visibleKeys.includes(field.key)} onChange={() => toggleField(field.key)} /><span>{field.label}</span></label>)}</div></div>
     </H5AgentFilterSheet>
     <H5AgentDetailSheet open={Boolean(selected)} title="负盈利代理佣金报表详情" description={selected ? `${selected.agentAccount} · ${selected.statisticTime}` : ''} onClose={() => setSelected(null)}>{selected && <H5AgentFields items={detailItems(selected)} />}</H5AgentDetailSheet>
+    <H5AgentDetailSheet open={Boolean(operatingDetail)} title={operatingDetail?.fieldKey === 'historicalOperatingExpense' ? '历史运营费用明细' : '运营费用明细'} description={operatingDetail ? `${operatingDetail.row.agentAccount} · ${operatingDetail.row.cycle}` : ''} onClose={() => setOperatingDetail(null)}>{operatingDetail && <H5AgentFields columns={1} items={operatingDetailItems(operatingDetail)} />}</H5AgentDetailSheet>
   </section>
 }
