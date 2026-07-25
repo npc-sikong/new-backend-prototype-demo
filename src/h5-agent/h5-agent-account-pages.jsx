@@ -3,11 +3,15 @@ import {
   CopyOutlined,
   EyeOutlined,
   LockOutlined,
+  MobileOutlined,
   SafetyCertificateOutlined,
 } from '@ant-design/icons'
 import { ACTIVITY_ROWS } from '../team-agent/multi-level-agent-data'
-import { H5AgentDetailSheet, H5AgentEmpty, H5AgentFields, H5AgentFilterSheet, H5AgentFormField, H5AgentPagination, H5AgentSearch, H5AgentSegments, H5AgentStatus } from './h5-agent-ui'
+import googleAuthQr from '../assets/h5-agent-google-auth-qr.png'
+import { H5AgentDetailSheet, H5AgentEmpty, H5AgentFields, H5AgentFilterSheet, H5AgentFormField, H5AgentPagination, H5AgentSearch, H5AgentSegments, H5AgentSheet, H5AgentStatus } from './h5-agent-ui'
 import { middleEllipsis, roleProfile } from './h5-agent-data'
+
+const GOOGLE_SECRET = 'SZWPWXSGRKPTPPCD'
 
 function createProfileState() {
   return Object.fromEntries(['main', 'secondary', 'independent', 'multiLevel'].map((role) => {
@@ -28,11 +32,17 @@ export function H5ProfilePage({ role = 'main', profileState, onProfileChange, on
   const [tab, setTab] = useState('basic')
   const [form, setForm] = useState(current)
   const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' })
+  const [googleBound, setGoogleBound] = useState(false)
+  const [bindOpen, setBindOpen] = useState(false)
+  const [googleCode, setGoogleCode] = useState('')
 
   useEffect(() => {
     setTab('basic')
     setForm(current)
     setPasswords({ current: '', next: '', confirm: '' })
+    setGoogleBound(false)
+    setBindOpen(false)
+    setGoogleCode('')
   }, [role, profileState])
 
   const saveBasic = () => {
@@ -43,6 +53,19 @@ export function H5ProfilePage({ role = 'main', profileState, onProfileChange, on
   const savePassword = () => {
     setPasswords({ current: '', next: '', confirm: '' })
     onToast('密码已修改')
+  }
+
+  const copyGoogleSecret = () => {
+    navigator.clipboard?.writeText(GOOGLE_SECRET).catch(() => {})
+    onToast('密钥已复制')
+  }
+
+  const confirmGoogleBind = () => {
+    if (!/^\d{6}$/.test(googleCode)) return onToast('请输入6位动态验证码', 'warning')
+    setGoogleBound(true)
+    setGoogleCode('')
+    setBindOpen(false)
+    onToast('谷歌验证器绑定成功')
   }
 
   return <section className="h5-agent-account-page">
@@ -72,11 +95,43 @@ export function H5ProfilePage({ role = 'main', profileState, onProfileChange, on
       <H5AgentFormField label="确认新密码" required><input type="password" value={passwords.confirm} onChange={(event) => setPasswords((state) => ({ ...state, confirm: event.target.value }))} /></H5AgentFormField>
       <div className="h5-agent-form-actions"><button type="button" className="h5-agent-primary-button" onClick={savePassword}>保存</button><button type="button" className="h5-agent-danger-button" onClick={() => onToast('表单已关闭')}>关闭</button></div>
     </div>}
-    {tab === 'security' && <div className="h5-agent-panel h5-agent-security-list">
-      <div><span><LockOutlined /></span><section><strong>登录密码</strong><p>建议定期更换密码，保护账号安全。</p></section><H5AgentStatus>已设置</H5AgentStatus></div>
-      <div><span><SafetyCertificateOutlined /></span><section><strong>谷歌验证</strong><p>资金操作前进行二次安全验证。</p></section><H5AgentStatus tone="warning">待绑定</H5AgentStatus></div>
-      <div className="h5-agent-form-actions"><button type="button" className="h5-agent-primary-button" onClick={() => onToast('安全设置已更新')}>保存</button><button type="button" className="h5-agent-danger-button" onClick={() => onToast('表单已关闭')}>关闭</button></div>
+    {tab === 'security' && <div className="h5-agent-security-page">
+      <section className="h5-agent-google-security-card">
+        <span className="h5-agent-google-security-icon"><LockOutlined /></span>
+        <div className="h5-agent-google-security-copy">
+          <strong>谷歌身份验证器</strong>
+          <small>Google Authenticator</small>
+          <p>用于登录和敏感操作的二次身份验证，增加账户安全性。</p>
+          <H5AgentStatus tone={googleBound ? 'success' : 'warning'}>{googleBound ? '已开启' : '未开启'}</H5AgentStatus>
+        </div>
+        <button type="button" className="h5-agent-google-bind-button" disabled={googleBound} onClick={() => setBindOpen(true)}><LockOutlined />{googleBound ? '已绑定' : '立即绑定'}</button>
+      </section>
+      <aside className="h5-agent-security-advice">
+        <span><SafetyCertificateOutlined /></span>
+        <div><strong>安全建议</strong><ol><li>请务必妥善保管好您的私钥，不要将其泄露给他人。</li><li>如果您的手机丢失，您可以使用私钥在新的设备上恢复验证器。</li></ol></div>
+      </aside>
     </div>}
+    <H5AgentSheet open={bindOpen} title="绑定谷歌验证器" onClose={() => setBindOpen(false)} className="h5-agent-google-bind-sheet">
+      <div className="h5-agent-google-bind-intro">
+        <span><LockOutlined /></span>
+        <strong>绑定谷歌验证器</strong>
+        <p>请使用谷歌验证器 APP 扫描下方二维码，并输入生成的 6 位验证码以完成绑定。</p>
+        <div><button type="button" onClick={() => onToast('iOS版下载入口已打开')}><MobileOutlined />下载 iOS 版</button><i /><button type="button" onClick={() => onToast('Android版下载入口已打开')}><MobileOutlined />下载 Android 版</button></div>
+      </div>
+      <div className="h5-agent-google-qr"><img src={googleAuthQr} alt="谷歌验证器绑定二维码" /></div>
+      <section className="h5-agent-google-secret">
+        <span>密钥 (SECRET KEY)</span>
+        <div><strong>{GOOGLE_SECRET}</strong><button type="button" aria-label="复制密钥" onClick={copyGoogleSecret}><CopyOutlined /></button></div>
+        <button type="button" onClick={copyGoogleSecret}><CopyOutlined />复制密钥</button>
+      </section>
+      <H5AgentFormField label="动态验证码">
+        <input inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={googleCode} placeholder="请输入6位动态验证码" onChange={(event) => setGoogleCode(event.target.value.replace(/\D/g, '').slice(0, 6))} />
+      </H5AgentFormField>
+      <div className="h5-agent-google-bind-actions">
+        <button type="button" className="h5-agent-primary-button" onClick={confirmGoogleBind}>确认绑定</button>
+        <button type="button" onClick={() => setBindOpen(false)}>取消</button>
+      </div>
+    </H5AgentSheet>
   </section>
 }
 

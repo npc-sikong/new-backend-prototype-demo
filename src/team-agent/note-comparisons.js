@@ -599,14 +599,14 @@ NOTE_COMPARISONS['master:version'] = {
   ...NOTE_COMPARISONS['master:version'],
   additions: {
     ...NOTE_COMPARISONS['master:version'].additions,
-    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理登录', '代理身份', '首页额度卡', '资金快捷操作', '其它模块入口', '首页', '看板', '财务', '个人中心', '底部导航', '移动端验收尺寸'],
+    fields: [...NOTE_COMPARISONS['master:version'].additions.fields, 'H5代理后台入口', '代理登录', '代理身份', '首页额度卡', '资金快捷操作', '其它模块入口', '首页', '看板', '财务', '个人中心', '安全设置', '谷歌验证器', '绑定二维码', '动态验证码', '底部导航', '移动端验收尺寸'],
     types: [...NOTE_COMPARISONS['master:version'].additions.types, 'H5代理后台需求'],
-    views: [...NOTE_COMPARISONS['master:version'].additions.views, '负盈利代理佣金报表模块卡片', '站点后台与代理后台同步页面清单', 'H5代理登录页', 'H5首页紧凑额度卡与资金操作', 'H5首页其它模块入口', 'H5底部单一导航'],
-    actions: [...NOTE_COMPARISONS['master:version'].additions.actions, '从版本说明跳转至负盈利代理佣金报表', '从版本说明跳转至 H5代理后台'],
-    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '负盈利代理佣金报表在总控、站点和代理后台分别按权限提供只读入口', '站点后台负盈利代理佣金报表仅展示旺财体育本站代理数据', '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置在总控和站点代理管理下使用独立入口', '周结频率可选一周、二周或三周', '代理后台三身份冲正统计去除级差、垫付和回款字段', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5代理登录后进入对应身份首页', 'H5首页额度卡和四项资金操作高度缩小约25%', 'H5首页资金操作下展示当前身份其它模块入口', 'H5底部导航固定为首页、看板、财务、个人中心，不展示更多', 'H5代理列表和会员列表通过首页其它模块进入', 'H5一级页面不展示跨模块切页', 'H5一级页面左上返回首页', 'H5只重排现有字段和功能，不新增或删减业务能力', 'H5身份与页面状态不改变原四门户和原H5前端'],
+    views: [...NOTE_COMPARISONS['master:version'].additions.views, '负盈利代理佣金报表模块卡片', '站点后台与代理后台同步页面清单', 'H5代理登录页', 'H5首页紧凑额度卡与资金操作', 'H5首页其它模块入口', 'H5个人中心安全设置', 'H5谷歌验证器绑定抽屉', 'H5底部单一导航'],
+    actions: [...NOTE_COMPARISONS['master:version'].additions.actions, '从版本说明跳转至负盈利代理佣金报表', '从版本说明跳转至 H5代理后台', '打开谷歌验证器绑定抽屉', '复制密钥', '确认绑定'],
+    rules: [...NOTE_COMPARISONS['master:version'].additions.rules, '负盈利代理佣金报表在总控、站点和代理后台分别按权限提供只读入口', '站点后台负盈利代理佣金报表仅展示旺财体育本站代理数据', '站点与代理后台只同步角色允许的总控代理管理页面', '代理收益看板和修改代理关系记录不下发', '结算周期设置在总控和站点代理管理下使用独立入口', '周结频率可选一周、二周或三周', '代理后台三身份冲正统计去除级差、垫付和回款字段', 'H5代理后台作为原H5前端右侧的独立第五入口', 'H5代理后台支持团队负责人、副线、单线代理和多层级代理', 'H5代理登录后进入对应身份首页', 'H5首页额度卡和四项资金操作高度缩小约25%', 'H5首页资金操作下展示当前身份其它模块入口', 'H5底部导航固定为首页、看板、财务、个人中心，不展示更多', 'H5代理列表和会员列表通过首页其它模块进入', 'H5一级页面不展示跨模块切页', 'H5一级页面左上返回首页', 'H5安全设置使用谷歌验证器状态卡和H5绑定抽屉', '谷歌验证器必须输入6位动态验证码后才能完成前端演示绑定', 'H5只重排现有字段和功能，不新增或删减业务能力', 'H5身份与页面状态不改变原四门户和原H5前端'],
   },
-  updatedAt: '2026-07-24 22:14',
-  record: '修改时间：2026-07-24 22:14；修改说明：同步H5代理后台底部导航；修改内容：移除“更多”，底部保留首页、看板、财务、个人中心，代理列表和会员列表从首页其它模块进入。',
+  updatedAt: '2026-07-25 14:27',
+  record: '修改时间：2026-07-25 14:27；修改说明：同步H5个人中心安全设置；修改内容：补充谷歌验证器状态卡、安全建议、绑定抽屉、二维码、密钥复制、6位动态验证码和绑定成功状态。',
 }
 
 const MODULE_MERGE_UPDATED_AT = '2026-07-20 17:19'
@@ -712,7 +712,7 @@ const MULTI_LEVEL_UPDATED_AT = '2026-07-22 04:53'
 const SHARED_EXISTING_AGENT_PAGES = new Set(['mlDashboard', 'mlProfile', 'mlFinance', 'mlMembers', 'mlBetRecords', 'mlAccountChanges', 'mlMemberFunds', 'mlVenueFees'])
 const MULTI_LEVEL_PAGES = {
   mlDashboard: ['代理数据看板', ['本期佣金预估', '佣金余额', '资金流水', '代理数据', '会员数据'], ['日期范围'], ['指标卡片分组'], ['查看费用明细', '刷新统计'], ['四种代理身份复用同一页面结构', '团队负责人、副线、单线代理与多层级代理分别按当前身份授权范围统计']],
-  mlProfile: ['个人中心', ['头像', '用户名称', '所属角色', '推广码', '创建日期', 'App下载链接', '昵称', '手机号', '邮箱', '性别'], [], ['基本资料', '修改密码', '安全设置'], ['保存资料', '修改密码', '复制下载链接'], ['资料修改仅作用于当前前端演示状态']],
+  mlProfile: ['个人中心', ['头像', '用户名称', '所属角色', '推广码', '创建日期', 'App下载链接', '昵称', '手机号', '邮箱', '性别', '谷歌验证器状态', '绑定二维码', '密钥', '动态验证码'], [], ['基本资料', '修改密码', '安全设置', '谷歌验证器绑定抽屉'], ['保存资料', '修改密码', '复制下载链接', '复制密钥', '确认绑定'], ['资料和谷歌验证器绑定仅作用于当前前端演示状态', '动态验证码必须为6位数字']],
   mlFinance: ['财务中心', ['当前可用额度', '站点编码', '提现账号', '近期收支流水'], ['创建时间'], ['充值、提现、转账、红包弹窗'], ['快速充值', '余额提现', '内部转账', '发放红包', '导出报表'], ['资金操作只更新当前演示余额与流水']],
   mlAgents: ['代理列表', ['代理ID', '代理账号', '代理模型', '星级级别', '层级级别', '站点编码', '代理状态', '下属代理', '下属会员', '佣金方案', '最后登录'], ['代理ID', '代理账号', '代理状态'], ['新增代理', '修改代理', '修改密码'], ['新增', '修改', '修改密码', '查询', '重置'], ['只展示多层级代理体系的授权下级代理']],
   mlMembers: ['会员列表', ['会员ID', 'VIP等级', '会员账号', '有效投注', '输赢', '钱包余额', '会员或代理', '上级代理', '充值及入金'], ['会员ID', '会员账号', '上级代理', '状态', '会员或代理'], ['会员宽表'], ['查询', '重置', '导出Excel', '下载文件'], ['列表默认20条每页，最高200条每页']],
@@ -739,12 +739,14 @@ NOTE_COMPARISONS['agent:mlDashboard'] = {
   ...NOTE_COMPARISONS['agent:mlDashboard'],
   additions: {
     ...NOTE_COMPARISONS['agent:mlDashboard'].additions,
-    fields: ['多层级代理本期佣金预估或净收益', '多层级代理未结算佣金', '当前余额', '已结算佣金', '充提手续运营费', '资金流水', '团队负责人代理数据', '会员数据'],
+    fields: ['多层级代理本期佣金预估或净收益', '多层级代理未结算佣金', '当前余额', '已结算佣金', '充提手续运营费', '资金流水', '团队负责人代理数据', '会员数据', '四类明细弹窗五列表头', '账期', '金额合计', '提示'],
     types: ['多层级代理完整看板', '团队负责人适用看板', '副线精简看板', '单线代理精简看板'],
-    rules: ['多层级代理将提现中佣金改为未结算佣金', '团队负责人、副线和单线代理不展示本期佣金预估或净收益及提现中佣金', '副线和单线代理不展示代理数据整组', '四种身份将代理手续费支出统一改名为充提手续运营费', '各身份继续按当前授权范围统计'],
+    views: [...NOTE_COMPARISONS['agent:mlDashboard'].additions.views, 'H5会员VIP福利详情', 'H5活动福利详情', 'H5会员推广福利详情', 'H5充提手续运营费详情'],
+    actions: [...NOTE_COMPARISONS['agent:mlDashboard'].additions.actions, '打开或关闭四类费用明细'],
+    rules: ['多层级代理将提现中佣金改为未结算佣金', '团队负责人、副线和单线代理不展示本期佣金预估或净收益及提现中佣金', '副线和单线代理不展示代理数据整组', '四种身份将代理手续费支出统一改名为充提手续运营费', '各身份继续按当前授权范围统计', '四个H5弹窗沿用当前身份和看板账期且金额合计与对应卡片一致', '宽表仅在弹窗内部横向查看'],
   },
-  updatedAt: '2026-07-23 19:15',
-  record: '修改时间：2026-07-23 19:15；修改说明：按代理身份展示适用的佣金及代理数据指标；修改内容：多层级代理改用未结算佣金，其他三种身份移除两个不适用佣金指标，副线和单线代理移除代理数据整组，所有身份统一充提手续运营费名称。',
+  updatedAt: '2026-07-25 13:43',
+  record: '修改时间：2026-07-25 13:43；修改说明：补齐H5看板四类费用明细；修改内容：会员VIP福利、活动福利、会员推广福利、充提手续运营费均可打开独立H5明细弹窗，并展示完整字段、账期、金额合计和业务提示。',
 }
 
 NOTE_COMPARISONS['agent:negativeProfitReport'] = created(
@@ -1179,7 +1181,7 @@ NOTE_COMPARISONS['master:rebatePlans'] = {
 const H5_AGENT_FUNDS_COMPARISON_AT = '2026-07-24 17:53'
 if (NOTE_COMPARISONS['agent:mlFinance']) {
   const current = NOTE_COMPARISONS['agent:mlFinance']
-  NOTE_COMPARISONS['agent:mlFinance'] = { ...current, additions: { ...current.additions, fields: [...new Set([...(current.additions?.fields || []), '充值渠道与协议', '充值及提现金额', '提现收款账户', '转账目标与流水倍数', '红包发放时间、有效期与备注'])], views: [...new Set([...(current.additions?.views || []), 'H5快速充值底部抽屉', 'H5余额提现底部抽屉', 'H5内部转账底部抽屉', 'H5发放红包底部抽屉'])], actions: [...new Set([...(current.additions?.actions || []), '切换充值渠道', '切换提现方式', '切换转账对象', '设置红包定时与有效期'])], rules: [...new Set([...(current.additions?.rules || []), 'H5表单内容纵向滚动且底部主按钮固定', '四项资金操作继续使用原余额增减与校验口径'])] }, updatedAt: H5_AGENT_FUNDS_COMPARISON_AT, record: `修改时间：${H5_AGENT_FUNDS_COMPARISON_AT}；修改说明：统一四项资金操作的H5排版；修改内容：增加四个暗色底部抽屉及其完整字段、切换、校验和固定主按钮。` }
+  NOTE_COMPARISONS['agent:mlFinance'] = { ...current, additions: { ...current.additions, fields: [...new Set([...(current.additions?.fields || []), '编辑结算信息USDT地址', '结算链路协议', '资金密码校验说明', '充值渠道与协议', '充值及提现金额', '提现收款账户', '支付宝账号', '支付宝真实姓名', '转账目标与流水倍数', '红包发放时间、有效期与备注'])], views: [...new Set([...(current.additions?.views || []), '桌面编辑结算信息弹窗', 'H5快速充值底部抽屉', 'H5余额提现支付宝切页', 'H5内部转账底部抽屉', 'H5发放红包底部抽屉'])], actions: [...new Set([...(current.additions?.actions || []), '更换提现账号', '保存结算信息', '切换充值渠道', '切换提现方式', '填写支付宝收款资料', '切换转账对象', '设置红包定时与有效期'])], rules: [...new Set([...(current.additions?.rules || []), '桌面更换弹窗空地址不可保存', '当前代理或站点管理员提现暂不校验资金密码', 'H5表单内容纵向滚动且底部主按钮固定', '支付宝账号和真实姓名必填', '支付宝提现单笔1至10000元', '四项资金操作继续使用原余额增减与校验口径'])] }, updatedAt: '2026-07-25 14:35', record: '修改时间：2026-07-25 14:35；修改说明：重构H5支付宝提现切页；修改内容：增加收款信息卡、支付宝账号、真实姓名、金额、余额、限额、时段与提交校验。' }
 }
 if (NOTE_COMPARISONS['master:version']) {
   const current = NOTE_COMPARISONS['master:version']
@@ -1187,4 +1189,5 @@ if (NOTE_COMPARISONS['master:version']) {
 }
 ;['master:negativeProfit', 'site:negativeProfit'].forEach((key) => { const current = NOTE_COMPARISONS[key]; if (!current) return; const oldFields = (current.additions?.fields || []).map((item) => item === '上级账号' ? '上级代理' : item).filter((item) => !['序号', '代理名称', '展开/收起', '审核专员', '审核人员', '审核时间', '审核状态', '维护人', '上周期结余总输赢', '上周期结余运营费用', '欠站点额度', '欠站点总额度'].includes(item)); const debtIndex = oldFields.indexOf('佣金净收益') + 1 || oldFields.length; oldFields.splice(debtIndex, 0, '欠站点额度', '欠站点总额度'); NOTE_COMPARISONS[key] = { ...current, additions: { ...current.additions, fields: ['序号（无问号）', '代理名称（右侧展开/收起）', ...oldFields], filters: (current.additions?.filters || []).filter((item) => item !== '审核状态'), views: [...new Set([...(current.additions?.views || []).filter((item) => !['负盈利佣佣金方案切页', '负盈利佣金方案切页'].includes(item)), '推荐团队与推荐单线代理展开明细'])], rules: [...new Set([...(current.additions?.rules || []).filter((item) => !item.includes('显示“+”') && !item.includes('显示“−”') && !item.includes('上周期结余总输赢') && !item.includes('上周期结余运营费用')), '序号位于首列、无问号且团队展开入口紧跟代理名称', '冻结表头层级低于左侧菜单', '展开明细包含推荐团队和推荐单线代理', '推荐数据只读、不可二次展开且不计入主记录总计', '结算页不展示审核专员、审核时间、审核状态和维护人', '佣金状态仅使用待发放、已发放、不发放', '上级账号改为上级代理', '去除上周期结余总输赢及其佣金公式项', '去除上周期结余运营费用字段及佣金公式项', '佣金净收益右侧依次展示欠站点额度和欠站点总额度', '返佣方案为独立模块，结算页只保留结算与佣金记录'])] }, updatedAt: '2026-07-25 05:49', record: '修改时间：2026-07-25 05:49；修改说明：精简负盈利结算结余字段；修改内容：移除上周期结余总输赢，并同步佣金净收益公式、字段筛选、团队拆分、总计和TIPS。' } })
 ;['master:negativeProfitReport', 'site:negativeProfitReport', 'agent:negativeProfitReport'].forEach((key) => { const current = NOTE_COMPARISONS[key]; if (!current) return; const removed = new Set(['红利', '各活动奖励', '会员推会员', '返水', '上周期结余', '补单输赢', '冲正后净输赢', '佣金比例', '序号', '序号（无问号）', '代理名称', '代理名称（右侧展开/收起）', '展开/收起']); const kept = (current.additions?.fields || []).filter((item) => !removed.has(item)); NOTE_COMPARISONS[key] = { ...current, additions: { ...current.additions, fields: ['序号（无问号）', '代理名称（右侧展开/收起）', ...kept, '总输赢右侧：返佣比例', '运营费用', '三方场馆费用', '充值手续费'], views: [...new Set([...(current.additions?.views || []), '推荐团队与推荐单线代理展开明细'])], rules: [...new Set([...(current.additions?.rules || []), '报表不展示红利、各活动奖励、会员推会员、返水、上周期结余、补单输赢和冲正后净输赢字段', '总输赢右侧依次展示返佣比例、运营费用、三方场馆费用和充值手续费', '四项新增字段同步字段筛选、团队拆分、总计、详情、导出和H5', '负盈利代理佣金结算保持独立字段与操作', '序号位于首列且无独立加减号或问号', '冻结表头层级低于左侧菜单', '展开或收起入口紧跟代理账号', '展开明细包含推荐团队和推荐单线代理', '推荐数据只读、不可二次展开且不计入主记录总计'])] }, updatedAt: '2026-07-25 05:54', record: '修改时间：2026-07-25 05:54；修改说明：精简负盈利佣金报表并补充成本汇总字段；修改内容：移除七个字段，在总输赢右侧增加返佣比例、运营费用、三方场馆费用和充值手续费，并同步四端。' } })
+NOTE_COMPARISONS['agent:negativeProfitReport'] = { ...NOTE_COMPARISONS['agent:negativeProfitReport'], updatedAt: '2026-07-25 15:18', additions: { ...NOTE_COMPARISONS['agent:negativeProfitReport'].additions, views: [...new Set([...(NOTE_COMPARISONS['agent:negativeProfitReport'].additions?.views || []), '副线本人推荐关系展开', '单线代理本人推荐关系展开'])], rules: [...new Set([...(NOTE_COMPARISONS['agent:negativeProfitReport'].additions?.rules || []), '副线只展示本人线路主记录和本人推荐数据', '副线不得查看团队汇总、团队负责人或其他副线', '单线代理只展示本人主记录和本人推荐数据'])] }, record: '修改时间：2026-07-25 15:18；修改说明：锁定副线与单线推荐数据查看范围；修改内容：两种身份可展开本人推荐团队和推荐单线，副线继续隔离所属团队及其他成员。' }
 NOTE_COMPARISONS['master:version'] = { ...NOTE_COMPARISONS['master:version'], updatedAt: '2026-07-25 05:54', additions: { ...NOTE_COMPARISONS['master:version'].additions, fields: [...new Set([...(NOTE_COMPARISONS['master:version'].additions?.fields || []), '负盈利代理佣金报表返佣比例', '负盈利代理佣金报表运营费用', '负盈利代理佣金报表三方场馆费用', '负盈利代理佣金报表充值手续费'])], rules: [...new Set([...(NOTE_COMPARISONS['master:version'].additions?.rules || []), '负盈利代理佣金报表移除七个明细及结余字段', '总输赢右侧增加四项返佣与成本汇总字段', '三后台及H5同步同名报表且结算表保持独立'])] }, record: '修改时间：2026-07-25 05:54；修改说明：同步负盈利佣金报表字段调整；修改内容：记录七项移除、四项新增、四端同步及结算表独立边界。' }

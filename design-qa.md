@@ -1,5 +1,130 @@
 # Design QA
 
+## H5代理后台个人中心安全设置重构（2026-07-25 14:27）
+
+### 验证目标与对照证据
+
+- source visual truth path:
+  - `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-e46a482d-db92-43df-a81f-2255e5e82472.png`
+  - `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-7d372ebb-26dd-4e5e-8905-8370dfc507c6.jpg`
+- implementation screenshot path:
+  - `/Users/sikon/Projects/新后台原型/.qa/h5-agent-security-390x844.jpg`
+  - `/Users/sikon/Projects/新后台原型/.qa/h5-agent-security-bind-390x844.jpg`
+- combined comparison path: `/Users/sikon/Projects/新后台原型/.qa/h5-agent-security-comparison.png`
+- viewport: 应用内浏览器桌面视口 1390 × 934 px，固定手机容器 390 × 844 CSS px；另在移动视口核对，页面与手机容器 `scrollWidth` 均等于 `clientWidth`。
+- source and implementation pixel dimensions: 参考图分别为 974 × 1114 px、728 × 1280 px；实现图均裁切为 390 × 844 px。对照画布中两侧按各自比例等比缩放，不以像素密度差异判断版式偏差。
+- state: H5代理后台 / 团队负责人 / 个人中心 / 安全设置，分别核对未开启状态与“绑定谷歌验证器”抽屉。
+
+### 全局与局部视觉对照
+
+- full-view comparison evidence: 安全设置按参考结构保留切页、谷歌身份验证器用途、开启状态、立即绑定按钮和两条安全建议；结合当前H5代理后台暗夜金融风改为深蓝黑卡片、电光蓝主操作和橙色安全提示，没有复制桌面白色后台外壳。
+- focused region comparison evidence: 绑定抽屉完整展示标题、关闭入口、锁图标、绑定说明、iOS/Android下载入口、清晰二维码、密钥、复制操作、6位动态验证码、确认绑定和取消。二维码使用参考图真实图像资产，不使用占位图或代码图形近似。
+- fonts and typography: 使用现有H5代理后台字体体系，标题、说明、密钥和按钮保持清晰层级；长说明在手机宽度内自然换行，无截断。
+- spacing and layout rhythm: 390 × 844 容器中状态卡、安全建议和底部导航留白稳定；绑定抽屉在单屏内完整展示主流程，关闭、输入和确认按钮未被安全区遮挡。
+- colors and visual tokens: 状态与主按钮沿用蓝色令牌，安全建议沿用高对比橙色语义；深色背景下文字、边框和二维码白底对比充分。
+- image quality and asset fidelity: 二维码保持清晰黑白边缘和白色安全区，缩放后无模糊、拉伸或背景残留。
+- copy and content: 谷歌验证器名称、用途、未开启/已开启、下载入口、密钥、动态验证码及两条安全建议与参考内容一致。
+
+### 交互与业务说明核对
+
+- 空验证码点击确认会提示“请输入6位动态验证码”；输入 `123456` 后绑定抽屉关闭，页面状态变为“已开启”，按钮变为禁用的“已绑定”。
+- 密钥展示为 `SZWPWXSGRKPTPPCD`，提供图标与文字两处复制入口；iOS、Android下载入口提供前端演示反馈。
+- 业务及需求说明已同步更新时间、字段、谷歌验证器用途、绑定步骤、演示边界、验收说明和修改记录。
+- 应用内浏览器实测页面、手机容器和绑定抽屉均无横向溢出；登录、切页、打开绑定、校验失败和绑定成功过程中未捕获 `pageerror` 或 `console` 错误事件。
+
+### 比较结论与历史
+
+- 首轮同屏比较已覆盖完整安全设置和绑定抽屉两个状态；未发现需要返工的 P0/P1/P2 问题，因此没有视觉修复迭代。
+- H5相对桌面参考图的深色配色、卡片密度和底部抽屉形态为用户指定的现有H5代理后台样式适配，不属于设计偏差。
+- `npm run build`、`git diff --check`、文件行数限制、浏览器DOM、交互状态、业务说明和本地服务均已核对。
+
+final result: passed
+
+## 负盈利佣金推荐关系与副线权限验收
+
+- state: 桌面代理后台与 H5 代理后台；分别验证副线 WC002、单线代理 dailiwc001。
+- secondary evidence: 副线列表默认只展示 WC002 本人记录；点击展开后仅显示本人推荐的团队 `hengfeng01 / 恒峰团队` 和单线代理 `xinrui01 / 新锐单线`，不展示团队汇总、团队负责人或团队内其他副线。
+- independent evidence: 单线代理列表默认只展示 dailiwc001 本人记录；点击展开后仅显示本人推荐的团队 `qihang01 / 启航团队` 和单线代理 `yuanhang01 / 远航单线`。
+- boundary evidence: 推荐明细同时校验推荐人、代理账号、站点与账期；推荐团队只展示团队摘要，不允许继续展开团队成员，也不重复计入列表总计。
+- cross-surface evidence: 桌面端宽表和 H5 卡片列表使用相同身份收窄与推荐关系规则；两端展开结果一致。
+- console evidence: 当前验收页面没有 warning 或 error 日志。
+- verification: `npm run build`、`git diff --check`、文件行数检查及应用内浏览器双身份交互验证通过。
+
+final result: passed
+
+## H5代理数据看板四个查看明细弹窗（2026-07-25 13:43）
+
+### 验证目标与对照证据
+
+- 参考图：
+  - `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-19ff85f6-1200-4c0e-9369-1aa0283810af.png`
+  - `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-a6b5c659-0437-40c0-9cde-a2e243f37245.png`
+  - `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-ee1b5b10-f196-4cbc-9a7e-8ba1e41a283b.png`
+  - `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-335b62c4-674c-484e-9ad9-5e490115e560.png`
+- 实现截图：`.qa/h5-agent-dashboard-*-detail-phone.png`。
+- 同屏对照：`.qa/h5-agent-dashboard-detail-comparison.png`，每一行左侧为参考结构，右侧为390×844手机容器内的H5暗夜排版。
+- 实现地址：`http://127.0.0.1:5174/`，H5代理后台 / 看板。
+
+### 结构与视觉结论
+
+- 四个弹窗完整保留参考图的标题、流水类型、账期、五项明细字段、空状态、金额合计、说明提示和关闭操作。
+- 白色桌面大弹窗按H5代理后台既有暗夜金融风重排为底部抽屉；页面主体被遮罩弱化，弹窗内容层级、边框、蓝色提示和主按钮与当前H5视觉一致。
+- 五列表格不压缩字段含义，手机宽度下仅在表格容器内横向滚动；手机容器和页面的 `scrollWidth` 均等于 `clientWidth`，没有页面级横向溢出。
+- 390×844预览中弹窗内容完整位于手机视口内，关闭按钮未被底部导航或安全区遮挡。
+
+### 字段与交互核对
+
+- 会员VIP福利详情：会员账号、VIP等级、福利类型、发放金额、发放时间。
+- 活动福利详情：会员账号、参与活动、奖励类目、活动奖励、时间。
+- 会员推广福利详情：推荐人、被推荐人、推广类型、产生奖励、时间。
+- 充提手续运营费详情：会员账号、交易类型、交易金额、承担金额、交易时间。
+- 四张看板费用卡均提供唯一可访问名称的“点击查看明细”按钮；四个弹窗可分别打开和关闭。
+- 当前演示数据为零时统一展示“暂无明细数据”和 `¥0.00`，不虚构明细记录。
+- 业务及需求说明同步更新时间、四个弹窗的字段、账期、金额口径、关联模块、验收说明与修改记录。
+
+### 验证结果
+
+- `npm run build` 通过，仅保留既有大包体积提示。
+- `git diff --check` 通过。
+- 相关源码及说明文件均少于1200行。
+- 浏览器DOM、四个弹窗开关、内部横向滚动、页面溢出和业务说明均已核对。
+- 控制台仅记录本地Vite热更新WebSocket连接提示；HTTP页面、弹窗交互和构建结果正常。
+- 无 P0/P1/P2 问题。
+
+final result: passed
+
+## H5代理后台支付宝余额提现验收
+
+- source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-a29394ff-c71a-4894-9319-27d4a497f2b0.png`
+- implementation screenshot path: `/Users/sikon/Projects/新后台原型/.qa/h5-agent-alipay-withdraw-implementation.png`
+- combined comparison path: `/Users/sikon/Projects/新后台原型/.qa/h5-agent-alipay-withdraw-comparison.png`
+- viewport: 应用内浏览器桌面视口 1390 × 934 px；H5代理后台保持现有窄屏手机容器和暗色底部抽屉。
+- state: H5代理后台 / 团队负责人 / 财务中心 / 余额提现 / 支付宝提现。
+- full-view comparison evidence: 按参考图保留余额提现标题、USDT/支付宝切页、支付宝收款卡、支付宝账号、支付宝真实姓名、提现金额、余额、单笔限额、可提现时间和确认提现；白色桌面弹窗按目标端规则适配为暗夜H5抽屉。
+- focused comparison evidence: 支付宝切页选中态、未设置账号提示、字段顺序、金额单位、余额与限额信息以及底部主操作与参考图一致；页面在手机容器内无横向溢出。
+- interaction evidence: 空表单提交提示“请输入支付宝账号”；填写账号后提示“请输入支付宝真实姓名”；输入 10,001 元提示超过 10,000 元单笔限额；提交 100 元后余额由 ¥79,790.25 更新为 ¥79,690.25，并生成“支付宝 · demo_alipay_001”的余额提现流水。
+- documentation evidence: H5财务中心业务说明、2.0版本需求说明和 `AGENTS.md` 已同步支付宝收款字段、1.00～10,000.00元限额、余额扣减及提现流水规则。
+- console evidence: 页面无 error 或 warning；仅存在 Vite 开发连接、热更新和 React DevTools 提示。
+- verification: `npm run build`、`git diff --check`、文件行数限制、视觉对照及应用内浏览器核心交互验证通过。
+
+final result: passed
+
+## 代理后台财务中心结算信息弹窗验收
+
+- source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-13be9969-4c39-46a9-96fb-770339c69fe3.png`
+- implementation screenshot path: `/Users/sikon/Projects/新后台原型/.qa/finance-settlement-modal-implementation.png`
+- combined comparison path: `/Users/sikon/Projects/新后台原型/.qa/finance-settlement-modal-comparison.png`
+- source and implementation dimensions: 参考图 1196 × 898 px；实现截图 1378 × 926 px；同一对照画布内按 850 px 高度等比缩放。
+- state: 代理后台 / 团队负责人 / 财务中心 / 编辑结算信息弹窗。
+- full-view comparison evidence: 实现沿用参考图的大尺寸白色圆角弹窗、灰色遮罩、左上标题、右上关闭、纵向表单、黄色提示和底部通栏蓝色按钮，信息层级与参考图一致。
+- focused comparison evidence: “修改地址”输入框、“链路协议”TRC20选择、“验证 6 位资金密码”提示及“当前代理/站点管理员提现暂不校验资金密码”说明均按参考内容和顺序展示。
+- interaction evidence: 空地址点击“确认保存修改”会提示“请输入USDT地址”并阻止提交；填写地址后可保存，弹窗关闭并立即回写提现账号卡片。
+- findings: 实现根据现有后台视口等比收敛弹窗宽高，内容、留白、圆角、按钮比例和颜色与参考图保持一致；未发现遮挡、横向溢出、错误换行或不可操作控件。
+- documentation evidence: 财务中心业务说明、2.0 版本需求说明和 `AGENTS.md` 已同步本次更换弹窗的字段、规则和验收口径。
+- verification: `npm run build`、`git diff --check`、文件行数限制、应用内浏览器视觉对照、空值拦截和保存回写验证通过。
+
+final result: passed
+
 ## Verification Target
 
 - Source visual truth:

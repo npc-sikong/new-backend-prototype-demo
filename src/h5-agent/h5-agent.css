@@ -153,6 +153,22 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-dashboard-toolbar button.active { color: #fff; border-color: #326fd2; background: #1d55ae; }
 .h5-agent-dashboard-toolbar input { width: 100%; min-width: 0; height: 40px; padding: 0 11px; border: 1px solid #293d57; border-radius: 11px; color: #dae5f4; background: #0f1e31; color-scheme: dark; }
 .h5-agent-dashboard-module { margin-top: 13px; padding-top: 0; border-top: 0; }
+.h5-agent-dashboard-detail-sheet { max-height: 82%; }
+.h5-agent-dashboard-detail-sheet .h5-agent-sheet-content { display: grid; align-content: start; gap: 12px; }
+.h5-agent-dashboard-detail-meta { display: grid; grid-template-columns: auto minmax(0, 1fr) 1px auto minmax(0, 1fr); align-items: center; gap: 7px; padding: 9px 10px; border: 1px solid #213752; border-radius: 12px; background: #0d2035; }
+.h5-agent-dashboard-detail-meta span { color: #6f84a1; font-size: 8px; }
+.h5-agent-dashboard-detail-meta b { min-width: 0; overflow: hidden; color: #dbe6f5; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.h5-agent-dashboard-detail-meta i { width: 1px; height: 18px; background: #2a405c; }
+.h5-agent-dashboard-detail-table-scroll { overflow-x: auto; border: 1px solid #21344c; border-radius: 13px; background: #0c1a2b; scrollbar-width: thin; scrollbar-color: #315277 transparent; }
+.h5-agent-dashboard-detail-table { min-width: 570px; }
+.h5-agent-dashboard-detail-head { display: grid; grid-template-columns: repeat(5, minmax(110px, 1fr)); border-bottom: 1px solid #233750; background: #13233a; }
+.h5-agent-dashboard-detail-head span { padding: 11px 10px; color: #aabbd1; font-size: 9px; font-weight: 800; white-space: nowrap; }
+.h5-agent-dashboard-detail-empty { min-height: 126px; display: grid; place-items: center; color: #637895; font-size: 10px; font-weight: 700; }
+.h5-agent-dashboard-detail-total { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 13px; border: 1px solid #21344c; border-radius: 13px; background: #101f32; }
+.h5-agent-dashboard-detail-total span { color: #9cafc5; font-size: 10px; font-weight: 800; }
+.h5-agent-dashboard-detail-total strong { color: #dbe8fb; border-bottom: 2px solid #387dff; font-size: 15px; font-variant-numeric: tabular-nums; }
+.h5-agent-dashboard-detail-tip { margin: 0; padding: 11px 12px; border: 1px solid #285b9f; border-radius: 13px; color: #8fb5f4; background: #0e2a50; font-size: 9px; line-height: 1.65; }
+.h5-agent-dashboard-detail-tip b { margin-right: 5px; color: #65a1ff; }
 .h5-agent-home-empty { display: grid; justify-items: center; gap: 5px; padding: 24px 10px 12px; color: #60738d; text-align: center; }
 .h5-agent-home-empty .anticon { font-size: 20px; }
 .h5-agent-home-empty span { color: #90a1b7; font-size: 11px; }
@@ -408,6 +424,8 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-money-input input::placeholder { color: #52657e; }
 .h5-agent-money-input > b, .h5-agent-money-input > .anticon { position: absolute; top: 50%; right: 13px; transform: translateY(-50%); color: #6f83a0; font-size: 11px; }
 .h5-agent-money-input.has-icon input { padding-right: 42px; font-size: 11px; font-weight: 500; }
+.h5-agent-money-input.is-text { height: 44px; border-radius: 12px; }
+.h5-agent-money-input.is-text input { padding: 0 13px; font-size: 11px; font-weight: 500; }
 .h5-agent-money-input.has-icon > .anticon { font-size: 15px; }
 .h5-agent-money-limit, .h5-agent-money-note { margin: -5px 0 0; color: #687d99; font-size: 9px; line-height: 1.55; }
 .h5-agent-money-limit b { color: #70a7ff; }
@@ -423,6 +441,10 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-withdraw-destination header span, .h5-agent-withdraw-destination small { color: #7e9bc3; font-size: 9px; }
 .h5-agent-withdraw-destination header b { padding: 4px 8px; border: 1px solid #43648e; border-radius: 10px; color: #e3ebf7; background: #223e69; font-size: 9px; }
 .h5-agent-withdraw-destination > strong { overflow-wrap: anywhere; color: #f0f5fc; font-size: 13px; line-height: 1.45; }
+.h5-agent-withdraw-form.is-alipay { gap: 13px; }
+.h5-agent-withdraw-destination.is-alipay { border-color: #35598c; background: #0d2450; box-shadow: 0 12px 26px rgba(0, 0, 0, .24); }
+.h5-agent-withdraw-destination.is-alipay > strong { font-size: 15px; }
+.h5-agent-withdraw-destination.is-alipay small { color: #9db0ca; font-size: 9px; }
 .h5-agent-packet-balance { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 12px; border: 1px solid #6b3544; border-radius: 12px; color: #ff8ea2; background: #321c26; font-size: 10px; }
 .h5-agent-packet-balance b { color: #ff6a84; font-size: 13px; }
 .h5-agent-money-textarea { position: relative; min-height: 88px; border: 1px solid #2a3f5a; border-radius: 13px; background: #0f1e30; }
@@ -485,6 +507,38 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-security-list > .h5-agent-form-actions > button { width: 100%; height: 44px; border-radius: 13px; }
 .h5-agent-security-tip { display: flex; align-items: center; gap: 8px; }
 .h5-agent-security-tip p { margin: 0; font-size: 9px; line-height: 1.6; }
+.h5-agent-security-page { display: grid; gap: 12px; }
+.h5-agent-google-security-card { display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-areas: "icon copy" ". action"; align-items: start; gap: 12px; padding: 16px; border: 1px solid #243954; border-radius: 18px; background: #0d1c2e; box-shadow: 0 14px 30px rgba(0, 0, 0, .18); }
+.h5-agent-google-security-icon { grid-area: icon; width: 50px; height: 50px; display: grid; place-items: center; border-radius: 16px; color: #89adDE; background: #14283f; font-size: 22px; }
+.h5-agent-google-security-copy { grid-area: copy; min-width: 0; }
+.h5-agent-google-security-copy > strong { display: block; color: #edf3fb; font-size: 14px; line-height: 1.35; }
+.h5-agent-google-security-copy > small { display: block; margin-top: 2px; color: #6f84a0; font-size: 8px; }
+.h5-agent-google-security-copy > p { margin: 8px 0 10px; color: #8194ae; font-size: 9px; line-height: 1.6; }
+.h5-agent-google-bind-button { grid-area: action; justify-self: start; min-width: 116px; height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 15px; border-radius: 12px; color: #fff; background: #2773df; box-shadow: 0 10px 22px rgba(24, 92, 201, .24); font-size: 11px; font-weight: 800; }
+.h5-agent-google-bind-button:disabled { color: #75d9b0; border: 1px solid #245d4c; background: #103c32; box-shadow: none; opacity: 1; }
+.h5-agent-security-advice { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 11px; padding: 14px; border: 1px solid #68451e; border-radius: 16px; color: #eaa24d; background: #2a2016; }
+.h5-agent-security-advice > span { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 13px; color: #ffad45; background: #3b2b19; font-size: 18px; }
+.h5-agent-security-advice strong { color: #ffb14f; font-size: 11px; }
+.h5-agent-security-advice ol { display: grid; gap: 5px; margin: 7px 0 0; padding-left: 16px; color: #d88e3b; font-size: 8px; line-height: 1.55; }
+.h5-agent-google-bind-sheet { max-height: 94%; background: #091625; }
+.h5-agent-google-bind-sheet .h5-agent-sheet-content { display: grid; align-content: start; gap: 13px; padding-top: 16px; }
+.h5-agent-google-bind-intro { display: grid; justify-items: center; gap: 7px; text-align: center; }
+.h5-agent-google-bind-intro > span { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 16px; color: #4f91ff; background: #102b50; font-size: 22px; }
+.h5-agent-google-bind-intro > strong { color: #edf3fb; font-size: 15px; }
+.h5-agent-google-bind-intro > p { max-width: 300px; margin: 0; color: #8092aa; font-size: 9px; line-height: 1.65; }
+.h5-agent-google-bind-intro > div { display: flex; align-items: center; gap: 10px; }
+.h5-agent-google-bind-intro > div button { display: inline-flex; align-items: center; gap: 4px; color: #65a0ff; font-size: 9px; font-weight: 700; }
+.h5-agent-google-bind-intro > div i { width: 1px; height: 13px; background: #2c4059; }
+.h5-agent-google-qr { display: grid; place-items: center; padding: 12px; border: 1px solid #273b53; border-radius: 15px; background: #fff; }
+.h5-agent-google-qr img { width: min(190px, 72vw); height: auto; display: block; }
+.h5-agent-google-secret { display: grid; justify-items: center; gap: 8px; padding: 12px; border: 1px solid #243750; border-radius: 15px; background: #0d1c2e; }
+.h5-agent-google-secret > span { color: #7689a2; font-size: 9px; font-weight: 700; }
+.h5-agent-google-secret > div { width: 100%; min-height: 42px; display: grid; grid-template-columns: minmax(0, 1fr) 38px; align-items: center; border: 1px solid #2a3e58; border-radius: 11px; background: #101f31; }
+.h5-agent-google-secret > div strong { overflow: hidden; padding-left: 12px; color: #69a2ff; font-size: 13px; letter-spacing: .5px; text-overflow: ellipsis; white-space: nowrap; }
+.h5-agent-google-secret > div button { height: 38px; color: #6da5f8; font-size: 14px; }
+.h5-agent-google-secret > button { display: inline-flex; align-items: center; gap: 5px; color: #8294ad; font-size: 9px; }
+.h5-agent-google-bind-actions { display: grid; gap: 8px; }
+.h5-agent-google-bind-actions > button:last-child { min-height: 38px; color: #7e8fa7; font-size: 11px; font-weight: 700; }
 .h5-agent-record-summary { grid-template-columns: 1fr 1fr; }
 .h5-agent-record-card { cursor: pointer; }
 

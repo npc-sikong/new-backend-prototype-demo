@@ -373,6 +373,134 @@
   font-size: 12px;
 }
 
+.ml-settlement-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 96;
+  display: grid;
+  place-items: center;
+  padding: 36px;
+  background: rgb(0 0 0 / 46%);
+}
+
+.ml-settlement-modal {
+  width: min(1000px, calc(100vw - 72px));
+  max-height: calc(100vh - 72px);
+  overflow: auto;
+  border-radius: 42px;
+  background: #fff;
+  box-shadow: 0 18px 54px rgb(16 27 44 / 28%);
+}
+
+.ml-settlement-modal > header {
+  display: flex;
+  min-height: 116px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 42px 16px;
+}
+
+.ml-settlement-modal > header h2 {
+  margin: 0;
+  color: #101827;
+  font-size: 32px;
+  line-height: 1.25;
+}
+
+.ml-settlement-modal > header button {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  border-radius: 50%;
+  color: #9aaabe;
+  font-size: 30px;
+}
+
+.ml-settlement-modal > header button:hover {
+  color: #278dde;
+  background: #f1f7fd;
+}
+
+.ml-settlement-modal-body {
+  display: grid;
+  gap: 30px;
+  padding: 4px 42px 42px;
+}
+
+.ml-settlement-modal-body > label {
+  display: grid;
+  gap: 14px;
+  color: #91a4bd;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.ml-settlement-modal-body input,
+.ml-settlement-modal-body select {
+  width: 100%;
+  height: 66px;
+  padding: 0 28px;
+  border: 1px solid #d9e1eb;
+  border-radius: 7px;
+  outline: 0;
+  color: #5c5d61;
+  background: #fff;
+  font: inherit;
+  font-weight: 400;
+}
+
+.ml-settlement-modal-body input::placeholder {
+  color: #c4cbd5;
+}
+
+.ml-settlement-modal-body input:focus,
+.ml-settlement-modal-body select:focus {
+  border-color: #2c98f0;
+  box-shadow: 0 0 0 3px rgb(44 152 240 / 12%);
+}
+
+.ml-settlement-security-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #91a4bd;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.ml-settlement-security-title .anticon {
+  color: #ff9e0f;
+}
+
+.ml-settlement-security-notice {
+  min-height: 88px;
+  display: grid;
+  place-items: center;
+  padding: 16px 24px;
+  border: 1px solid #f2d276;
+  border-radius: 20px;
+  color: #e67600;
+  background: #fff8d9;
+  font-size: 21px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.ml-settlement-save-button {
+  min-height: 82px;
+  margin-top: 12px;
+  border-radius: 23px;
+  color: #fff;
+  background: #2393ed;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.ml-settlement-save-button:hover {
+  background: #1686df;
+}
+
 .ml-finance-records > header {
   align-items: flex-end;
 }
@@ -537,4 +665,11 @@
   .ml-balance-card > div { grid-template-columns: repeat(2, 1fr); }
   .ml-balance-card > strong { font-size: 38px; }
   .ml-report-hero { align-items: flex-start; flex-direction: column; }
+  .ml-settlement-modal-backdrop { padding: 18px; }
+  .ml-settlement-modal { width: calc(100vw - 36px); border-radius: 26px; }
+  .ml-settlement-modal > header { min-height: 86px; padding: 18px 24px 10px; }
+  .ml-settlement-modal > header h2 { font-size: 25px; }
+  .ml-settlement-modal-body { gap: 22px; padding: 4px 24px 28px; }
+  .ml-settlement-modal-body > label, .ml-settlement-security-title, .ml-settlement-security-notice { font-size: 17px; }
+  .ml-settlement-save-button { min-height: 64px; font-size: 19px; }
 }

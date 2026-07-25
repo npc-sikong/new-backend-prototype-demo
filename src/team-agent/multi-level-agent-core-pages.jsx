@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import {
   BankOutlined,
+  CloseOutlined,
   GiftOutlined,
   LockOutlined,
   SafetyCertificateOutlined,
@@ -118,7 +119,10 @@ const ACTIONS = [
 export function MultiLevelFinancePage({ role = 'multiLevel', onToast }) {
   const profile = AGENT_ROLE_PROFILES[role] || AGENT_ROLE_PROFILES.multiLevel
   const [balance, setBalance] = useState(profile.availableBalance)
+  const [withdrawalAccount, setWithdrawalAccount] = useState(profile.withdrawalAccount)
   const [modal, setModal] = useState(null)
+  const [settlementEditorOpen, setSettlementEditorOpen] = useState(false)
+  const [settlementForm, setSettlementForm] = useState({ address: '', protocol: 'TRC20' })
   const [amount, setAmount] = useState('')
   const [records, setRecords] = useState([])
   const rows = useMemo(() => records.map((item, index) => ({ ...item, id: `MLF-${String(index + 1).padStart(4, '0')}` })), [records])
@@ -132,10 +136,33 @@ export function MultiLevelFinancePage({ role = 'multiLevel', onToast }) {
     setRecords((current) => [{ member: modal === 'transfer' ? profile.transferTarget : profile.account, type: action.label, amount: direction * value, relation: modal === 'packet' ? '活动红包' : '代理余额', time: '2026-07-21 12:30:00', status: '处理成功' }, ...current])
     setModal(null); setAmount(''); onToast(`${action.label}演示已完成`)
   }
+  const openSettlementEditor = () => {
+    setSettlementForm({ address: '', protocol: 'TRC20' })
+    setSettlementEditorOpen(true)
+  }
+  const saveSettlement = () => {
+    const address = settlementForm.address.trim()
+    if (!address) return onToast('请输入USDT地址', 'error')
+    setWithdrawalAccount(address)
+    setSettlementEditorOpen(false)
+    onToast('结算信息已保存')
+  }
   return <section className="ml-screen ml-finance-screen">
     <div className="ml-finance-search"><h1>财务中心</h1><Input placeholder="搜索用户或站点..." /><Button variant="ghost" onClick={() => onToast('财务数据已刷新')}>刷新</Button></div>
-    <div className="ml-finance-overview"><article className="ml-balance-card"><span><WalletOutlined /> 当前可用额度（CNY）</span><strong>¥{balance.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</strong><small>站点：{profile.siteCode} · {profile.roleLabel}</small><div>{ACTIONS.map((item) => <button key={item.id} className={item.id === 'packet' ? 'danger' : ''} onClick={() => setModal(item.id)}>{item.icon}{item.label}</button>)}</div></article><article className="ml-withdraw-account"><h3><BankOutlined /> 提现账号</h3><div><span>USDT（TRC20）</span><button onClick={() => onToast('提现账号更换入口已打开')}>更换</button><b>{profile.withdrawalAccount}</b><small>链路协议：TRC20</small></div><p>提现申请将在 2 小时内处理完成，请留意到账情况</p></article></div>
+    <div className="ml-finance-overview"><article className="ml-balance-card"><span><WalletOutlined /> 当前可用额度（CNY）</span><strong>¥{balance.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</strong><small>站点：{profile.siteCode} · {profile.roleLabel}</small><div>{ACTIONS.map((item) => <button key={item.id} className={item.id === 'packet' ? 'danger' : ''} onClick={() => setModal(item.id)}>{item.icon}{item.label}</button>)}</div></article><article className="ml-withdraw-account"><h3><BankOutlined /> 提现账号</h3><div><span>USDT（TRC20）</span><button onClick={openSettlementEditor}>更换</button><b>{withdrawalAccount}</b><small>链路协议：TRC20</small></div><p>提现申请将在 2 小时内处理完成，请留意到账情况</p></article></div>
     <article className="ml-card ml-finance-records"><header><div><h2>近期收支明细</h2></div><div className="ml-inline-filters"><Field label="创建时间"><Input type="date" value="2026-07-21" /></Field><Button variant="ghost" onClick={() => onToast('近期明细已筛选')}>筛选</Button><Button variant="ghost" onClick={() => onToast('收支明细已导出')}>导出报表</Button></div></header><DataTable columns={[{ key: 'id', label: '流水单号' }, { key: 'member', label: '会员名' }, { key: 'type', label: '业务类型' }, { key: 'amount', label: '主体变动额度', render: (value) => <b className={value >= 0 ? 'ml-positive' : 'ml-negative'}>{value >= 0 ? '+' : ''}¥{Number(value).toFixed(2)}</b> }, { key: 'relation', label: '关联方名称' }, { key: 'time', label: '时间' }, { key: 'status', label: '操作', render: (value) => <StatusTag>{value}</StatusTag> }]} rows={rows} emptyText="暂无数据" /></article>
     <Modal open={Boolean(modal)} title={action?.label || ''} description="演示操作仅更新当前页面模拟余额与收支流水。" onClose={() => setModal(null)} onConfirm={submit}><FormGrid columns={1}><Field label="金额" required><Input type="number" value={amount} onChange={setAmount} placeholder="请输入金额" /></Field>{modal === 'transfer' && <Field label="接收代理"><Input value={profile.transferTarget} /></Field>}{modal === 'packet' && <Field label="红包说明"><Input value="代理活动红包" /></Field>}</FormGrid></Modal>
+    {settlementEditorOpen && <div className="ml-settlement-modal-backdrop" onClick={() => setSettlementEditorOpen(false)}>
+      <section className="ml-settlement-modal" role="dialog" aria-modal="true" aria-label="编辑结算信息" onClick={(event) => event.stopPropagation()}>
+        <header><h2>编辑结算信息</h2><button type="button" aria-label="关闭编辑结算信息" onClick={() => setSettlementEditorOpen(false)}><CloseOutlined /></button></header>
+        <div className="ml-settlement-modal-body">
+          <label><span>修改地址</span><input value={settlementForm.address} onChange={(event) => setSettlementForm((current) => ({ ...current, address: event.target.value }))} placeholder="请输入USDT地址" /></label>
+          <label><span>链路协议</span><select value={settlementForm.protocol} onChange={(event) => setSettlementForm((current) => ({ ...current, protocol: event.target.value }))}><option value="TRC20">TRC20</option></select></label>
+          <div className="ml-settlement-security-title"><LockOutlined /><span>验证 6 位资金密码</span></div>
+          <div className="ml-settlement-security-notice">当前代理/站点管理员提现暂不校验资金密码</div>
+          <button type="button" className="ml-settlement-save-button" onClick={saveSettlement}>确认保存修改</button>
+        </div>
+      </section>
+    </div>}
   </section>
 }

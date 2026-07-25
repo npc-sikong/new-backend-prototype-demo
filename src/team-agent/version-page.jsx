@@ -56,6 +56,7 @@ const ROLE_SYNC_ITEMS = {
   ],
   agent: [
     ['agents', '代理列表', '团队负责人及多层级代理的授权代理资料', '代理后台代理列表仅对团队负责人保留只读授权团队资料，多层级代理继续使用独立代理列表；副线和单线代理移除菜单与页面入口。所有含代理类型的现存列表和报表仍在其右侧展示推荐人。H5代理后台同步相同身份权限。', '团队负责人和多层级代理可进入各自代理列表；副线和单线代理切换后不显示该模块，并从原代理列表自动返回代理数据看板；总控与站点代理列表不受影响。'],
+    ['mlFinance', '财务中心', '代理资金与结算信息', '桌面提现账号“更换”使用编辑结算信息弹窗；H5余额提现的支付宝切页按收款信息卡、支付宝账号、真实姓名、金额、余额、限额和提现时段重新排版。', '桌面保存后提现账号卡片同步更新；H5支付宝提现必填账号与真实姓名，单笔限额为1至10000元，提交成功后同步余额与流水。'],
     ['negativeProfitReport', '负盈利代理佣金报表', '本人及推荐代理佣金只读报表', '桌面与H5同步移除七个奖励、结余及冲正字段，并在总输赢右侧增加返佣比例、运营费用、三方场馆费用和充值手续费。', '卡片、详情、横向核对和导出字段一致；推荐数据只读且身份权限不变。'],
     ['reversal', '冲正统计报表', '负盈利代理账期欠站点核对', '桌面代理与H5代理共用账期时间、代理名称、代理身份、欠站点、还站点和剩余欠款字段定义及欠款数据；团队负责人查看团队汇总，单线代理只看本人，副线无入口，多层级代理原冲正统计不变。', '桌面与H5均只按账期筛选且展示完整账期时间；六个字段顺序和金额一致，身份切换只改变数据范围。'],
   ],
@@ -94,8 +95,8 @@ const VERSION_2_GROUPS = VERSION_2_GROUPS_BASE.map((group) => {
     ['memberLockedFlow', '会员提现流水查询', '会员余额锁定与完整提现流水下钻', '主列表移除“未解锁彩金”，充值额度后直接展示总余额、可提现余额、锁定余额和充值/彩金提现流水。弹窗提现流水列表继续同时展示当前锁定中记录和历史已解锁记录、解锁时间，并提供当前会员完整提现流水CSV导出。', '主表不再出现未解锁彩金；member_10086明细仍可看到锁定中与已解锁状态、开始和解锁时间，历史记录还需解锁流水为0；点击导出可下载5条提现流水；站点后台与代理后台不出现本模块。'],
     ...items,
   ] : group.portal === 'agent' ? [
-    ['h5Agent', 'H5代理后台', '代理登录、紧凑额度首页与H5资金操作', '新增独立代理登录页，按账号进入对应代理身份。首页当前可用额度使用宽幅蓝色卡片，并提供快速充值、余额提现、内部转账和发放红包四项资金操作；四项操作分别使用暗色H5底部抽屉，完整展示充值渠道与协议、提现方式与账户、转账对象与流水倍数、红包定时与有效期等字段，表单可纵向滚动且主操作按钮固定。首页额度卡和快捷操作高度较前版缩小约25%，并在下方展示当前身份的其它模块入口。底部导航统一为“首页 / 看板 / 财务 / 个人中心”，不再展示“更多”；其他授权模块从首页其它模块进入。所有一级页面的业务说明集中放入说明抽屉；代理数据看板使用蓝色强调底和普通深色底区分累计/当前状态指标与日期范围指标。', '登录、四种身份首页和四项资金操作可用；四个抽屉均在窄屏容器内无横向溢出；首页其它模块入口完整，底部导航仅展示首页、看板、财务、个人中心；看板两种暗色底区分清晰，字段、数据和交互不变。', 'h5Agent'],
-    ['mlDashboard', '多层级代理后台模块', '多层级代理经营模块及四身份共用原有页面', '代理后台身份切换支持团队负责人、副线、单线代理和多层级代理。代理数据看板按身份显示适用指标：多层级代理将提现中佣金改为未结算佣金；团队负责人、副线和单线代理移除本期佣金预估或净收益及提现中佣金；副线和单线代理继续移除代理数据整组；四种身份将代理手续费支出统一改名为充提手续运营费。', '四种身份均可进入代理数据看板；多层级代理显示未结算佣金，团队负责人保留代理数据，副线和单线代理不显示代理数据整组，所有身份资金流水显示充提手续运营费。'],
+    ['h5Agent', 'H5代理后台', '代理登录、紧凑额度首页与H5资金操作', '新增独立代理登录页，按账号进入对应代理身份。首页当前可用额度使用宽幅蓝色卡片，并提供快速充值、余额提现、内部转账和发放红包四项资金操作；四项操作分别使用暗色H5底部抽屉。底部导航统一为“首页 / 看板 / 财务 / 个人中心”，其他授权模块从首页其它模块进入。代理数据看板提供四类费用明细弹窗；个人中心安全设置按H5暗夜风重构谷歌验证器状态卡、安全建议和绑定抽屉，抽屉包含下载入口、二维码、可复制密钥和6位动态验证码。', '登录、四种身份首页和四项资金操作可用；底部导航仅展示首页、看板、财务、个人中心；安全设置可打开谷歌验证器绑定抽屉并完成密钥复制、验证码校验、确认绑定和成功状态，手机页面无横向溢出。', 'h5Agent'],
+    ['mlDashboard', '多层级代理后台模块', '多层级代理经营模块及四身份共用原有页面', '代理后台身份切换支持团队负责人、副线、单线代理和多层级代理。代理数据看板继续按身份展示适用指标；H5看板补齐会员VIP福利、活动福利、会员推广福利和充提手续运营费四个查看明细弹窗，不改变桌面看板字段或金额口径。', '四种身份均可进入代理数据看板；点击四张费用卡可核对各自标题、五列表头、账期、金额合计、提示及关闭操作。'],
     ...items,
   ] : items
   return { ...group, items: nextItems }
@@ -114,11 +115,12 @@ const JULY_21_PAGES = new Set(['negativeProfitModeGuide'])
 const JULY_22_PAGES = new Set(['agents', 'plans', 'cycle', 'negativeProfitReport', 'reversal', 'mlDashboard', 'h5Agent'])
 const JULY_23_PAGES = new Set(['agents', 'teams', 'siteAgents', 'downline', 'negativeProfit', 'negativeProfitReport', 'h5Agent'])
 const JULY_24_PAGES = new Set(['teams', 'negativeProfit', 'rebatePlans', 'negativeProfitReport', 'reversal', 'h5Agent'])
+const JULY_25_PAGES = new Set(['h5Agent'])
 
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>
     {group.items.length ? <div className="ta-version-modules">{group.items.map(([page, title, module, change, acceptance, targetPortal]) => <article className="ta-version-module" key={`${group.portal}-${page}`}>
-      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
+      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
       <div className="ta-version-content"><div><b>模块说明</b><p>{module}</p></div><div><b>修改说明</b><p>{change}</p></div><div><b>功能验收</b><p>{acceptance}</p></div></div>
     </article>)}</div> : <div className="ta-version-empty">本版本该后台无新增业务模块。</div>}
   </section>

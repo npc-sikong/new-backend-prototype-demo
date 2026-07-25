@@ -495,7 +495,11 @@ export function scopeSiteNegativeReportRows(rows) {
 
 function recommendedRowsFor(rows, account, rootRow) {
   return rows
-    .filter((row) => row.recommendationOnly && row.agentAccount !== account && row.recommender === account && row.cycle === rootRow.cycle)
+    .filter((row) => row.recommendationOnly
+      && row.agentAccount !== account
+      && row.recommender === account
+      && row.cycle === rootRow.cycle
+      && row.site === rootRow.site)
     .map((row) => {
       const isTeam = row.agentLevel === '团队负责人'
       return {

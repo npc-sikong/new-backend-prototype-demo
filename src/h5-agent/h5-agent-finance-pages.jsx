@@ -212,6 +212,8 @@ const DEFAULT_FINANCE_FORM = {
   rechargeChannel: 'usdt',
   protocol: 'TRC20',
   withdrawType: 'usdt',
+  alipayAccount: '',
+  alipayName: '',
   transferMode: 'member',
   target: '',
   turnoverMultiple: '1',
@@ -259,18 +261,22 @@ function H5RechargeAction({ form, setForm, amount, setAmount }) {
 
 function H5WithdrawAction({ profile, balance, form, setForm, amount, setAmount }) {
   const isUsdt = form.withdrawType === 'usdt'
-  const account = isUsdt ? profile.withdrawalAccount : `支付宝 · ${profile.account}`
-  return <div className="h5-agent-money-form">
+  const account = isUsdt ? profile.withdrawalAccount : form.alipayAccount
+  return <div className={`h5-agent-money-form h5-agent-withdraw-form ${isUsdt ? 'is-usdt' : 'is-alipay'}`}>
     <H5MoneySegments value={form.withdrawType} options={[{ value: 'usdt', label: 'USDT提现' }, { value: 'alipay', label: '支付宝提现' }]} onChange={(value) => setForm('withdrawType', value)} />
-    <section className="h5-agent-withdraw-destination">
+    <section className={`h5-agent-withdraw-destination ${isUsdt ? '' : 'is-alipay'}`}>
       <header><span>提现至</span><b>{isUsdt ? 'USDT' : '支付宝'}</b></header>
-      <strong>{account || '未设置提现地址'}</strong>
-      <small>{isUsdt ? '链路协议：TRC20' : '实名收款账户'}</small>
+      <strong>{account || (isUsdt ? '未设置提现地址' : '未设置支付宝账号')}</strong>
+      <small>{isUsdt ? '链路协议：TRC20' : '请填写支付宝姓名后提交'}</small>
     </section>
+    {!isUsdt && <>
+      <label className="h5-agent-money-field"><span>支付宝账号</span><div className="h5-agent-money-input is-text"><input aria-label="支付宝账号" value={form.alipayAccount} placeholder="请输入支付宝账号" onChange={(event) => setForm('alipayAccount', event.target.value)} /></div></label>
+      <label className="h5-agent-money-field"><span>支付宝姓名</span><div className="h5-agent-money-input is-text"><input aria-label="支付宝姓名" value={form.alipayName} placeholder="请输入支付宝真实姓名" onChange={(event) => setForm('alipayName', event.target.value)} /></div></label>
+    </>}
     <H5MoneyInput label="提现金额" currency="CNY" unit="元" value={amount} min={1} onChange={setAmount} />
     {isUsdt && <p className="h5-agent-money-note">USDT通道按人民币输入，系统将按汇率自动换算。</p>}
     <p className="h5-agent-money-limit">当前可用余额：<b>{money(balance)}</b></p>
-    <p className="h5-agent-money-limit">单笔限额：<b>{isUsdt ? '1.00 - 201.00 U（约 ¥6.80 - ¥1,366.80）' : '¥100.00 - ¥50,000.00'}</b></p>
+    <p className="h5-agent-money-limit">单笔限额：<b>{isUsdt ? '1.00 - 201.00 U（约 ¥6.80 - ¥1,366.80）' : '1.00 - 10,000.00 元'}</b></p>
     <p className="h5-agent-money-note">可提现时间段为 00:01-23:59，请您留意。</p>
   </div>
 }
@@ -349,6 +355,9 @@ export function H5FinancePage({ role = 'main', financeState, onFinanceChange, in
   const submit = () => {
     if (!Number.isFinite(amount) || amount <= 0) return notify(onToast, '请输入正确金额', 'error')
     if (action.key === 'recharge' && amount < 10) return notify(onToast, '充值金额不能低于 10', 'error')
+    if (action.key === 'withdraw' && actionForm.withdrawType === 'alipay' && !actionForm.alipayAccount.trim()) return notify(onToast, '请输入支付宝账号', 'error')
+    if (action.key === 'withdraw' && actionForm.withdrawType === 'alipay' && !actionForm.alipayName.trim()) return notify(onToast, '请输入支付宝真实姓名', 'error')
+    if (action.key === 'withdraw' && actionForm.withdrawType === 'alipay' && amount > 10000) return notify(onToast, '支付宝提现单笔不能超过 10,000 元', 'error')
     if (['transfer', 'packet'].includes(action.key) && !actionForm.target.trim()) return notify(onToast, action.key === 'packet' ? '请输入会员账号或ID' : '请输入目标账号或ID', 'error')
     if (['transfer', 'packet'].includes(action.key) && Number(actionForm.turnoverMultiple) < 0) return notify(onToast, '流水倍数不能小于 0', 'error')
     const incoming = action.key === 'recharge'
@@ -359,7 +368,7 @@ export function H5FinancePage({ role = 'main', financeState, onFinanceChange, in
     const relation = action.key === 'recharge'
       ? `${rechargeChannel.label}${rechargeChannel.key === 'usdt' ? ` · ${actionForm.protocol}` : ''}`
       : action.key === 'withdraw'
-        ? actionForm.withdrawType === 'usdt' ? 'USDT · TRC20' : '支付宝'
+        ? actionForm.withdrawType === 'usdt' ? 'USDT · TRC20' : `支付宝 · ${actionForm.alipayAccount.trim()}`
         : action.key === 'transfer'
           ? `${actionForm.transferMode === 'member' ? '会员' : '代理'} · ${actionForm.target}`
           : `会员红包 · ${actionForm.target}`
