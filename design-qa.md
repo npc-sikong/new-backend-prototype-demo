@@ -1,5 +1,50 @@
 # Design QA
 
+## 总控后台站点管理与站点列表（2026-07-27 19:23）
+
+### 验证目标与对照证据
+
+- source visual truth path:
+  - `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-3a4633c8-1325-4888-8e02-dcd160d49e72.png`
+  - `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-9b2d7bc8-2060-407f-a828-c40aab0d3b35.png`
+- implementation screenshot path:
+  - `/Users/sikon/Projects/新后台原型/.qa/site-list-implemented.png`
+  - `/Users/sikon/Projects/新后台原型/.qa/site-config-page-implemented.png`
+- combined comparison path:
+  - `/Users/sikon/Projects/新后台原型/.qa/site-list-comparison.png`
+  - `/Users/sikon/Projects/新后台原型/.qa/site-config-page-comparison.png`
+- viewport: 应用内浏览器桌面视口 1600 × 1000 CSS px。
+- source and implementation pixel dimensions: 列表参考图 2500 × 1066 px、配置参考图 2554 × 1292 px；实现截图均为 2328 × 1469 px。同屏画布按 900 px 高度等比缩放，不以像素密度差异判断版式偏差。
+- state: 总控后台 / 站点管理 / 站点列表；从站点 8888 进入页面切页后的“站点综合配置”页签。
+
+### 全局与局部视觉对照
+
+- full-view comparison evidence: 列表复用现有总控后台外壳，新增左侧“站点管理(新)”一级入口和“站点列表(新)”二级入口；筛选区、工具按钮、四条站点资料、状态标签、操作列和分页与参考图保持同一信息层级。
+- focused region comparison evidence: 站点配置页完整保留标题、返回列表、七个配置页签、综合配置双列表单、站点分润百分比、运营手续费承担占比、站点额度和返佣方案配置；配置内容作为页面切页展示，不使用遮罩弹窗。
+- fonts and typography: 使用项目现有后台字体、字号和字重；站点编码、账号、金额和返佣参数在紧凑表格内清晰可读。
+- spacing and layout rhythm: 筛选、表格、配置卡片及双列表单对齐稳定；配置页在桌面视口内完整展示，不产生页面级横向溢出。
+- colors and visual tokens: 沿用现有蓝色主操作、灰白表格、绿色启用状态和浅蓝审批状态；没有复制参考图之外的新视觉体系。
+- copy and content: 站点字段、四条演示记录、七个配置页签、月费额度、利润阈值、分润比例、当前可用额度和两条返佣方案与参考图一致；分页默认 20 条/页遵守项目统一规则。
+
+### 交互与业务说明核对
+
+- 输入站点编码 `2222` 查询后仅展示旺财体育一条记录，重置后恢复四条。
+- 点击站点 8888 的“配置”切换到对应站点配置页面；站点编号、名称和当前可用额度只读。
+- 站点分润 70%、总站分润 20% 时阻止保存并提示合计必须为 100%；恢复为 80% / 20% 后保存成功。
+- 站点分润下方展示“运营手续费承担占比”，包含站点承担运营手续费和总站承担运营手续费；两项合计不是 100% 时阻止保存。
+- 新增返佣方案按钮可打开表单弹窗；列表中的修改、删除和站点修改、删除均提供前端原型交互。
+- 页面业务及需求说明包含相对原后台差异、字段、业务规则、关联模块、演示边界、验收说明和修改记录。
+- 总控后台 2.0 版本需求说明已同步 2026-07-27 的站点列表模块、修改说明、验收口径和页面跳转。
+- 应用内浏览器未捕获 console error；`npm run build`、`git diff --check` 和文件行数检查通过。
+
+### 比较结论与历史
+
+- 首轮同屏比较覆盖列表全景和配置内容；根据最新要求，配置由遮罩弹窗调整为页面切页，字段顺序、页面密度、操作位置和配置层级保持不变。
+- 现有后台外壳、业务摘要、20条/页和左侧菜单属于项目既有规则，不属于设计偏差。
+- 未发现需要返工的 P0/P1/P2 问题。
+
+final result: passed
+
 ## H5代理后台个人中心安全设置重构（2026-07-25 14:27）
 
 ### 验证目标与对照证据

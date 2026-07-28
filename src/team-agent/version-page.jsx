@@ -5,6 +5,7 @@ import { Button, Tabs } from './ui'
 const VERSION_2_GROUPS_BASE = [
   {
     portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [
+      ['siteList', '站点列表', '站点资料查询与综合配置', '总控后台新增“站点管理(新)”一级菜单及“站点列表(新)”二级入口；页面按站点编码、名称、管理员账号和状态筛选，列表展示站点中英文资料、状态、申请时间及配置、修改、删除操作。点击配置后使用页面切页进入当前站点配置，不使用遮罩弹窗；配置页保留七个页签。站点综合配置在分润比例下方新增运营手续费承担占比，分别配置站点承担运营手续费和总站承担运营手续费。', '可进入站点列表并筛选四条演示站点；点击配置切换至当前站点配置页面并可返回列表；七个配置页签可切换，可保存月费、利润阈值、分润比例及运营手续费承担占比，两组比例均校验合计100%，并可维护返佣方案。'],
       ['agents', '代理列表', '代理基础资料与团队代理层级', '代理类型仅保留多层级代理、星级代理和团队代理。新增和修改团队代理时，代理层级只提供团队负责人和副线；需要按单线经营时，由团队负责人关闭“是否能开副线”。历史单线记录打开修改时显示为团队负责人且开关关闭。', '新增和修改代理层级下拉均无单线代理；关闭开副线的团队负责人，在总控、站点、代理、H5及相关佣金列表中统一显示为单线代理。'],
       ['negativeProfit', '负盈利代理佣金结算', '负盈利账单查看与发放处理宽表', '总输赢右侧增加历史总输赢，运营费用右侧增加可点击明细的历史运营费用；充提手续费右侧展示返佣等级，返佣比例移至历史结余佣金左侧。去除运营分摊比例和欠站点额度。', '字段筛选、团队拆分、总计、费用弹窗、公式及发放操作均使用最新字段；历史运营费用可查看六项明细。'],
       ['negativeProfitReport', '负盈利代理佣金报表', '跨日期负盈利佣金只读报表', '增加历史总输赢、历史运营费用和历史结余佣金；充提手续费右侧展示返佣等级，返佣比例紧邻历史结余佣金。移除本期欠款、账户调整、存款手续费和提款手续费，总欠款改为欠站点总额。', '三后台与H5同名报表字段顺序一致；历史运营费用可点击查看明细，字段筛选、团队拆分、总计、详情和导出同步，结算表保持独立。'],
@@ -116,11 +117,12 @@ const JULY_22_PAGES = new Set(['agents', 'plans', 'cycle', 'negativeProfitReport
 const JULY_23_PAGES = new Set(['agents', 'teams', 'siteAgents', 'downline', 'negativeProfit', 'negativeProfitReport', 'h5Agent'])
 const JULY_24_PAGES = new Set(['teams', 'negativeProfit', 'rebatePlans', 'negativeProfitReport', 'reversal', 'h5Agent'])
 const JULY_25_PAGES = new Set(['negativeProfit', 'negativeProfitReport', 'h5Agent'])
+const JULY_27_PAGES = new Set(['siteList'])
 
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>
     {group.items.length ? <div className="ta-version-modules">{group.items.map(([page, title, module, change, acceptance, targetPortal]) => <article className="ta-version-module" key={`${group.portal}-${page}`}>
-      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
+      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{JULY_27_PAGES.has(page) ? '2026-07-27' : JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
       <div className="ta-version-content"><div><b>模块说明</b><p>{module}</p></div><div><b>修改说明</b><p>{change}</p></div><div><b>功能验收</b><p>{acceptance}</p></div></div>
     </article>)}</div> : <div className="ta-version-empty">本版本该后台无新增业务模块。</div>}
   </section>
