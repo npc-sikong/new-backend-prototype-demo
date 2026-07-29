@@ -53,6 +53,23 @@
 .site-share-divider { height: 37px; display: flex; align-items: center; margin: 12px 0 6px; color: #4c5d70; font-size: 11px; font-weight: 700; }
 .site-share-divider::before, .site-share-divider::after { height: 1px; flex: 1; background: #e1e7ed; content: ""; }
 .site-share-divider span { padding: 0 18px; }
+.site-operating-fee-note { margin: 9px 0 12px; padding: 9px 12px; border: 1px solid #cfe4f8; border-radius: 4px; color: #55718d; background: #f4f9fe; font-size: 10px; line-height: 1.65; }
+.site-operating-fee-table { overflow: hidden; border: 1px solid #e0e8f0; border-radius: 4px; }
+.site-operating-fee-row { min-height: 42px; display: grid; grid-template-columns: 1.05fr 1.2fr .85fr .85fr 1.1fr; align-items: center; border-top: 1px solid #e8eef4; color: #56677a; font-size: 10px; }
+.site-operating-fee-row:first-child { border-top: 0; }
+.site-operating-fee-row > * { min-width: 0; padding: 5px 12px; }
+.site-operating-fee-row > * + * { border-left: 1px solid #e8eef4; }
+.site-operating-fee-row strong { color: #40566d; font-weight: 600; }
+.site-operating-fee-modes { display: flex; align-items: center; gap: 18px; }
+.site-operating-fee-modes label { display: flex; align-items: center; gap: 7px; color: #6b7b8c; cursor: pointer; white-space: nowrap; }
+.site-operating-fee-modes label.selected { color: #2387d2; font-weight: 600; }
+.site-agent-bearing-modes { justify-content: center; }
+.site-operating-fee-row input[type="checkbox"] { width: 14px; height: 14px; accent-color: #2b98f1; }
+.site-operating-fee-row .ta-input { height: 29px; }
+.site-operating-fee-row.custom { background: #f7fbff; }
+.site-operating-fee-row.custom strong { color: #2387d2; }
+.site-operating-fee-head { min-height: 34px; color: #53677d; background: #f4f7fa; font-weight: 700; text-align: center; }
+.site-operating-fee-head span { border-left-color: #dfe7ef; }
 .site-balance-card .site-config-card-body { padding: 13px 48px 19px; }
 .site-balance-card .ta-field { max-width: 720px; grid-template-columns: 145px minmax(0, 1fr); }
 .site-balance-card .ta-input { text-align: left; }
@@ -76,4 +93,5 @@
   .site-list-screen .ta-input, .site-list-screen .ta-select { width: 150px; min-width: 150px; }
   .site-config-page-body { padding: 18px; }
   .site-config-card .ta-form-grid { gap: 14px 22px; }
+  .site-operating-fee-row { grid-template-columns: 1fr 1.15fr .82fr .82fr 1.08fr; }
 }

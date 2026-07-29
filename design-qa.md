@@ -45,6 +45,81 @@
 
 final result: passed
 
+## 站点运营费用代理承担开关验收
+
+- source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-646ca8d2-3c08-423d-85bc-b44a56708b8e.png`
+- implementation screenshot path: `/Users/sikon/Projects/新后台原型/.qa/site-fee-agent-bearing-options.jpg`
+- viewport: 应用内浏览器桌面视口；实现截图为完整站点综合配置页面。
+- source and implementation dimensions: 参考图 2480 × 790 px；实现截图 2248 × 1827 px。参考图为费用分类表局部，实现截图包含完整页面，因此按对应表格区域核对。
+- state: 总控后台 / 站点列表 / 站点 8888 配置 / 站点综合配置。
+- full-view comparison evidence: 分类费用表保持现有五列宽表结构，最右侧新增“代理是否按自身比例承担”，七类费用均完整展示且未改变原站点与总站比例列。
+- focused region comparison evidence: 每行同时展示“承担”和“不承担”两个选择项，默认选中“承担”；七行共检测到 7 个“承担”和 7 个“不承担”选项。
+- interaction evidence: 返水行点击“不承担”后，“承担”自动取消且“不承担”选中；再次点击“承担”后恢复默认状态，两个选项始终互斥。
+- rule evidence: 选择“不承担”只表示该费用不进入代理承担范围，不改变继承总分摊、单独设置、总站比例录入和站点比例自动补足至 100% 的既有规则。
+- style evidence: 新列复用现有表头、行高、蓝色选中态、复选框尺寸和横向间距；完整页面未出现遮挡、横向越界或错误换行。
+- console evidence: 当前页面无 warning 或 error 日志。
+- documentation evidence: 站点列表业务说明、2.0版本需求说明和 `AGENTS.md` 已同步字段、默认值、互斥关系及费用排除规则。
+- blocker: 应用内浏览器安全策略不允许创建本地组合对照页面，无法将参考图和实现截图合并到同一正式对照输入；源图和实现页已分别完成可视核对。
+
+final result: blocked
+
+## 站点运营手续费分摊方式双选项验收
+
+- source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-1ba77375-727c-4b05-b030-e587863bcc03.png`
+- implementation screenshot path: `/Users/sikon/Projects/新后台原型/.qa/site-fee-share-mode-options.jpg`
+- viewport: 应用内浏览器 1707 × 960 CSS px，devicePixelRatio 1.5；页面完整截图为 2248 × 1827 px。
+- source and implementation pixel dimensions: 参考图 2926 × 1198 px；实现截图 2248 × 1827 px。参考图为分类表局部，实现截图包含完整站点综合配置页面，因此仅按分类表对应区域核对。
+- target: 总控后台 / 站点列表 / 站点综合配置 / 运营手续费分类承担占比。
+- layout contract: 七类费用的“分摊方式”列同时并排展示“继承总分摊”和“单独设置”，不再只展示当前生效项。
+- interaction contract: 两个勾选项互斥；选择继承时读取默认总站及站点比例并禁用本行总站比例，选择单独设置时启用本行总站比例并覆盖默认值。
+- style contract: 保留现有蓝灰表格、方形勾选框、选中蓝色及四列宽表结构，不增加说明卡或额外操作。
+- full-view comparison evidence: 实现完整页保持现有站点综合配置结构，七行分类费用均同时展示两个勾选项，比例列、站点额度和返佣方案位置未改变。
+- focused region comparison evidence: 参考图与实现分类表均使用“费用类别 / 分摊方式”结构；实现按当前页面既有四列结构继续展示站点、总站比例，双选项间距、方形勾选框和蓝色选中态清晰。
+- fidelity surfaces: 字体、字号、行高、蓝灰配色、表格行距、四列对齐、文案和原生方形勾选框均沿用现有后台视觉；本区域不包含图片资产。
+- primary interactions tested: 返水行从“继承总分摊”切换为“单独设置”后，继承项取消、单独设置项选中且本行总站比例启用；切回继承后状态反转且本行总站比例重新禁用。
+- console errors checked: 仅有 Vite 连接和 React DevTools 提示，无错误日志。
+- documentation evidence: 页面业务说明、2.0版本需求说明和 `AGENTS.md` 已同步双选项互斥规则。
+- verification: `npm run build`、`git diff --check`、文件行数检查、应用内浏览器渲染与互斥交互验证通过。浏览器安全策略阻止创建同屏对照画布，无法生成要求的单张合并对照图；源图与实现图已分别打开核对，但按设计验收规范仍将最终结果标记为阻塞。
+
+final result: blocked
+
+## 站点分润总站比例联动验收
+
+- state: 总控后台 / 站点管理 / 站点列表 / 站点配置 / 站点综合配置。
+- input contract: 站点分润百分比只允许填写总站分润比例，站点分润输入框始终禁用。
+- calculation contract: 站点分润比例 = 100% − 总站分润比例；总站填写30%时，站点同步显示70%。
+- validation contract: 总站分润限制为0%至100%，超出范围时阻止保存。
+- consistency evidence: 站点分润与运营手续费承担占比使用一致的单向录入和自动互补逻辑。
+- documentation evidence: 页面业务说明、2.0版本说明和 `AGENTS.md` 已同步最新规则。
+- verification: `npm run build`、`git diff --check`、文件行数限制及分润计算逻辑静态检查通过。
+
+final result: passed
+
+## 站点运营手续费总站比例联动验收
+
+- state: 总控后台 / 站点管理 / 站点列表 / 站点配置 / 站点综合配置。
+- input contract: 默认总分摊和七类独立分摊均只允许填写总站承担比例；站点承担比例输入框始终禁用。
+- calculation contract: 站点承担比例 = 100% − 总站承担比例；例如总站输入30%，站点同步显示70%。
+- category contract: 未开启单独设置的费用类别继续继承默认分摊；开启后只编辑本行总站承担比例，本行站点比例自动互补，且该类别不再使用默认总分摊。
+- validation contract: 总站承担比例限制为0%至100%，超出范围时阻止保存并提示默认分摊或具体费用类别。
+- documentation evidence: 页面业务说明、2.0版本说明和 `AGENTS.md` 已同步单向录入与自动互补规则。
+- verification: `npm run build`、`git diff --check`、文件行数限制及计算逻辑静态检查通过。
+
+final result: passed
+
+## 站点运营手续费分类分摊验收
+
+- state: 总控后台 / 站点管理 / 站点列表 / 站点配置 / 站点综合配置。
+- field evidence: 运营手续费区域保留站点与总站默认承担占比，并新增返水、礼金、活动奖励、推广礼金、余额宝利息、三方场馆费用、充提手续费七类费用。
+- interaction contract: 每类费用提供“继承总分摊 / 单独设置”开关；关闭时比例输入框禁用并显示默认承担比例，开启后输入框可编辑且该类别不再使用默认总分摊。
+- validation contract: 仍有费用继承默认分摊时，默认站点与总站比例必须合计100%；每个已开启单独设置的费用类别也必须分别合计100%，否则阻止保存并提示具体费用类别。
+- layout evidence: 七类配置使用同一四列表格展示费用类别、分摊方式、站点承担比例和总站承担比例；延续现有蓝灰后台配色、表格密度和输入框样式。
+- documentation evidence: 页面业务及需求说明、2.0版本需求说明和 `AGENTS.md` 已同步“默认总分摊 + 分类独立覆盖”规则。
+- verification: `npm run build`、`git diff --check`、七类费用常量断言、文件行数限制及本地服务 HTTP 200 检查通过。
+- browser note: 应用内浏览器本轮因本地 URL 安全策略拒绝刷新，未形成可引用截图；未使用其他浏览器绕过策略。
+
+final result: passed
+
 ## H5代理后台个人中心安全设置重构（2026-07-25 14:27）
 
 ### 验证目标与对照证据

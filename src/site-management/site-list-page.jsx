@@ -18,7 +18,12 @@ import {
   Select,
   StatusTag,
 } from '../team-agent/ui'
-import { SITE_CONFIG_TABS, SITE_LIST_ROWS, SITE_REBATE_PLANS } from './site-list-data'
+import {
+  OPERATING_FEE_CATEGORIES,
+  SITE_CONFIG_TABS,
+  SITE_LIST_ROWS,
+  SITE_REBATE_PLANS,
+} from './site-list-data'
 import './site-list.css'
 
 const EMPTY_FILTERS = { code: '', name: '', adminAccount: '', status: '' }
@@ -35,8 +40,58 @@ function ConfigPlaceholder({ tab, site }) {
   </section>
 }
 
+function createOperatingFeeCategories(site) {
+  return OPERATING_FEE_CATEGORIES.map((name) => {
+    const configured = site?.operatingFeeCategories?.find((item) => item.name === name)
+    return {
+      name,
+      custom: Boolean(configured?.custom),
+      siteShare: configured?.siteShare ?? site?.siteOperatingFeeShare ?? 80,
+      masterShare: configured?.masterShare ?? site?.masterOperatingFeeShare ?? 20,
+      agentBearsShare: configured?.agentBearsShare ?? true,
+    }
+  })
+}
+
 function SiteComprehensiveConfig({ site, form, setForm, plans, onSave, onAddPlan, onEditPlan, onDeletePlan }) {
   const setValue = (key, value) => setForm((current) => ({ ...current, [key]: value }))
+  const setMasterShare = (value) => setForm((current) => ({
+    ...current,
+    masterShare: value,
+    siteShare: 100 - Number(value || 0),
+  }))
+  const setDefaultMasterShare = (value) => setForm((current) => ({
+    ...current,
+    masterOperatingFeeShare: value,
+    siteOperatingFeeShare: 100 - Number(value || 0),
+  }))
+  const setCategoryValue = (name, key, value) => setForm((current) => ({
+    ...current,
+    operatingFeeCategories: current.operatingFeeCategories.map((item) => item.name === name
+      ? {
+          ...item,
+          [key]: value,
+          ...(key === 'masterShare' ? { siteShare: 100 - Number(value || 0) } : {}),
+        }
+      : item),
+  }))
+  const toggleCategory = (name, custom) => setForm((current) => ({
+    ...current,
+    operatingFeeCategories: current.operatingFeeCategories.map((item) => item.name === name
+      ? {
+          ...item,
+          custom,
+          siteShare: custom ? current.siteOperatingFeeShare : item.siteShare,
+          masterShare: custom ? current.masterOperatingFeeShare : item.masterShare,
+        }
+      : item),
+  }))
+  const setAgentBearing = (name, agentBearsShare) => setForm((current) => ({
+    ...current,
+    operatingFeeCategories: current.operatingFeeCategories.map((item) => item.name === name
+      ? { ...item, agentBearsShare }
+      : item),
+  }))
   const columns = [
     { key: 'name', label: '基础返佣方案' },
     { key: 'type', label: '类型' },
@@ -64,14 +119,53 @@ function SiteComprehensiveConfig({ site, form, setForm, plans, onSave, onAddPlan
         </FormGrid>
         <div className="site-share-divider"><span>站点分润百分比</span></div>
         <FormGrid columns={2}>
-          <Field label="站点分润(%)"><Input type="number" min="0" max="100" value={form.siteShare} onChange={(value) => setValue('siteShare', value)} /></Field>
-          <Field label="总站分润(%)"><Input type="number" min="0" max="100" value={form.masterShare} onChange={(value) => setValue('masterShare', value)} /></Field>
+          <Field label="站点自动分润(%)"><Input type="number" value={form.siteShare} disabled /></Field>
+          <Field label="总站分润(%)"><Input type="number" min="0" max="100" value={form.masterShare} onChange={setMasterShare} /></Field>
         </FormGrid>
-        <div className="site-share-divider"><span>运营手续费承担占比</span></div>
+        <div className="site-share-divider"><span>运营手续费默认承担占比</span></div>
         <FormGrid columns={2}>
-          <Field label="站点承担运营手续费"><Input type="number" min="0" max="100" value={form.siteOperatingFeeShare} onChange={(value) => setValue('siteOperatingFeeShare', value)} /></Field>
-          <Field label="总站承担运营手续费"><Input type="number" min="0" max="100" value={form.masterOperatingFeeShare} onChange={(value) => setValue('masterOperatingFeeShare', value)} /></Field>
+          <Field label="站点自动承担(%)"><Input type="number" value={form.siteOperatingFeeShare} disabled /></Field>
+          <Field label="总站承担(%)"><Input type="number" min="0" max="100" value={form.masterOperatingFeeShare} onChange={setDefaultMasterShare} /></Field>
         </FormGrid>
+        <p className="site-operating-fee-note">仅需填写总站承担比例，站点承担比例自动按“100% − 总站承担比例”计算且不可编辑。每类费用同时显示“继承总分摊”和“单独设置”，勾选哪项就按哪种方式生效；代理默认按比例承担，选择“不承担”后该费用不计入代理承担范围。</p>
+        <div className="site-operating-fee-table" role="table" aria-label="运营手续费分类承担占比">
+          <div className="site-operating-fee-row site-operating-fee-head" role="row">
+            <span role="columnheader">费用类别</span>
+            <span role="columnheader">分摊方式</span>
+            <span role="columnheader">站点自动承担(%)</span>
+            <span role="columnheader">总站承担(%)</span>
+            <span role="columnheader">代理是否按自身比例承担</span>
+          </div>
+          {form.operatingFeeCategories.map((item) => {
+            const siteShare = item.custom ? item.siteShare : form.siteOperatingFeeShare
+            const masterShare = item.custom ? item.masterShare : form.masterOperatingFeeShare
+            return <div className={`site-operating-fee-row${item.custom ? ' custom' : ''}`} role="row" key={item.name}>
+              <strong role="cell">{item.name}</strong>
+              <div className="site-operating-fee-modes" role="radiogroup" aria-label={`${item.name}分摊方式`}>
+                <label className={!item.custom ? 'selected' : ''}>
+                  <input type="checkbox" checked={!item.custom} onChange={() => toggleCategory(item.name, false)} />
+                  <span>继承总分摊</span>
+                </label>
+                <label className={item.custom ? 'selected' : ''}>
+                  <input type="checkbox" checked={item.custom} onChange={() => toggleCategory(item.name, true)} />
+                  <span>单独设置</span>
+                </label>
+              </div>
+              <div role="cell"><Input type="number" disabled value={siteShare} /></div>
+              <div role="cell"><Input type="number" min="0" max="100" disabled={!item.custom} value={masterShare} onChange={(value) => setCategoryValue(item.name, 'masterShare', value)} /></div>
+              <div className="site-operating-fee-modes site-agent-bearing-modes" role="radiogroup" aria-label={`${item.name}代理是否按自身比例承担`}>
+                <label className={item.agentBearsShare ? 'selected' : ''}>
+                  <input type="checkbox" checked={item.agentBearsShare} onChange={() => setAgentBearing(item.name, true)} />
+                  <span>承担</span>
+                </label>
+                <label className={!item.agentBearsShare ? 'selected' : ''}>
+                  <input type="checkbox" checked={!item.agentBearsShare} onChange={() => setAgentBearing(item.name, false)} />
+                  <span>不承担</span>
+                </label>
+              </div>
+            </div>
+          })}
+        </div>
       </div>
     </section>
 
@@ -98,23 +192,35 @@ function SiteConfigPage({ site, onBack, onToast }) {
     masterShare: site?.masterShare ?? 20,
     siteOperatingFeeShare: site?.siteOperatingFeeShare ?? 80,
     masterOperatingFeeShare: site?.masterOperatingFeeShare ?? 20,
+    operatingFeeCategories: createOperatingFeeCategories(site),
   }))
   const [plans, setPlans] = useState(SITE_REBATE_PLANS)
   const [planModal, setPlanModal] = useState(null)
   const [planName, setPlanName] = useState('')
 
   function saveConfig() {
-    const total = Number(form.siteShare || 0) + Number(form.masterShare || 0)
-    if (total !== 100) {
-      onToast('站点分润与总站分润合计必须为 100%', 'error')
+    const masterShare = Number(form.masterShare)
+    if (!Number.isFinite(masterShare) || masterShare < 0 || masterShare > 100) {
+      onToast('总站分润比例必须在 0% 至 100% 之间', 'error')
       return
     }
-    const operatingFeeTotal = Number(form.siteOperatingFeeShare || 0) + Number(form.masterOperatingFeeShare || 0)
-    if (operatingFeeTotal !== 100) {
-      onToast('站点与总站运营手续费承担占比合计必须为 100%', 'error')
+    const inheritedCategories = form.operatingFeeCategories.filter((item) => !item.custom)
+    const defaultMasterShare = Number(form.masterOperatingFeeShare)
+    if (inheritedCategories.length && (!Number.isFinite(defaultMasterShare) || defaultMasterShare < 0 || defaultMasterShare > 100)) {
+      onToast('总站默认承担比例必须在 0% 至 100% 之间', 'error')
       return
     }
-    onToast(`${site.name}综合配置已保存`)
+    const invalidCategory = form.operatingFeeCategories.find((item) => {
+      const masterShare = Number(item.masterShare)
+      return item.custom && (!Number.isFinite(masterShare) || masterShare < 0 || masterShare > 100)
+    })
+    if (invalidCategory) {
+      onToast(`${invalidCategory.name}的总站承担比例必须在 0% 至 100% 之间`, 'error')
+      return
+    }
+    const customCount = form.operatingFeeCategories.filter((item) => item.custom).length
+    const excludedAgentCount = form.operatingFeeCategories.filter((item) => !item.agentBearsShare).length
+    onToast(`${site.name}综合配置已保存，${customCount}类费用使用独立分摊，${excludedAgentCount}类费用代理不承担`)
   }
 
   function openPlanModal(mode, plan) {
