@@ -93,11 +93,12 @@ export const SITE_CONFIG_TABS = [
 ]
 
 export const OPERATING_FEE_CATEGORIES = [
-  '返水',
-  '礼金',
   '活动奖励',
-  '推广礼金',
+  '会员推会员',
+  '返水',
+  'VIP福利',
+  '彩金',
   '余额宝利息',
-  '三方场馆费用',
   '充提手续费',
+  '三方场馆费用',
 ]

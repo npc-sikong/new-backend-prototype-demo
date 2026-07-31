@@ -122,12 +122,12 @@ function SiteComprehensiveConfig({ site, form, setForm, plans, onSave, onAddPlan
           <Field label="站点自动分润(%)"><Input type="number" value={form.siteShare} disabled /></Field>
           <Field label="总站分润(%)"><Input type="number" min="0" max="100" value={form.masterShare} onChange={setMasterShare} /></Field>
         </FormGrid>
-        <div className="site-share-divider"><span>运营手续费默认承担占比</span></div>
+        <div className="site-share-divider"><span>运营费用总设置</span></div>
         <FormGrid columns={2}>
           <Field label="站点自动承担(%)"><Input type="number" value={form.siteOperatingFeeShare} disabled /></Field>
           <Field label="总站承担(%)"><Input type="number" min="0" max="100" value={form.masterOperatingFeeShare} onChange={setDefaultMasterShare} /></Field>
         </FormGrid>
-        <p className="site-operating-fee-note">仅需填写总站承担比例，站点承担比例自动按“100% − 总站承担比例”计算且不可编辑。每类费用同时显示“继承总分摊”和“单独设置”，勾选哪项就按哪种方式生效；代理默认按比例承担，选择“不承担”后该费用不计入代理承担范围。</p>
+        <p className="site-operating-fee-note">仅需填写总站承担比例，站点承担比例自动按“100% − 总站承担比例”计算且不可编辑。每类费用同时显示“继承总设置”和“单独设置”，勾选哪项就按哪种方式生效；代理默认按比例承担，选择“不承担”后该费用不计入代理承担范围。</p>
         <div className="site-operating-fee-table" role="table" aria-label="运营手续费分类承担占比">
           <div className="site-operating-fee-row site-operating-fee-head" role="row">
             <span role="columnheader">费用类别</span>
@@ -144,7 +144,7 @@ function SiteComprehensiveConfig({ site, form, setForm, plans, onSave, onAddPlan
               <div className="site-operating-fee-modes" role="radiogroup" aria-label={`${item.name}分摊方式`}>
                 <label className={!item.custom ? 'selected' : ''}>
                   <input type="checkbox" checked={!item.custom} onChange={() => toggleCategory(item.name, false)} />
-                  <span>继承总分摊</span>
+                  <span>继承总设置</span>
                 </label>
                 <label className={item.custom ? 'selected' : ''}>
                   <input type="checkbox" checked={item.custom} onChange={() => toggleCategory(item.name, true)} />

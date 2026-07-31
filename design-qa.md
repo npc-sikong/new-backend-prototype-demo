@@ -45,6 +45,19 @@
 
 final result: passed
 
+## 站点运营费用命名与八类费用调整验收
+
+- source visual truth paths: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-858a09b3-4da1-4ee7-8754-0b633d5a58ed.png`、`/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-37145ef7-aeae-4ef7-9d16-55248bf988f8.png`
+- state: 总控后台 / 站点列表 / 站点配置 8888 / 站点综合配置。
+- copy evidence: 源码及构建产物均使用“运营费用总设置”和“继承总设置”，旧名称仅保留在修改记录的改名前后说明中。
+- category evidence: 费用类别按活动奖励、会员推会员、返水、VIP福利、彩金、余额宝利息、充提手续费、三方场馆费用顺序展示，共8项。
+- interaction contract: 八项继续复用“继承总设置 / 单独设置”和“承担 / 不承担”两个互斥选择组；总站比例、站点自动互补比例及代理承担逻辑不变。
+- documentation evidence: 页面业务说明、2.0版本需求说明和 `AGENTS.md` 已同步名称、分类、顺序和验收口径。
+- build evidence: `npm run build`、`git diff --check`和文件行数检查通过；构建产物可检索到两处新名称与八个费用类别。
+- browser blocker: 应用内浏览器中已打开页面仍是修改前缓存；本地预览服务启动授权连续异常，因此未将旧缓存页面作为本次视觉验收证据。
+
+final result: blocked
+
 ## 站点运营费用代理承担开关验收
 
 - source visual truth path: `/var/folders/v8/fnkczfq12v92tk9mtwcq1_p40000gn/T/codex-clipboard-646ca8d2-3c08-423d-85bc-b44a56708b8e.png`
