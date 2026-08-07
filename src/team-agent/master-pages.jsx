@@ -454,7 +454,7 @@ function MasterTeamsListPage({ onToast, portal = 'master', role = 'main', naviga
   const [teamInspect, setTeamInspect] = useState(null)
   const [teamFilters, setTeamFilters] = useState({ name: '', type: '', createdFrom: '' })
   const [editTeamForm, setEditTeamForm] = useState({ name: '', teamType: '官方代理' })
-  const [secondaryForm, setSecondaryForm] = useState({ agent: '', scope: '', startCycle: '2026-08' })
+  const [secondaryForm, setSecondaryForm] = useState({ agent: '', password: '' })
   const secondaryTeam = data.teams.find((item) => item.id === secondaryTeamId)
   const editTeam = data.teams.find((item) => item.id === editTeamId)
   const teamRows = data.teams.filter((item) => (portal === 'master' || (portal === 'site' ? item.site === '旺财体育' : item.lines.some((line) => accountsFor(role).includes(line.agent)))) && (!teamFilters.name || item.name.includes(teamFilters.name) || item.code.includes(teamFilters.name)) && (!teamFilters.type || item.teamType === teamFilters.type) && (!teamFilters.createdFrom || String(item.createdAt).slice(0, 10) >= teamFilters.createdFrom)).map((item) => portal === 'agent' && role !== 'main' ? { ...item, lines: item.lines.filter((line) => accountsFor(role).includes(line.agent)) } : item)
@@ -477,13 +477,12 @@ function MasterTeamsListPage({ onToast, portal = 'master', role = 'main', naviga
   function openSecondaryModal(targetTeam) {
     if (!targetTeam) return
     setSecondaryTeamId(targetTeam.id)
-    setSecondaryForm({ agent: '', scope: '', startCycle: '2026-08' })
+    setSecondaryForm({ agent: '', password: '' })
     setModal('secondary')
   }
 
-  const secondaryModal = secondaryTeam && <Modal open={modal === 'secondary'} title={`为 ${secondaryTeam.name} 开设副线`} description="副线范围必须明确且不能与其他结算单元重叠。" onClose={closeModal} onConfirm={() => showResult(addSecondary(secondaryTeam.id, { ...secondaryForm, requireReview: true }), onToast, closeModal)}>
-    <FormGrid><Field label="副线" required><Input value={secondaryForm.agent} onChange={(value) => setSecondaryForm({ ...secondaryForm, agent: value })} placeholder="请输入代理账号" /></Field><Field label="生效周期"><Select value={secondaryForm.startCycle} onChange={(value) => setSecondaryForm({ ...secondaryForm, startCycle: value })} options={['2026-08', '2026-09']} /></Field><Field label="业务范围" className="ta-field-full"><Input value={secondaryForm.scope} onChange={(value) => setSecondaryForm({ ...secondaryForm, scope: value })} placeholder="例如：该代理节点及直属会员" /></Field></FormGrid>
-    <Alert title="唯一归属检查">保存前会检查目标代理是否已属于其他团队或单线代理；当前周期不追溯切分。</Alert>
+  const secondaryModal = secondaryTeam && <Modal open={modal === 'secondary'} title={`为 ${secondaryTeam.name} 开设副线`} description={`仅新增副线账号；返佣方案自动跟随团队负责人 ${secondaryTeam.mainAgent}，无需选择。`} onClose={closeModal} onConfirm={() => showResult(addSecondary(secondaryTeam.id, { ...secondaryForm, requireReview: true }), onToast, closeModal)} confirmDisabled={!secondaryForm.agent.trim() || secondaryForm.password.length < 6}>
+    <FormGrid><Field label="副线账号" required><Input value={secondaryForm.agent} onChange={(value) => setSecondaryForm({ ...secondaryForm, agent: value })} placeholder="请输入新的副线账号" /></Field><Field label="登录密码" required help="至少 6 位"><Input type="password" value={secondaryForm.password} onChange={(value) => setSecondaryForm({ ...secondaryForm, password: value })} placeholder="请设置副线登录密码" /></Field></FormGrid>
   </Modal>
 
   return <>

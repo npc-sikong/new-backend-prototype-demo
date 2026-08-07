@@ -53,29 +53,44 @@ export function TeamAgentProvider({ children }) {
   function addSecondary(teamId, payload) {
     const team = data.teams.find((item) => item.id === teamId)
     const agent = String(payload.agent || '').trim()
-    if (!team || !agent) return { ok: false, message: '请选择代理部并填写副线' }
+    const password = String(payload.password || '')
+    if (!team || !agent) return { ok: false, message: '请选择团队并填写副线账号' }
+    if (password.length < 6) return { ok: false, message: '副线登录密码至少 6 位' }
     if (team.status === '冻结' || team.status === '待解散') return { ok: false, message: `代理部当前为${team.status}状态，不能新增副线` }
     if (team.canOpenSecondary === false) return { ok: false, message: '该团队负责人设置为不能开副线，当前按单线经营' }
+    if (data.agents.some((item) => item.account.toLowerCase() === agent.toLowerCase())) return { ok: false, message: '副线账号已存在，请更换账号' }
     const occupied = data.teams.some((item) => item.lines.some((line) => line.agent === agent && !['已退出', '已关闭'].includes(line.status))) || data.singles.some((single) => single.owner === agent && single.status !== '已终止')
     if (occupied) return { ok: false, message: '该代理在目标周期已归属其他结算单元' }
     const lineCount = data.teams.reduce((sum, item) => sum + item.lines.length, 0)
+    const leader = data.agents.find((item) => item.account === team.mainAgent)
+    const plan = leader?.plan || team.plan || 'DW负盈利佣金方案'
+    const effectiveCycle = team.startCycle || '2026-08'
+    const numericIds = data.agents.map((item) => Number(item.id)).filter(Number.isFinite)
+    const agentId = String((numericIds.length ? Math.max(...numericIds) : 1700) + 1)
     const line = {
-      lineId: `LINE-${String.fromCharCode(65 + lineCount)}`, identity: '副线', agent, scope: payload.scope || `${agent} 节点及直属会员`,
-      newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: payload.requireReview === false ? '待生效' : '待复核', startCycle: payload.startCycle || '2026-08',
+      lineId: `LINE-${String.fromCharCode(65 + lineCount)}`, identity: '副线', agent, scope: `${agent} 节点及直属会员`,
+      newActive: 0, firstDepositCount: 0, firstDepositAmount: 0, activeMembers: 0, netWinLoss: 0, status: payload.requireReview === false ? '待生效' : '待复核', startCycle: effectiveCycle,
+    }
+    const newAgent = {
+      id: agentId, account: agent, loginPassword: password, agentType: '团队代理', teamAgentType: team.teamAgentType || team.teamType || leader?.teamAgentType || '普通代理',
+      model: '负盈利模式', settlementMode: '团队模式', identity: '副线', unit: team.name, lineId: line.lineId, effectiveCycle, site: team.site || leader?.site || '旺财体育', status: '启用',
+      parent: team.mainAgent, parentId: leader?.id || '—', recommender: '—', developer: team.developer || team.mainAgent, plan, registeredAt: timestamp(), lastLogin: '—',
+      subAgents: 0, members: 0, activeMembers: 0, newActiveMembers: 0, depositAmount: 0, withdrawalAmount: 0, totalWinLoss: 0, validBetting: 0, balance: 0, channelStats: [], subAgentDetails: [],
     }
     const request = {
       id: sequence('REQ-202607', data.requests), type: '开设副线', applicant: team.mainAgent, currentUnit: `${team.name} / ${team.mainAgent}`, targetUnit: `${team.name} / ${line.lineId} / ${agent}`,
       effectiveCycle: line.startCycle, recommender: '—', status: payload.requireReview === false ? '已批准·待生效' : '待站点复核', conflict: '无冲突', balanceHandling: '加入团队当月结余随代理带入团队', createdAt: timestamp(), note: '副线进入团队后，余额归属按当月结余规则处理。',
     }
     const secondaryAccounts = [...team.lines.filter((item) => item.identity === '副线').map((item) => item.agent), agent].join('、')
-    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamAgentType || team.teamType || '普通代理', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts, action: '新增副线', reason: payload.reason || '扩展团队业务范围', operator: payload.requireReview === false ? '站点运营' : team.mainAgent, createdAt: timestamp() }
+    const operation = { id: sequence('TOP', data.teamOperations), teamId: team.id, teamName: team.name, teamType: team.teamAgentType || team.teamType || '普通代理', mainId: data.agents.find((item) => item.account === team.mainAgent)?.id || '—', mainAccount: team.mainAgent, secondaryAccounts, action: '新增副线', reason: payload.reason || '新增副线账号', operator: payload.requireReview === false ? '站点运营' : team.mainAgent, createdAt: timestamp() }
     setData((current) => ({
       ...current,
       teams: current.teams.map((item) => item.id === teamId ? { ...item, lines: [...item.lines, line] } : item),
+      agents: [newAgent, ...current.agents.map((item) => item.account === team.mainAgent ? { ...item, subAgents: Number(item.subAgents || 0) + 1, subAgentDetails: [...(item.subAgentDetails || []), { id: agentId, account: agent, registeredAt: newAgent.registeredAt }] } : item)],
       requests: [request, ...current.requests],
       teamOperations: [operation, ...current.teamOperations],
     }))
-    return { ok: true, message: `${agent} 副线已建立，状态：${line.status}` }
+    return { ok: true, message: `${agent} 副线账号已新增，返佣方案跟随 ${team.mainAgent}` }
   }
 
   function createSingle(payload) {

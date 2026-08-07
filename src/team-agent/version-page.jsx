@@ -68,12 +68,12 @@ const MERGED_ITEMS = {
     agents: ['agents', '代理列表', '代理资料、推荐关系与取款密码', '新增和修改团队代理时增加推荐人选项；副线上级代理由所选团队负责人自动带出并锁定。代理列表及所有含代理类型的报表在代理类型右侧展示推荐人；原取款密码和日期筛选能力保持不变。', '团队代理可选择推荐人；副线指定团队后上级代理不可编辑；三后台含代理类型的报表均可在其右侧核对推荐人。'],
     negativeProfit: ['negativeProfit', '负盈利代理佣金结算', '负盈利账单与佣金记录', '新增历史总输赢和可查看明细的历史运营费用；充提手续费右侧展示返佣等级，返佣比例移至历史结余佣金左侧；去除运营分摊比例和欠站点额度。', '结算页字段筛选、团队拆分、总计和公式同步；保留欠站点总额度及原查询、展开和发放操作。'],
     rebatePlans: ['rebatePlans', '返佣方案', '层级与负盈利返佣配置', '新增弹窗通过切页分别创建层级返佣方案和负盈利返佣方案；层级方案使用0～1返佣比例，负盈利方案保留扶持期与常规配置。', '新增按钮、两类方案切页、级别增删、扶持月数、两套负盈利配置及保存反馈均可演示。'],
-    teams: ['teams', '团队代理管理', '团队列表与团队详情', '团队列表移除代理编号/账号筛选；团队详情仅保留团队概况和代理操作记录，去除团队业绩查看。冻结团队需二次确认，并明确团队负责人和全部副线代理均不能登录；解除后恢复正常状态。', '团队列表无代理编号/账号筛选；团队详情无团队业绩查看；冻结弹窗展示登录影响，确认后团队及成员账号冻结，解除后恢复正常。'],
+    teams: ['teams', '团队代理管理', '团队列表、副线账号与团队详情', '“开副线”弹窗只保留副线账号和登录密码；返佣方案不再选择，新增后自动跟随所属团队负责人，同时去除生效周期、业务范围等其他选项。', '总控团队列表和团队详情均可打开相同弹窗；账号与至少6位密码必填，保存后生成副线账号并继承团队负责人返佣方案。'],
   },
   site: {
     agents: ['agents', '代理列表', '本站代理资料、推荐关系与取款密码', '在旺财体育本站范围内同步团队代理推荐人选项；副线上级代理由所属团队负责人自动带出并锁定。含代理类型的报表在其右侧展示推荐人。', '可维护本站团队代理推荐人；副线上级代理不可编辑；本站报表可在代理类型右侧核对推荐人。'],
     negativeProfit: ['negativeProfit', '负盈利代理佣金结算', '本站负盈利账单与佣金记录', '本站同步总控历史总输赢、历史运营费用、返佣等级、返佣比例及历史结余佣金顺序，去除运营分摊比例和欠站点额度。', '旺财体育结算页与总控字段和计算一致；历史费用明细、欠站点总额度及原发放操作可正常使用。'],
-    teams: ['teams', '团队代理管理', '本站团队列表与详情', '本站团队列表移除代理编号/账号筛选；团队详情仅保留团队概况和代理操作记录，去除团队业绩查看。冻结团队需二次确认，冻结期间团队负责人和全部副线代理不能登录；解除后恢复正常。', '旺财体育团队列表无代理编号/账号筛选；详情无团队业绩查看；冻结和解除操作可同步更新团队及成员代理账号状态。'],
+    teams: ['teams', '团队代理管理', '本站团队列表、副线账号与详情', '本站“开副线”同步总控最新弹窗，只填写副线账号和登录密码；返佣方案自动跟随团队负责人，不展示生效周期、业务范围或方案选项。', '旺财体育团队列表和团队详情使用相同新增副线规则；账号重复或密码不足6位不可保存，成功后可在团队成员中查看新增副线。'],
   },
   agent: {
     teams: ['teams', '团队代理管理', '本人授权团队列表与详情', '团队列表移除代理编号/账号筛选；团队详情去除团队业绩查看，仅按当前身份展示授权团队概况和代理操作记录。', '团队负责人、副线和单线代理只能查看本人授权团队；桌面与H5详情均不再出现团队业绩查看。'],
@@ -122,7 +122,7 @@ const JULY_29_PAGES = new Set(['siteList'])
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>
     {group.items.length ? <div className="ta-version-modules">{group.items.map(([page, title, module, change, acceptance, targetPortal]) => <article className="ta-version-module" key={`${group.portal}-${page}`}>
-      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{JULY_29_PAGES.has(page) ? '2026-07-29' : JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
+      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{page === 'teams' ? '2026-08-07' : JULY_29_PAGES.has(page) ? '2026-07-29' : JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
       <div className="ta-version-content"><div><b>模块说明</b><p>{module}</p></div><div><b>修改说明</b><p>{change}</p></div><div><b>功能验收</b><p>{acceptance}</p></div></div>
     </article>)}</div> : <div className="ta-version-empty">本版本该后台无新增业务模块。</div>}
   </section>
