@@ -2,6 +2,17 @@ import { useState } from 'react'
 import { ApartmentOutlined, BankOutlined, MobileOutlined, SafetyCertificateOutlined, TeamOutlined } from '@ant-design/icons'
 import { Button, Tabs } from './ui'
 
+const VERSION_3_GROUPS = [
+  {
+    portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [
+      ['lotteryMemberRebate', '彩票会员返水', '彩票会员返水比例配置', '会员管理新增独立“彩票会员返水(新)”入口，可按站点、彩票名称、彩票玩法和状态查询配置；新增或修改时维护站点、彩票名称、彩票玩法、返水比例和状态，同一站点、彩票名称与玩法不得重复，并提供删除二次确认。', '可新增、修改、停用和删除配置；比例按百分比录入并保留两位小数；重复配置和无效比例不可保存；配置变化后彩票会员返水报表同步更新。'],
+      ['lotteryMemberRebateReport', '彩票会员返水报表', '会员彩票有效投注与返水查询报表', '会员管理新增独立“彩票会员返水报表(新)”入口，根据生效中的彩票会员返水配置生成会员级报表。支持日期区间、站点、会员账号、上级代理、彩票名称、彩票玩法、有效投注额区间和总返水额度区间组合查询，并提供当前筛选总计与导出。', '列表可核对日期、站点、会员、上级代理、彩票、玩法、比例、有效投注额和总返水额度；总返水额度按“有效投注额×返水比例”计算，筛选、合计和导出结果一致。'],
+    ],
+  },
+  { portal: 'site', title: '站点后台', icon: <BankOutlined />, items: [] },
+  { portal: 'agent', title: '代理后台', icon: <TeamOutlined />, items: [] },
+]
+
 const VERSION_2_GROUPS_BASE = [
   {
     portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [
@@ -118,22 +129,28 @@ const JULY_23_PAGES = new Set(['agents', 'teams', 'siteAgents', 'downline', 'neg
 const JULY_24_PAGES = new Set(['teams', 'negativeProfit', 'rebatePlans', 'negativeProfitReport', 'reversal', 'h5Agent'])
 const JULY_25_PAGES = new Set(['negativeProfit', 'negativeProfitReport', 'h5Agent'])
 const JULY_29_PAGES = new Set(['siteList'])
+const AUGUST_8_PAGES = new Set(['lotteryMemberRebate', 'lotteryMemberRebateReport'])
 
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>
     {group.items.length ? <div className="ta-version-modules">{group.items.map(([page, title, module, change, acceptance, targetPortal]) => <article className="ta-version-module" key={`${group.portal}-${page}`}>
-      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{page === 'teams' ? '2026-08-07' : JULY_29_PAGES.has(page) ? '2026-07-29' : JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
+      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{AUGUST_8_PAGES.has(page) ? '2026-08-08' : page === 'teams' ? '2026-08-07' : JULY_29_PAGES.has(page) ? '2026-07-29' : JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
       <div className="ta-version-content"><div><b>模块说明</b><p>{module}</p></div><div><b>修改说明</b><p>{change}</p></div><div><b>功能验收</b><p>{acceptance}</p></div></div>
     </article>)}</div> : <div className="ta-version-empty">本版本该后台无新增业务模块。</div>}
   </section>
 }
 
 export function VersionRequirementsPage({ navigateTo }) {
-  const [version, setVersion] = useState('2.0')
-  const groups = version === '2.0' ? VERSION_2_GROUPS : VERSION_1_GROUPS
+  const [version, setVersion] = useState('3.0')
+  const groups = version === '3.0' ? VERSION_3_GROUPS : version === '2.0' ? VERSION_2_GROUPS : VERSION_1_GROUPS
+  const meta = version === '3.0'
+    ? { eyebrow: '当前版本 · 按指令更新', title: '彩票会员返水配置与报表', description: '版本号不再按周自动更换，仅在收到明确指令后升级。3.0 新增彩票会员返水配置与联动报表两个独立会员管理入口。', seal: '当前验收', icon: <SafetyCertificateOutlined /> }
+    : version === '2.0'
+      ? { eyebrow: '历史版本', title: '业务运营与团队代理演示原型', description: '总控后台保留会员提现流水查询；代理后台支持四种身份，并新增独立第五入口“H5代理后台”，以暗夜金融风将现有代理业务完整适配为移动端体验，原四门户与原 H5 前端保持不变。', seal: '历史归档', icon: <ApartmentOutlined /> }
+      : { eyebrow: '历史版本', title: 'H5 提现与后台切换演示', description: '保留后台到 H5 前端的切换入口，以及手机端比例的钱包概览、提现方式、取款账户和金额输入演示。', seal: '历史归档', icon: <MobileOutlined /> }
   return <div className="ta-version-page">
-    <div className="ta-version-hero"><div><span>{version} 版本 · {version === '2.0' ? '原第 27 周需求' : '原第 26 周需求'}</span><h1>{version === '2.0' ? '业务运营与团队代理演示原型' : 'H5 提现与后台切换演示'}</h1><p>{version === '2.0' ? '总控后台保留会员提现流水查询；代理后台支持四种身份，并新增独立第五入口“H5代理后台”，以暗夜金融风将现有代理业务完整适配为移动端体验，原四门户与原 H5 前端保持不变。' : '保留后台到 H5 前端的切换入口，以及手机端比例的钱包概览、提现方式、取款账户和金额输入演示。'}</p></div><div className="ta-version-seal">{version === '2.0' ? <ApartmentOutlined /> : <MobileOutlined />}<strong>{version}</strong><span>{version === '2.0' ? 'P0 业务演示' : '需求归档'}</span></div></div>
-    <Tabs items={[{ value: '2.0', label: '2.0 · 第 27 周' }, { value: '1.0', label: '1.0 · 第 26 周' }]} active={version} onChange={setVersion} />
+    <div className="ta-version-hero"><div><span>{version} 版本 · {meta.eyebrow}</span><h1>{meta.title}</h1><p>{meta.description}</p></div><div className="ta-version-seal">{meta.icon}<strong>{version}</strong><span>{meta.seal}</span></div></div>
+    <Tabs items={[{ value: '3.0', label: '3.0 · 当前版本' }, { value: '2.0', label: '2.0 · 历史版本' }, { value: '1.0', label: '1.0 · 历史版本' }]} active={version} onChange={setVersion} />
     <div className="ta-version-groups">{groups.map((group) => <VersionGroup key={`${version}-${group.portal}`} group={group} navigateTo={navigateTo} />)}</div>
     {version === '2.0' && <section className="ta-version-roadmap"><h2>后续增强能力</h2><p>以下能力只作为后续路线图，不计入本次已完成验收：批量开副线、内部结算模板、主线自有资金提前结算、方案计算预演、阶梯奖励和历史余额移交。</p></section>}
   </div>

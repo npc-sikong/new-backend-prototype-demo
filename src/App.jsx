@@ -24,6 +24,7 @@ import { H5Withdrawal } from './team-agent/H5Withdrawal'
 import { MasterPage } from './team-agent/master-pages'
 import { MultiLevelAgentPage } from './team-agent/multi-level-agent-pages'
 import { NegativeProfitModeGuidePage } from './team-agent/negative-profit-mode-guide-page'
+import { LOTTERY_REBATE_NOTES, LotteryMemberRebatePage, LotteryMemberRebateReportPage, LotteryRebateProvider, useLotteryRebate } from './team-agent/lottery-rebate-pages'
 import { NotesDrawer, PageSummary } from './team-agent/ui'
 import { VersionRequirementsPage } from './team-agent/version-page'
 import { H5AgentBackend } from './h5-agent/H5AgentBackend'
@@ -41,14 +42,14 @@ const PORTALS = [
 ]
 
 const PORTAL_META = {
-  master: { title: '游戏总控管理系统', suffix: '团队代理 2.0', user: '若依', icon: SafetyCertificateOutlined },
+  master: { title: '游戏总控管理系统', suffix: '业务原型 3.0', user: '若依', icon: SafetyCertificateOutlined },
   site: { title: '站点运营管理后台', suffix: '旺财体育', user: '站点运营', icon: BankOutlined },
   agent: { title: '代理经营管理后台', suffix: '团队代理', user: 'gaodashang', icon: TeamOutlined },
 }
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', siteList: '站点列表', memberLockedFlow: '会员提现流水查询', agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', rebatePlans: '返佣方案', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理', revenue: '代理收益看板',
+    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', siteList: '站点列表', memberLockedFlow: '会员提现流水查询', lotteryMemberRebate: '彩票会员返水', lotteryMemberRebateReport: '彩票会员返水报表', agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', rebatePlans: '返佣方案', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理', revenue: '代理收益看板',
   },
   site: {
     agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理',
@@ -69,6 +70,8 @@ const MASTER_NAV = [
   ] },
   { id: 'member-group', label: '会员管理', mark: '新', icon: TeamOutlined, children: [
     { id: 'memberLockedFlow', label: '会员提现流水查询', mark: '新', icon: FileSearchOutlined },
+    { id: 'lotteryMemberRebate', label: '彩票会员返水', mark: '新', icon: SettingOutlined },
+    { id: 'lotteryMemberRebateReport', label: '彩票会员返水报表', mark: '新', icon: BarChartOutlined },
   ] },
   { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
@@ -156,6 +159,7 @@ function Sidebar({ portal, page, agentRole, onNavigate }) {
 
 function PrototypeApp() {
   const { resetDemo: resetState } = useTeamAgent()
+  const { resetLotteryRebates } = useLotteryRebate()
   const [portal, setPortal] = useState('master')
   const [lastAdminPortal, setLastAdminPortal] = useState('master')
   const [pages, setPages] = useState({ master: 'teams', site: 'agents', agent: 'agents' })
@@ -192,6 +196,7 @@ function PrototypeApp() {
 
   function resetDemo() {
     resetState()
+    resetLotteryRebates()
     notify('演示数据已恢复为初始状态')
   }
 
@@ -213,7 +218,7 @@ function PrototypeApp() {
     : selectedPage
   const page = PAGE_META[portal][currentPage] ? currentPage : DEFAULT_PAGES[portal]
   const title = PAGE_META[portal][page]
-  const note = SITE_MANAGEMENT_NOTES[`${portal}:${page}`] || PAGE_NOTES[`${portal}:${page}`]
+  const note = LOTTERY_REBATE_NOTES[`${portal}:${page}`] || SITE_MANAGEMENT_NOTES[`${portal}:${page}`] || PAGE_NOTES[`${portal}:${page}`]
   const portalMeta = portal === 'agent' && agentRole === 'multiLevel' ? { ...PORTAL_META.agent, suffix: '多层级代理' } : PORTAL_META[portal]
   const navigateFromPage = (nextPage, target) => {
     if (nextPage === 'teamDetails' && target) setTeamDetailTargets((current) => ({ ...current, [portal]: target }))
@@ -223,6 +228,8 @@ function PrototypeApp() {
     if (portal === 'master' && page === 'version') return <VersionRequirementsPage navigateTo={navigateTo} />
     if (portal === 'master' && page === 'negativeProfitModeGuide') return <NegativeProfitModeGuidePage />
     if (portal === 'master' && page === 'siteList') return <SiteListPage onToast={notify} />
+    if (portal === 'master' && page === 'lotteryMemberRebate') return <LotteryMemberRebatePage onToast={notify} />
+    if (portal === 'master' && page === 'lotteryMemberRebateReport') return <LotteryMemberRebateReportPage onToast={notify} />
     if (portal === 'master') return <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.master} onToast={notify} />
     if (portal === 'site') return <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.site} portal="site" onToast={notify} />
     return <><AgentRoleBar role={agentRole} setRole={setAgentRole} />{agentRole === 'multiLevel' || SHARED_AGENT_PAGES.has(page) ? <MultiLevelAgentPage page={page} role={agentRole} onToast={notify} /> : <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.agent} portal="agent" role={agentRole} onToast={notify} />}</>
@@ -247,5 +254,5 @@ function PrototypeApp() {
 }
 
 export function App() {
-  return <TeamAgentProvider><PrototypeApp /></TeamAgentProvider>
+  return <TeamAgentProvider><LotteryRebateProvider><PrototypeApp /></LotteryRebateProvider></TeamAgentProvider>
 }

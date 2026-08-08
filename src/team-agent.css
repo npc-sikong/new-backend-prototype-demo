@@ -646,6 +646,23 @@
 .member-flow-detail-toolbar strong { color: #26384b; font-size: 13px; }
 .member-flow-detail-toolbar span { color: #8a99aa; font-size: 10px; }
 
+/* 会员管理 / 彩票会员返水：延续紧凑蓝色后台筛选、表格与说明组件 */
+.lottery-rebate-screen, .lottery-rebate-report-screen { min-width: 0; display: grid; gap: 10px; }
+.lottery-rebate-screen .ta-section-header, .lottery-rebate-screen .ta-filter-bar, .lottery-rebate-screen .ta-alert,
+.lottery-rebate-report-screen .ta-section-header, .lottery-rebate-report-screen .ta-filter-bar, .lottery-rebate-report-screen .ta-alert { margin-bottom: 0; }
+.lottery-rebate-screen .ta-panel, .lottery-rebate-report-screen .ta-panel { min-width: 0; margin-bottom: 0; }
+.lottery-rebate-screen .ta-field, .lottery-rebate-report-screen .ta-field { min-width: 142px; }
+.lottery-rebate-report-screen .ta-filter-fields { display: grid; grid-template-columns: repeat(6, minmax(132px, 1fr)); }
+.lottery-rebate-summary { min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 9px 13px; border: 1px solid #dbe7f2; border-radius: 5px; color: #7f8fa1; background: #fff; font-size: 10px; }
+.lottery-rebate-summary b { min-width: 46px; color: #405873; font-size: 13px; }
+.lottery-rebate-summary strong { margin-right: 16px; font-size: 13px; }
+.lottery-rebate-total-row td { color: #405873; background: #f4f9fd; font-weight: 700; }
+.lottery-rebate-total-row td:first-child { text-align: right; }
+
+@media (max-width: 1380px) {
+  .lottery-rebate-report-screen .ta-filter-fields { grid-template-columns: repeat(4, minmax(132px, 1fr)); }
+}
+
 /* 负盈利模式说明：返佣定级、结算与提现流水口径 */
 .negative-mode-guide-screen { min-width: 0; display: grid; gap: 12px; }
 .negative-mode-guide-screen .ta-section-header { min-height: 38px; margin-bottom: 0; }
