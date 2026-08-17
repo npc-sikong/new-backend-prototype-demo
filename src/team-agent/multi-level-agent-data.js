@@ -13,11 +13,13 @@ export const AGENT_ROLE_PROFILES = {
   main: { ...MULTI_LEVEL_ACCOUNT, roleLabel: '团队负责人', promotionCode: 'GAODA345', createdAt: '2026-06-08', phone: '138****8821', email: 'gaodashang@example.com', transferTarget: 'WC002' },
   secondary: { account: 'WC002', site: '旺财体育', siteCode: '2222', agentId: '373', level: '副线', roleLabel: '副线', availableBalance: 28460.5, withdrawalAccount: 'TRc20WC002DemoAccount8K2', promotionCode: 'WC002373', createdAt: '2026-06-18', phone: '139****0202', email: 'wc002@example.com', transferTarget: 'gaodashang' },
   independent: { account: 'dailiwc001', site: '旺财体育', siteCode: '2222', agentId: '1749', level: '单线代理', roleLabel: '单线代理', availableBalance: 15480, withdrawalAccount: 'TRc20Dailiwc001Demo9P4', promotionCode: 'DALI1749', createdAt: '2026-07-01', phone: '136****1749', email: 'dailiwc001@example.com', transferTarget: 'gaodashang' },
+  rebate: { account: 'rebate_agent88', site: '旺财体育', siteCode: '2222', agentId: '1888', level: '返水代理', roleLabel: '返水代理', availableBalance: 26880.5, withdrawalAccount: 'TRc20RebateAgent88Demo6A8', promotionCode: 'REBATE1888', createdAt: '2026-08-17', phone: '137****1888', email: 'rebate88@example.com', transferTarget: 'rebate_child01' },
 }
 
 export function rowsForAgentRole(rows, role = 'multiLevel') {
   if (role === 'multiLevel' || role === 'main') return rows
   if (role === 'secondary') return rows.filter((_, index) => index % 2 === 0)
+  if (role === 'rebate') return rows.filter((_, index) => index % 4 === 0)
   return rows.filter((_, index) => index % 3 === 0)
 }
 
@@ -89,6 +91,12 @@ export const AGENT_ROWS = Array.from({ length: 12 }, (_, index) => ({
   plan: index === 11 ? '层级代理方案A' : '未设置',
   lastLogin: index === 11 ? '2026-07-20 18:16:31' : '—',
 }))
+
+export const REBATE_AGENT_ROWS = [
+  { id: 1889, account: 'rebate_child01', type: '返水代理', starLevel: '—', level: '—', siteCode: '2222', parent: 'rebate_agent88', lotteryBetRebateRate: 5.5, status: '正常', childAgents: 1, childMembers: 12, plan: '彩票返水方案', lastLogin: '2026-08-17 16:20:31' },
+  { id: 1890, account: 'rebate_child02', type: '返水代理', starLevel: '—', level: '—', siteCode: '2222', parent: '无上级代理', lotteryBetRebateRate: 6, status: '正常', childAgents: 0, childMembers: 9, plan: '彩票返水方案', lastLogin: '2026-08-17 15:48:12' },
+  { id: 1891, account: 'rebate_child03', type: '返水代理', starLevel: '—', level: '—', siteCode: '2222', parent: 'rebate_agent88', lotteryBetRebateRate: 3.8, status: '停用', childAgents: 0, childMembers: 7, plan: '彩票返水方案', lastLogin: '2026-08-16 21:05:44' },
+]
 
 export const MEMBER_ROWS = [
   { id: 1761, vip: 0, account: 'evan666', validBet: 300, winLoss: 100, balance: 800, type: '会员', parent: 'MGNB', deposit: 800, firstDeposit: 800, received: 800, registeredDeposit: 800, status: '正常', registeredAt: '2026-07-20' },

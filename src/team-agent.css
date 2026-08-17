@@ -733,3 +733,20 @@
   .negative-mode-hero-result { grid-column: 1; }
   .negative-mode-business-grid, .negative-mode-formulas, .negative-mode-flow, .negative-mode-flow.is-four-steps, .negative-mode-rule-grid, .negative-mode-scenarios { grid-template-columns: 1fr; }
 }
+
+.lottery-handicap-screen { min-width: 0; display: grid; gap: 10px; }
+.lottery-handicap-screen .ta-section-header, .lottery-handicap-screen .ta-filter-bar, .lottery-handicap-screen .ta-alert, .lottery-handicap-screen .ta-toolbar { margin-bottom: 0; }
+.lottery-handicap-screen .ta-filter-fields { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+.lottery-handicap-tags { display: flex; flex-wrap: wrap; gap: 4px; min-width: 220px; }
+.lottery-handicap-tags span { padding: 3px 7px; border: 1px solid #d7e7f5; border-radius: 3px; color: #367bad; background: #f0f8ff; font-size: 10px; }
+.lottery-handicap-multi { overflow: hidden; border: 1px solid #d8e3ed; border-radius: 4px; background: #fff; }
+.lottery-handicap-multi label { display: flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 11px; color: #53677b; font-size: 11px; font-weight: 400; }
+.lottery-handicap-multi input { accent-color: #2b98f1; }
+.lottery-handicap-multi .is-all { border-bottom: 1px solid #e3ebf2; color: #2b78b5; background: #f5faff; font-weight: 700; }
+.lottery-handicap-multi .is-all small { margin-left: auto; color: #7f91a3; font-weight: 400; }
+.lottery-handicap-multi > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px; }
+.ta-table-link.danger { color: #db5b5b; }
+@media (max-width: 1050px) {
+  .lottery-handicap-screen .ta-filter-fields { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+  .lottery-handicap-multi > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

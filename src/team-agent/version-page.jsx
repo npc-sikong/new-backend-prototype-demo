@@ -2,11 +2,28 @@ import { useState } from 'react'
 import { ApartmentOutlined, BankOutlined, MobileOutlined, SafetyCertificateOutlined, TeamOutlined } from '@ant-design/icons'
 import { Button, Tabs } from './ui'
 
+const VERSION_4_GROUPS = [
+  {
+    portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [
+      ['lotteryHandicap', '彩票ABCD盘口设置', '站点彩票赔率盘口返水配置', '代理管理新增独立“彩票ABCD盘口设置(新)”入口；可选择站点，彩票支持全选、多选或单选，维护返水比例、A/B/C/D四选一盘口、状态和生效日期，并提供配置列表查询、修改和删除。', '可按站点、彩票、盘口和状态筛选；重复的站点+彩票+盘口不可保存；返水比例必须大于0且不超过100%；删除需二次确认。', undefined, '2026-08-17'],
+      ['agents', '代理列表', '返水代理盘口、上下级与投注返水比例', '新增或修改返水代理时可选择彩票赔率盘口和上级代理。无上级时按A/B/C/D盘口固定为6%/4%/2%/1%；有上级时可输入0%，并必须严格低于对应默认值，最大分别为5.99%/3.99%/1.99%/0.99%。', '新增、修改和列表均可核对上级代理及彩票投注返水比例；切换盘口会同步默认值或收紧上限；超限、负数和无效值不可保存。', undefined, '2026-08-17'],
+    ],
+  },
+  { portal: 'site', title: '站点后台', icon: <BankOutlined />, items: [
+    ['agents', '代理列表', '本站返水代理上下级与投注返水比例', '旺财体育本站代理列表同步总控新增与修改规则：可选择返水代理上级，按A/B/C/D盘口联动6%/4%/2%/1%默认值及有上级时的严格比例上限。', '本站新增、修改和列表均展示上级代理及彩票投注返水比例；无上级固定默认值，有上级可设置0至对应最大值，超限不可保存。', undefined, '2026-08-17'],
+  ] },
+  {
+    portal: 'agent', title: '代理后台', icon: <TeamOutlined />, items: [
+      ['rebateDashboard', '返水代理类型', '返水代理专属后台与下级比例维护', '返水代理身份仍只显示八个授权模块；其代理列表同步上级代理和彩票投注返水比例。代理后台继续完全隐藏彩票赔率盘口，因此无上级时按系统默认A盘固定6.00%，有上级时可设置0.00%至5.99%。', '代理列表新增和修改可选择上级并校验比例；保存后列表展示上级和两位小数比例；所有代理后台列表与弹窗均无彩票赔率盘口，其他身份菜单不受影响。', undefined, '2026-08-17'],
+    ],
+  },
+]
+
 const VERSION_3_GROUPS = [
   {
     portal: 'master', title: '总控后台', icon: <SafetyCertificateOutlined />, items: [
       ['lotteryMemberRebate', '彩票会员返水', '彩票会员返水比例配置', '会员管理新增独立“彩票会员返水(新)”入口，可按站点、彩票名称、彩票玩法和状态查询配置；新增或修改时维护站点、彩票名称、彩票玩法、返水比例和状态，同一站点、彩票名称与玩法不得重复，并提供删除二次确认。', '可新增、修改、停用和删除配置；比例按百分比录入并保留两位小数；重复配置和无效比例不可保存；配置变化后彩票会员返水报表同步更新。'],
-      ['lotteryMemberRebateReport', '彩票会员返水报表', '会员彩票有效投注与返水查询报表', '会员管理新增独立“彩票会员返水报表(新)”入口，根据生效中的彩票会员返水配置生成会员级报表。支持日期区间、站点、会员账号、上级代理、彩票名称、彩票玩法、有效投注额区间和总返水额度区间组合查询，并提供当前筛选总计与导出。', '列表可核对日期、站点、会员、上级代理、彩票、玩法、比例、有效投注额和总返水额度；总返水额度按“有效投注额×返水比例”计算，筛选、合计和导出结果一致。'],
+      ['lotteryMemberRebateReport', '彩票会员返水报表', '会员彩票有效投注与返水区间汇总报表', '报表日期改为跨时间段统计：先按查询日期区间筛选每日数据，再将同一站点、会员账号、上级代理、彩票名称、彩票玩法和返水比例的不同天数合并为一行。有效投注额与总返水额度均按区间累计，金额筛选、列表总计和导出同步使用合并结果。', '查询2026-08-01至2026-08-08时，同一会员及玩法的不同日期只展示一行，日期列显示完整区间；区间有效投注额等于各日合计，区间总返水额度按“区间有效投注额×返水比例”计算。'],
     ],
   },
   { portal: 'site', title: '站点后台', icon: <BankOutlined />, items: [] },
@@ -133,24 +150,26 @@ const AUGUST_8_PAGES = new Set(['lotteryMemberRebate', 'lotteryMemberRebateRepor
 
 function VersionGroup({ group, navigateTo }) {
   return <section className="ta-version-group"><header><div><i>{group.icon}</i><div><h2>{group.title}</h2><span>按模块展示最新需求说明</span></div></div><b>{group.items.length} 个模块</b></header>
-    {group.items.length ? <div className="ta-version-modules">{group.items.map(([page, title, module, change, acceptance, targetPortal]) => <article className="ta-version-module" key={`${group.portal}-${page}`}>
-      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{AUGUST_8_PAGES.has(page) ? '2026-08-08' : page === 'teams' ? '2026-08-07' : JULY_29_PAGES.has(page) ? '2026-07-29' : JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15'}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
+    {group.items.length ? <div className="ta-version-modules">{group.items.map(([page, title, module, change, acceptance, targetPortal, completedAt]) => <article className="ta-version-module" key={`${group.portal}-${page}`}>
+      <div className="ta-version-module-head"><div><h3>{title}</h3><time>完成时间：{completedAt || (AUGUST_8_PAGES.has(page) ? '2026-08-08' : page === 'teams' ? '2026-08-07' : JULY_29_PAGES.has(page) ? '2026-07-29' : JULY_25_PAGES.has(page) ? '2026-07-25' : JULY_24_PAGES.has(page) ? '2026-07-24' : JULY_23_PAGES.has(page) ? '2026-07-23' : JULY_22_PAGES.has(page) ? '2026-07-22' : JULY_21_PAGES.has(page) ? '2026-07-21' : JULY_20_PAGES.has(page) ? '2026-07-20' : page === 'h5' ? '2026-07-16' : JULY_18_PAGES.has(page) ? '2026-07-18' : JULY_17_PAGES.has(page) ? '2026-07-17' : '2026-07-15')}</time></div><Button size="small" variant="ghost" onClick={() => navigateTo(targetPortal || group.portal, targetPortal ? undefined : page)}>前往页面</Button></div>
       <div className="ta-version-content"><div><b>模块说明</b><p>{module}</p></div><div><b>修改说明</b><p>{change}</p></div><div><b>功能验收</b><p>{acceptance}</p></div></div>
     </article>)}</div> : <div className="ta-version-empty">本版本该后台无新增业务模块。</div>}
   </section>
 }
 
 export function VersionRequirementsPage({ navigateTo }) {
-  const [version, setVersion] = useState('3.0')
-  const groups = version === '3.0' ? VERSION_3_GROUPS : version === '2.0' ? VERSION_2_GROUPS : VERSION_1_GROUPS
-  const meta = version === '3.0'
-    ? { eyebrow: '当前版本 · 按指令更新', title: '彩票会员返水配置与报表', description: '版本号不再按周自动更换，仅在收到明确指令后升级。3.0 新增彩票会员返水配置与联动报表两个独立会员管理入口。', seal: '当前验收', icon: <SafetyCertificateOutlined /> }
-    : version === '2.0'
+  const [version, setVersion] = useState('4.0')
+  const groups = version === '4.0' ? VERSION_4_GROUPS : version === '3.0' ? VERSION_3_GROUPS : version === '2.0' ? VERSION_2_GROUPS : VERSION_1_GROUPS
+  const meta = version === '4.0'
+    ? { eyebrow: '当前版本 · 按指令更新', title: '彩票盘口与返水代理演示原型', description: '版本号仅在收到明确指令后升级。4.0新增彩票ABCD盘口配置、返水代理类型及代理后台返水代理最小授权菜单。', seal: '当前验收', icon: <SafetyCertificateOutlined /> }
+    : version === '3.0'
+      ? { eyebrow: '历史版本', title: '彩票会员返水配置与报表', description: '3.0新增彩票会员返水配置与联动报表两个独立会员管理入口，并支持跨日期区间合并统计。', seal: '历史归档', icon: <SafetyCertificateOutlined /> }
+      : version === '2.0'
       ? { eyebrow: '历史版本', title: '业务运营与团队代理演示原型', description: '总控后台保留会员提现流水查询；代理后台支持四种身份，并新增独立第五入口“H5代理后台”，以暗夜金融风将现有代理业务完整适配为移动端体验，原四门户与原 H5 前端保持不变。', seal: '历史归档', icon: <ApartmentOutlined /> }
       : { eyebrow: '历史版本', title: 'H5 提现与后台切换演示', description: '保留后台到 H5 前端的切换入口，以及手机端比例的钱包概览、提现方式、取款账户和金额输入演示。', seal: '历史归档', icon: <MobileOutlined /> }
   return <div className="ta-version-page">
     <div className="ta-version-hero"><div><span>{version} 版本 · {meta.eyebrow}</span><h1>{meta.title}</h1><p>{meta.description}</p></div><div className="ta-version-seal">{meta.icon}<strong>{version}</strong><span>{meta.seal}</span></div></div>
-    <Tabs items={[{ value: '3.0', label: '3.0 · 当前版本' }, { value: '2.0', label: '2.0 · 历史版本' }, { value: '1.0', label: '1.0 · 历史版本' }]} active={version} onChange={setVersion} />
+    <Tabs items={[{ value: '4.0', label: '4.0 · 当前版本' }, { value: '3.0', label: '3.0 · 历史版本' }, { value: '2.0', label: '2.0 · 历史版本' }, { value: '1.0', label: '1.0 · 历史版本' }]} active={version} onChange={setVersion} />
     <div className="ta-version-groups">{groups.map((group) => <VersionGroup key={`${version}-${group.portal}`} group={group} navigateTo={navigateTo} />)}</div>
     {version === '2.0' && <section className="ta-version-roadmap"><h2>后续增强能力</h2><p>以下能力只作为后续路线图，不计入本次已完成验收：批量开副线、内部结算模板、主线自有资金提前结算、方案计算预演、阶梯奖励和历史余额移交。</p></section>}
   </div>

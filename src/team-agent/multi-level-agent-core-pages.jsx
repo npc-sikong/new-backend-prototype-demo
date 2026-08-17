@@ -16,7 +16,7 @@ import { Alert, Button, DataTable, Field, FormGrid, Input, Modal, StatusTag, Tab
 
 const toneClass = (tone) => `ml-tone-${tone || 'default'}`
 
-const DASHBOARD_ROLE_ACCOUNTS = { main: 'gaodashang', secondary: 'WC002', independent: 'dailiwc001' }
+const DASHBOARD_ROLE_ACCOUNTS = { main: 'gaodashang', secondary: 'WC002', independent: 'dailiwc001', rebate: 'rebate_agent88' }
 
 export function dashboardGroupsForRole(data, role) {
   if (role === 'multiLevel') return DASHBOARD_GROUPS
@@ -65,7 +65,7 @@ export function MultiLevelDashboardPage({ role = 'multiLevel', onToast }) {
   const { data } = useTeamAgent()
   const [period, setPeriod] = useState('2026-07-21')
   const groups = useMemo(() => dashboardGroupsForRole(data, role), [data, role])
-  const scopeLabel = role === 'main' ? '当前团队' : role === 'secondary' ? '当前副线' : role === 'independent' ? '当前单线' : '当前多层级代理授权下级'
+  const scopeLabel = role === 'main' ? '当前团队' : role === 'secondary' ? '当前副线' : role === 'independent' ? '当前单线' : role === 'rebate' ? '当前返水代理及授权下级' : '当前多层级代理授权下级'
   return <section className="ml-screen ml-dashboard-screen">
     <div className="ml-screen-toolbar"><div className="ml-compact-tabs"><button className="active">代理数据看板</button><button onClick={() => onToast('数据筛选项已打开')}>数据筛选⌄</button></div><Input type="date" value={period} onChange={setPeriod} /></div>
     <Alert title="数据说明">这里展示{scopeLabel}范围内的代理、一般为累计数据，只有在代理新增数据时会每天更新；不建议通过日期筛选来更新，白底卡片数据会根据日期筛选范围同步变化。</Alert>

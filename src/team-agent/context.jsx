@@ -1,10 +1,11 @@
 import { createContext, useContext, useMemo, useState } from 'react'
 import { INITIAL_STATE } from './data'
+import { withVersion4Data } from './version-4-seed'
 
 const TeamAgentContext = createContext(null)
 
 function cloneInitialState() {
-  return structuredClone(INITIAL_STATE)
+  return withVersion4Data(structuredClone(INITIAL_STATE))
 }
 
 function timestamp() {
@@ -341,6 +342,8 @@ export function TeamAgentProvider({ children }) {
       lineId,
       effectiveCycle: targetTeam?.startCycle || payload.effectiveCycle || '—',
       plan: payload.plan || (payload.agentType === '星级代理' ? '星级返佣方案' : '多层级返佣方案'),
+      oddsHandicap: payload.agentType === '返水代理' ? payload.oddsHandicap || 'A盘' : '—',
+      lotteryBetRebateRate: payload.agentType === '返水代理' ? Number(payload.lotteryBetRebateRate ?? ({ 'A盘': 6, 'B盘': 4, 'C盘': 2, 'D盘': 1 }[payload.oddsHandicap] || 6)) : undefined,
       carryAllFees: payload.carryAllFees || '否',
       remark: payload.remark || '',
       lastLogin: '—',

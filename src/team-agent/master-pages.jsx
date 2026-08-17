@@ -76,7 +76,7 @@ function AgentSwitch({ checked, onChange, note }) {
 function AgentFormDivider() {
   return <div className="agent-modal-divider" />
 }
-const AGENT_TYPE_OPTIONS = ['多层级代理', '星级代理', '团队代理']
+const AGENT_TYPE_OPTIONS = ['多层级代理', '星级代理', '团队代理', '返水代理']; const LOTTERY_BET_REBATE_LIMITS = { 'A盘': 6, 'B盘': 4, 'C盘': 2, 'D盘': 1 }; const rebateLimitOf = (handicap) => LOTTERY_BET_REBATE_LIMITS[handicap] || 6; const hasRebateParent = (parent) => Boolean(parent && parent !== '无上级代理'); const resolvedRebateRate = (formValue) => hasRebateParent(formValue.parent) ? Number(formValue.lotteryBetRebateRate) : rebateLimitOf(formValue.oddsHandicap); const rebateRateIssue = (formValue) => { if (formValue.agentType !== '返水代理' || !hasRebateParent(formValue.parent)) return ''; const limit = rebateLimitOf(formValue.oddsHandicap), rate = Number(formValue.lotteryBetRebateRate); return !Number.isFinite(rate) || rate < 0 || rate >= limit ? `有上级代理时，${formValue.oddsHandicap}彩票投注返水比例必须为0.00%至${(limit - 0.01).toFixed(2)}%` : '' }
 const TEAM_AGENT_TYPE_OPTIONS = ['官方代理', '普通代理']
 const TEAM_AGENT_ADD_IDENTITY_OPTIONS = ['团队负责人', '副线']
 const TEAM_AGENT_IDENTITY_OPTIONS = ['团队负责人', '副线']
@@ -116,7 +116,7 @@ function normalizeTeamIdentity(identity) {
   return identity || '副线'
 }
 function teamAgentPayload(type, identity = '团队负责人', plan = NEGATIVE_PROFIT_PLAN, teamAgentType = '官方代理', canOpenSecondary = true) { const normalizedIdentity = normalizeTeamIdentity(identity)
-  if (type !== '团队代理') return { settlementMode: '原代理模式', identity: '—', teamAgentType: '—', plan: plan || (type === '星级代理' ? '星级返佣方案' : '多层级返佣方案') }
+  if (type !== '团队代理') return { settlementMode: type === '返水代理' ? '返水代理' : '原代理模式', identity: '—', teamAgentType: '—', plan: plan || (type === '返水代理' ? '彩票返水方案' : type === '星级代理' ? '星级返佣方案' : '多层级返佣方案') }
   return {
     settlementMode: normalizedIdentity === '团队负责人' && canOpenSecondary === false ? '单线代理' : '团队模式',
     identity: normalizedIdentity,
@@ -126,7 +126,7 @@ function teamAgentPayload(type, identity = '团队负责人', plan = NEGATIVE_PR
 }
 function planOptionsForAgentType(type, teamOptions = []) {
   if (type === '团队代理') return [NEGATIVE_PROFIT_PLAN]
-  if (type === '星级代理') return STAR_PLAN_OPTIONS
+  if (type === '星级代理') return STAR_PLAN_OPTIONS; if (type === '返水代理') return ['彩票返水方案']
   return LEGACY_PLAN_OPTIONS
 }
 function defaultPlanForAgentType(type, teamOptions = []) {
@@ -176,7 +176,7 @@ function agentRank(agent) {
   return ''
 }
 function commissionRateHint(agentType, rank) {
-  if (agentType === '团队代理') return `按${NEGATIVE_PROFIT_PLAN}计算`
+  if (agentType === '团队代理') return `按${NEGATIVE_PROFIT_PLAN}计算`; if (agentType === '返水代理') return '按彩票赔率盘口配置计算'
   if (agentType === '星级代理') return '30.00%'
   const level = Number(String(rank || '').match(/\d+/)?.[0] || 6)
   return `${Math.min(80, 10 + level * 5).toFixed(2)}%`
@@ -188,7 +188,7 @@ function withCurrentOption(options, value) {
 function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' }) {
   const { data, addAgent, updateAgent, createTeam } = useTeamAgent()
   const emptyFilters = { id: '', account: '', site: '', agentType: '', status: '', google: '', registeredFrom: '' }
-  const defaultAgentForm = { account: '', password: '', site: '旺财体育', agentType: '多层级代理', teamAgentType: '官方代理', identity: '团队负责人', teamName: '', canOpenSecondary: true, targetTeamId: '', parent: '无上级代理', recommender: '—', plan: '多层级返佣方案', carryAllFees: '否', status: '启用', remark: '' }
+  const defaultAgentForm = { account: '', password: '', site: '旺财体育', agentType: '多层级代理', oddsHandicap: 'A盘', lotteryBetRebateRate: '6.00', teamAgentType: '官方代理', identity: '团队负责人', teamName: '', canOpenSecondary: true, targetTeamId: '', parent: '无上级代理', recommender: '—', plan: '多层级返佣方案', carryAllFees: '否', status: '启用', remark: '' }
   const [filters, setFilters] = useState(emptyFilters)
   const [showAdd, setShowAdd] = useState(false)
   const [modal, setModal] = useState(null)
@@ -240,6 +240,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
         account: target.account, agentName: target.agentName || target.account,
         site: target.site || '旺财体育',
         agentType: typeValue,
+        oddsHandicap: target.oddsHandicap || 'A盘', lotteryBetRebateRate: Number(target.lotteryBetRebateRate ?? rebateLimitOf(target.oddsHandicap)).toFixed(2),
         teamAgentType: teamAgentTypeDisplay(target) === '-' ? '官方代理' : teamAgentTypeDisplay(target),
         identity,
         rank: agentRank(target) || defaultRankForAgentType(typeValue),
@@ -282,14 +283,14 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
       onToast(form.targetTeamId ? '副线代理身份必须与所选团队一致' : '请选择副线要加入的团队', 'error')
       return
     }
-    const identity = form.agentType === '团队代理' ? form.identity : form.identity
+    const issue = rebateRateIssue(form); if (issue) return onToast(issue, 'error'); const identity = form.agentType === '团队代理' ? form.identity : form.identity
     const targetTeam = data.teams.find((team) => team.id === form.targetTeamId)
     const teamAgentType = form.teamAgentType
-    const parent = identity === '副线' ? targetTeam?.mainAgent : identity === '单线代理' ? form.parent : '无上级代理'
+    const parent = identity === '副线' ? targetTeam?.mainAgent : form.agentType === '返水代理' ? form.parent : identity === '单线代理' ? form.parent : '无上级代理'
     const parentAgent = data.agents.find((agent) => agent.account === parent)
     const recommender = form.agentType === '团队代理' ? form.recommender || '—' : '—'
     const unit = targetTeam?.name || (identity === '团队负责人' ? form.teamName.trim() : identity === '单线代理' ? `${form.account.trim()}单线` : '—')
-    const result = addAgent({ ...form, identity, teamAgentType, parent, parentId: parentAgent?.id || '—', recommender, unit, effectiveCycle: targetTeam?.startCycle || '—', ...teamAgentPayload(form.agentType, identity, form.plan, teamAgentType, form.canOpenSecondary) })
+    const result = addAgent({ ...form, identity, teamAgentType, parent, parentId: parentAgent?.id || '—', recommender, unit, lotteryBetRebateRate: form.agentType === '返水代理' ? resolvedRebateRate(form) : undefined, effectiveCycle: targetTeam?.startCycle || '—', ...teamAgentPayload(form.agentType, identity, form.plan, teamAgentType, form.canOpenSecondary) })
     if (!result.ok) return onToast(result.message, 'error')
     if (form.agentType === '团队代理' && identity === '团队负责人') {
       const teamResult = createTeam({ name: form.teamName, mainAgent: form.account, mainId: result.id, teamType: teamAgentType, site: form.site, plan: form.plan, canOpenSecondary: form.canOpenSecondary })
@@ -308,7 +309,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
       onToast('请填写团队名称', 'error')
       return
     }
-    const targetTeam = data.teams.find((team) => team.id === editForm.targetTeamId)
+    const issue = rebateRateIssue(editForm); if (issue) return onToast(issue, 'error'); const targetTeam = data.teams.find((team) => team.id === editForm.targetTeamId)
     const lockedSecondaryParent = targetTeam?.mainAgent || selected.parent || '无上级代理'
     const payload = {
       agentType: editForm.agentType, agentName: editForm.agentName || selected.agentName || selected.account,
@@ -320,6 +321,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
       status: editForm.status || '启用',
       remark: editForm.remark || '',
       carryAllFees: editForm.carryAllFees || '否',
+      oddsHandicap: editForm.agentType === '返水代理' ? editForm.oddsHandicap || 'A盘' : '—', lotteryBetRebateRate: editForm.agentType === '返水代理' ? resolvedRebateRate(editForm) : undefined,
       migratePendingCost: editForm.migratePendingCost || '否',
       teamName: editForm.teamName, canOpenSecondary: editForm.canOpenSecondary,
       ...teamAgentPayload(editForm.agentType, editForm.identity, editForm.plan, editForm.teamAgentType, editForm.canOpenSecondary),
@@ -330,11 +332,11 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
   }
 
   function changeAddAgentType(value) {
-    setForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? '团队负责人' : current.identity, targetTeamId: '', parent: '无上级代理', recommender: '—' }))
+    setForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? '团队负责人' : current.identity, targetTeamId: '', parent: '无上级代理', lotteryBetRebateRate: value === '返水代理' ? rebateLimitOf(current.oddsHandicap).toFixed(2) : current.lotteryBetRebateRate, recommender: '—' }))
   }
 
   function changeEditAgentType(value) {
-    setEditForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? (TEAM_AGENT_IDENTITY_OPTIONS.includes(current.identity) ? current.identity : '团队负责人') : current.identity, rank: defaultRankForAgentType(value) }))
+    setEditForm((current) => ({ ...current, agentType: value, plan: defaultPlanForAgentType(value, teamPlanOptions), teamAgentType: value === '团队代理' ? current.teamAgentType || '官方代理' : current.teamAgentType, identity: value === '团队代理' ? (TEAM_AGENT_IDENTITY_OPTIONS.includes(current.identity) ? current.identity : '团队负责人') : current.identity, parent: value === '返水代理' ? current.parent || '无上级代理' : current.parent, lotteryBetRebateRate: value === '返水代理' ? (hasRebateParent(current.parent) ? (rebateLimitOf(current.oddsHandicap) - 0.01).toFixed(2) : rebateLimitOf(current.oddsHandicap).toFixed(2)) : current.lotteryBetRebateRate, rank: defaultRankForAgentType(value) }))
   }
 
   const columns = [
@@ -344,10 +346,11 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     { key: 'agentIdentity', label: '代理身份', render: (_, row) => <StatusTag tone="blue">{agentIdentityDisplay(row)}</StatusTag> },
     { key: 'registeredAt', label: '代理注册时间' },
     { key: 'agentType', label: '代理类型', render: (_, row) => <StatusTag tone={normalizeAgentType(row) === '团队代理' ? 'green' : 'orange'}>{normalizeAgentType(row)}</StatusTag> },
+    { key: 'oddsHandicap', label: '彩票赔率盘口', render: (value, row) => normalizeAgentType(row) === '返水代理' ? <StatusTag tone="blue">{value || 'A盘'}</StatusTag> : '—' },
     recommenderColumn(),
     { key: 'level', label: '代理层级', render: (_, row) => levelDisplay(row, data.teams) },
     { key: 'site', label: '站点编码', render: (value) => siteDisplay(value) },
-    { key: 'parent', label: '上级代理', render: (value) => value === '无上级代理' ? '-' : value },
+    { key: 'parent', label: '上级代理', render: (value) => value === '无上级代理' ? '-' : value }, { key: 'lotteryBetRebateRate', label: '彩票投注返水比例', render: (value, row) => normalizeAgentType(row) === '返水代理' ? `${Number(value ?? rebateLimitOf(row.oddsHandicap)).toFixed(2)}%` : '—' },
     { key: 'status', label: '代理状态', render: (value) => <StatusTag tone={value === '启用' ? 'green' : 'red'}>{value === '启用' ? '正常' : '停用'}</StatusTag> },
     { key: 'google', label: '谷歌验证', render: () => <StatusTag>未绑定</StatusTag> },
     { key: 'subAgents', label: '下属代理', render: (value, row) => <ActionLink disabled={!value} onClick={() => openModal('subAgents', row)}>{value}</ActionLink> },
@@ -357,7 +360,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
     { key: 'balance', label: '代理钱包余额', render: (value) => Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
     { key: 'lastLogin', label: '最后登录', render: (value) => value || '-' },
     { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><ActionLink onClick={() => openModal('edit', row)}><EditOutlined /> 修改</ActionLink><ActionLink onClick={() => openModal('password', row)}><LockOutlined /> 修改密码</ActionLink><ActionLink onClick={() => openModal('withdrawPassword', row)}><LockOutlined /> 重置取款密码</ActionLink></div> },
-  ].filter((column) => portal === 'master' || column.key !== 'site').filter((column) => portal !== 'agent' || !['select', 'google', 'action'].includes(column.key))
+  ].filter((column) => portal === 'master' || column.key !== 'site').filter((column) => portal !== 'agent' || !['select', 'google', 'oddsHandicap', 'action'].includes(column.key))
   return <>
     <div className="agent-manage-screen">
       <SectionHeader title="代理列表" />
@@ -388,6 +391,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
           <Field label="站点编码" required><Select value={form.site} onChange={(value) => setForm({ ...form, site: value, targetTeamId: '' })} placeholder="请选择站点" options={SITE_OPTIONS} /></Field>
           <Field label="佣金方案" required><Select value={form.plan} onChange={(value) => setForm({ ...form, plan: value })} placeholder="请选择佣金方案" options={addPlanOptions} /></Field>
           <Field label="代理类型" required><Select value={form.agentType} onChange={changeAddAgentType} options={AGENT_TYPE_OPTIONS} /></Field>
+          {form.agentType === '返水代理' && <><Field label="彩票赔率盘口" required><Select value={form.oddsHandicap} onChange={(value) => setForm((current) => { const limit = rebateLimitOf(value); return { ...current, oddsHandicap: value, lotteryBetRebateRate: hasRebateParent(current.parent) ? Math.min(Number(current.lotteryBetRebateRate) || 0, limit - 0.01).toFixed(2) : limit.toFixed(2) } })} options={['A盘', 'B盘', 'C盘', 'D盘']} /></Field><Field label="上级代理"><Select value={form.parent} onChange={(value) => setForm((current) => ({ ...current, parent: value, lotteryBetRebateRate: hasRebateParent(value) ? Math.min(Number(current.lotteryBetRebateRate) || 0, rebateLimitOf(current.oddsHandicap) - 0.01).toFixed(2) : rebateLimitOf(current.oddsHandicap).toFixed(2) }))} options={parentOptions} /></Field><Field label="彩票投注返水比例" required help={hasRebateParent(form.parent) ? `可设置0.00%至${(rebateLimitOf(form.oddsHandicap) - 0.01).toFixed(2)}%` : `${form.oddsHandicap}无上级代理，固定默认${rebateLimitOf(form.oddsHandicap).toFixed(2)}%`}><Input type="number" min="0" max={(rebateLimitOf(form.oddsHandicap) - 0.01).toFixed(2)} step="0.01" value={form.lotteryBetRebateRate} disabled={!hasRebateParent(form.parent)} onChange={(value) => setForm({ ...form, lotteryBetRebateRate: value })} /></Field></>}
           {form.agentType === '团队代理' && <Field label="代理身份" required><Select value={form.teamAgentType} onChange={(value) => setForm({ ...form, teamAgentType: value, targetTeamId: '' })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field>}
           {form.agentType === '团队代理' && <Field label="代理层级" required><Select value={form.identity} onChange={(value) => setForm({ ...form, identity: value, targetTeamId: value === '副线' ? form.targetTeamId : '' })} options={TEAM_AGENT_ADD_IDENTITY_OPTIONS} /></Field>}
           {form.agentType === '团队代理' && form.identity === '团队负责人' && <><Field label="是否能开副线"><AgentSwitch checked={form.canOpenSecondary} onChange={(checked) => setForm({ ...form, canOpenSecondary: checked })} note="不能开副线的团队负责人类型为单线" /></Field><Field label="团队名称" required><Input value={form.teamName} onChange={(value) => setForm({ ...form, teamName: value })} placeholder="请输入团队名称" /></Field></>}
@@ -415,9 +419,9 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
           <Field label="代理类型" required><Select value={editForm.agentType} onChange={changeEditAgentType} options={AGENT_TYPE_OPTIONS} /></Field>
           {editForm.agentType === '团队代理'
             ? <><Field label="代理身份" required><Select value={editForm.teamAgentType} onChange={(value) => setEditForm({ ...editForm, teamAgentType: value, targetTeamId: '' })} options={TEAM_AGENT_TYPE_OPTIONS} /></Field><Field label="代理层级" required><Select value={editForm.identity} onChange={(value) => setEditForm({ ...editForm, identity: value, targetTeamId: '' })} options={TEAM_AGENT_IDENTITY_OPTIONS} /></Field><Field label="代理名称" required><Input value={editForm.agentName || ''} onChange={(value) => setEditForm({ ...editForm, agentName: value })} placeholder={editForm.identity === '副线' ? '请输入副线代理名称' : '请输入代理名称'} /></Field>{editForm.identity === '副线' && <>{isSingleLevelAgent(selected) && <Field label="加入站点" required><Select value={editForm.joinSite} onChange={(value) => setEditForm({ ...editForm, joinSite: value, targetTeamId: '' })} options={SITE_OPTIONS} /></Field>}<Field label="加入团队" required><Select value={editForm.targetTeamId} onChange={(value) => setEditForm({ ...editForm, targetTeamId: value })} placeholder="请选择同身份团队" options={joinTeamOptions} /></Field></>}{editForm.identity === '团队负责人' && <><Field label="是否能开副线"><AgentSwitch checked={editForm.canOpenSecondary !== false} onChange={(checked) => setEditForm({ ...editForm, canOpenSecondary: checked })} note="不能开副线的团队负责人类型为单线" /></Field><Field label="团队名称" required><Input value={editForm.teamName || ''} onChange={(value) => setEditForm({ ...editForm, teamName: value })} placeholder="请输入团队名称" /></Field></>}</>
-            : <Field label="代理层级" required><Select value={editForm.rank} onChange={(value) => setEditForm({ ...editForm, rank: value })} options={editForm.agentType === '星级代理' ? STAR_LEVEL_OPTIONS : LEVEL_OPTIONS} /></Field>}
+            : editForm.agentType === '返水代理' ? <><Field label="彩票赔率盘口" required><Select value={editForm.oddsHandicap || 'A盘'} onChange={(value) => setEditForm((current) => { const limit = rebateLimitOf(value); return { ...current, oddsHandicap: value, lotteryBetRebateRate: hasRebateParent(current.parent) ? Math.min(Number(current.lotteryBetRebateRate) || 0, limit - 0.01).toFixed(2) : limit.toFixed(2) } })} options={['A盘', 'B盘', 'C盘', 'D盘']} /></Field><Field label="上级代理"><Select value={editForm.parent} onChange={(value) => setEditForm((current) => ({ ...current, parent: value, lotteryBetRebateRate: hasRebateParent(value) ? Math.min(Number(current.lotteryBetRebateRate) || 0, rebateLimitOf(current.oddsHandicap) - 0.01).toFixed(2) : rebateLimitOf(current.oddsHandicap).toFixed(2) }))} options={editParentOptions} /></Field><Field label="彩票投注返水比例" required help={hasRebateParent(editForm.parent) ? `可设置0.00%至${(rebateLimitOf(editForm.oddsHandicap) - 0.01).toFixed(2)}%` : `${editForm.oddsHandicap}无上级代理，固定默认${rebateLimitOf(editForm.oddsHandicap).toFixed(2)}%`}><Input type="number" min="0" max={(rebateLimitOf(editForm.oddsHandicap) - 0.01).toFixed(2)} step="0.01" value={editForm.lotteryBetRebateRate} disabled={!hasRebateParent(editForm.parent)} onChange={(value) => setEditForm({ ...editForm, lotteryBetRebateRate: value })} /></Field></> : <Field label="代理层级" required><Select value={editForm.rank} onChange={(value) => setEditForm({ ...editForm, rank: value })} options={editForm.agentType === '星级代理' ? STAR_LEVEL_OPTIONS : LEVEL_OPTIONS} /></Field>}
           {editForm.agentType === '团队代理' && <Field label="推荐人"><Select value={editForm.recommender} onChange={(value) => setEditForm({ ...editForm, recommender: value })} options={editRecommenderOptions} /></Field>}
-          <Field label="返佣比例"><div className="agent-static-value">{commissionRateHint(editForm.agentType, editForm.rank)} <small>站点上限：80.00%，代理返佣必须低于站点返佣</small></div></Field>
+          <Field label="返佣比例"><div className="agent-static-value">{commissionRateHint(editForm.agentType, editForm.rank)} {editForm.agentType !== '返水代理' && <small>站点上限：80.00%，代理返佣必须低于站点返佣</small>}</div></Field>
         </FormGrid>
         <AgentFormDivider />
         <FormGrid columns={1}>
@@ -427,7 +431,7 @@ function MasterAgentsPage({ navigate, onToast, portal = 'master', role = 'main' 
         <FormGrid columns={1}>
           {editForm.agentType === '团队代理' && editForm.identity === '副线'
             ? <Field label="上级代理" help="副线直属上级由所属团队负责人自动确定"><Input value={data.teams.find((team) => team.id === editForm.targetTeamId)?.mainAgent || editForm.parent || '无上级代理'} disabled /></Field>
-            : <Field label="上级代理"><Select value={editForm.parent} onChange={(value) => setEditForm({ ...editForm, parent: value })} options={editParentOptions} /></Field>}
+            : editForm.agentType === '返水代理' ? null : <Field label="上级代理"><Select value={editForm.parent} onChange={(value) => setEditForm({ ...editForm, parent: value })} options={editParentOptions} /></Field>}
           <Field label="是否迁移本期未结算费用"><AgentRadioGroup value={editForm.migratePendingCost} onChange={(value) => setEditForm({ ...editForm, migratePendingCost: value })} options={['是', '否']} /></Field>
           <Field label="代理状态" required><AgentRadioGroup value={editForm.status} onChange={(value) => setEditForm({ ...editForm, status: value })} options={[{ value: '启用', label: '正常' }, { value: '停用', label: '停用' }]} /></Field>
           <Field label="代理备注"><textarea className="ta-input agent-remark" value={editForm.remark || ''} onChange={(event) => setEditForm({ ...editForm, remark: event.target.value })} placeholder="请输入代理备注" /></Field>

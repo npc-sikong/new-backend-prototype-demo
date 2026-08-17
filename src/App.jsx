@@ -25,8 +25,10 @@ import { MasterPage } from './team-agent/master-pages'
 import { MultiLevelAgentPage } from './team-agent/multi-level-agent-pages'
 import { NegativeProfitModeGuidePage } from './team-agent/negative-profit-mode-guide-page'
 import { LOTTERY_REBATE_NOTES, LotteryMemberRebatePage, LotteryMemberRebateReportPage, LotteryRebateProvider, useLotteryRebate } from './team-agent/lottery-rebate-pages'
+import { LotteryHandicapProvider, LotteryHandicapSettingsPage, useLotteryHandicap } from './team-agent/lottery-handicap-pages'
 import { NotesDrawer, PageSummary } from './team-agent/ui'
 import { VersionRequirementsPage } from './team-agent/version-page'
+import { version4NoteFor } from './team-agent/version-4-notes'
 import { H5AgentBackend } from './h5-agent/H5AgentBackend'
 import { SiteListPage } from './site-management/site-list-page'
 import { SITE_MANAGEMENT_NOTES } from './site-management/site-management-notes'
@@ -42,14 +44,14 @@ const PORTALS = [
 ]
 
 const PORTAL_META = {
-  master: { title: '游戏总控管理系统', suffix: '业务原型 3.0', user: '若依', icon: SafetyCertificateOutlined },
+  master: { title: '游戏总控管理系统', suffix: '业务原型 4.0', user: '若依', icon: SafetyCertificateOutlined },
   site: { title: '站点运营管理后台', suffix: '旺财体育', user: '站点运营', icon: BankOutlined },
   agent: { title: '代理经营管理后台', suffix: '团队代理', user: 'gaodashang', icon: TeamOutlined },
 }
 
 const PAGE_META = {
   master: {
-    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', siteList: '站点列表', memberLockedFlow: '会员提现流水查询', lotteryMemberRebate: '彩票会员返水', lotteryMemberRebateReport: '彩票会员返水报表', agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', rebatePlans: '返佣方案', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理', revenue: '代理收益看板',
+    version: '版本需求说明', negativeProfitModeGuide: '负盈利模式说明', siteList: '站点列表', memberLockedFlow: '会员提现流水查询', lotteryMemberRebate: '彩票会员返水', lotteryMemberRebateReport: '彩票会员返水报表', lotteryHandicap: '彩票ABCD盘口设置', agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', rebatePlans: '返佣方案', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理', revenue: '代理收益看板',
   },
   site: {
     agents: '代理列表', cycle: '结算周期设置', negativeProfit: '负盈利代理佣金结算', negativeProfitReport: '负盈利代理佣金报表', teams: '团队代理管理',
@@ -75,6 +77,7 @@ const MASTER_NAV = [
   ] },
   { id: 'agent-group', label: '代理管理', mark: '改', icon: ApartmentOutlined, children: [
     { id: 'agents', label: '代理列表', mark: '改', icon: UserOutlined },
+    { id: 'lotteryHandicap', label: '彩票ABCD盘口设置', mark: '新', icon: SettingOutlined },
     { id: 'cycle', label: '结算周期设置', mark: '改', icon: SettingOutlined },
     { id: 'negativeProfit', label: '负盈利代理佣金结算', mark: '新', icon: BarChartOutlined },
     { id: 'rebatePlans', label: '返佣方案', mark: '改', icon: SettingOutlined },
@@ -127,6 +130,24 @@ const MULTI_LEVEL_AGENT_NAV = [
   ] },
 ]
 
+const REBATE_AGENT_NAV = [
+  { id: 'mlDashboard', label: '代理数据看板', icon: BarChartOutlined },
+  { id: 'mlProfile', label: '个人中心', icon: UserOutlined },
+  { id: 'mlFinance', label: '财务中心', icon: WalletOutlined },
+  { id: 'mlAgents', label: '代理列表', icon: ApartmentOutlined },
+  { id: 'mlMembers', label: '会员列表', icon: TeamOutlined },
+  { id: 'mlBetRecords', label: '投注记录', icon: FileSearchOutlined },
+  { id: 'mlAccountChanges', label: '账变流水记录', icon: FileTextOutlined },
+  { id: 'mlMemberFunds', label: '会员资金记录', icon: WalletOutlined },
+]
+
+function portalMetaFor(portal, agentRole) {
+  if (portal !== 'agent') return PORTAL_META[portal]
+  if (agentRole === 'multiLevel') return { ...PORTAL_META.agent, suffix: '多层级代理' }
+  if (agentRole === 'rebate') return { ...PORTAL_META.agent, suffix: '返水代理', user: 'rebate_agent88' }
+  return PORTAL_META.agent
+}
+
 function PortalSwitch({ active, onChange }) {
   return <div className="portal-switch" aria-label="后台切换">{PORTALS.map((item) => {
     const PortalIcon = item.icon
@@ -135,7 +156,7 @@ function PortalSwitch({ active, onChange }) {
 }
 
 function Sidebar({ portal, page, agentRole, onNavigate }) {
-  const portalMeta = portal === 'agent' && agentRole === 'multiLevel' ? { ...PORTAL_META.agent, suffix: '多层级代理' } : PORTAL_META[portal]
+  const portalMeta = portalMetaFor(portal, agentRole)
   const BrandIcon = portalMeta.icon
   const nav = portal === 'master'
     ? MASTER_NAV
@@ -143,7 +164,9 @@ function Sidebar({ portal, page, agentRole, onNavigate }) {
       ? SITE_NAV
       : agentRole === 'multiLevel'
         ? MULTI_LEVEL_AGENT_NAV
-        : AGENT_NAV.filter((item) => (item.id !== 'agents' || agentRole === 'main')
+        : agentRole === 'rebate'
+          ? REBATE_AGENT_NAV
+          : AGENT_NAV.filter((item) => (item.id !== 'agents' || agentRole === 'main')
           && (item.id !== 'reversal' || agentRole !== 'secondary'))
   return <aside className="sidebar ta-sidebar"><div className="brand"><span className="brand-mark"><BrandIcon /></span><span>{portalMeta.title}</span></div><div className="ta-brand-suffix">{portalMeta.suffix}</div><nav>
     {nav.map((item) => {
@@ -160,6 +183,7 @@ function Sidebar({ portal, page, agentRole, onNavigate }) {
 function PrototypeApp() {
   const { resetDemo: resetState } = useTeamAgent()
   const { resetLotteryRebates } = useLotteryRebate()
+  const { resetLotteryHandicaps } = useLotteryHandicap()
   const [portal, setPortal] = useState('master')
   const [lastAdminPortal, setLastAdminPortal] = useState('master')
   const [pages, setPages] = useState({ master: 'teams', site: 'agents', agent: 'agents' })
@@ -187,7 +211,10 @@ function PrototypeApp() {
     }
     setPortal(nextPortal)
     setLastAdminPortal(nextPortal)
-    if (nextPortal === 'agent' && nextPage?.startsWith('ml') && !SHARED_AGENT_PAGES.has(nextPage)) {
+    if (nextPortal === 'agent' && nextPage === 'rebateDashboard') {
+      setAgentRole('rebate')
+      setMultiLevelPage('mlDashboard')
+    } else if (nextPortal === 'agent' && nextPage?.startsWith('ml') && !SHARED_AGENT_PAGES.has(nextPage)) {
       setAgentRole('multiLevel')
       setMultiLevelPage(nextPage)
     } else if (nextPage) setPages((current) => ({ ...current, [nextPortal]: nextPage }))
@@ -197,6 +224,7 @@ function PrototypeApp() {
   function resetDemo() {
     resetState()
     resetLotteryRebates()
+    resetLotteryHandicaps()
     notify('演示数据已恢复为初始状态')
   }
 
@@ -211,15 +239,17 @@ function PrototypeApp() {
     {toast && <div className={`toast ta-toast-${toast.tone}`}>{toast.message}</div>}
   </>
 
-  const selectedPage = portal === 'agent' && agentRole === 'multiLevel' ? multiLevelPage : pages[portal]
+  const selectedPage = portal === 'agent' && ['multiLevel', 'rebate'].includes(agentRole) ? multiLevelPage : pages[portal]
   const currentPage = portal === 'agent' && ((['secondary', 'independent'].includes(agentRole) && selectedPage === 'agents')
     || (agentRole === 'secondary' && selectedPage === 'reversal'))
     ? 'mlDashboard'
     : selectedPage
   const page = PAGE_META[portal][currentPage] ? currentPage : DEFAULT_PAGES[portal]
-  const title = PAGE_META[portal][page]
-  const note = LOTTERY_REBATE_NOTES[`${portal}:${page}`] || SITE_MANAGEMENT_NOTES[`${portal}:${page}`] || PAGE_NOTES[`${portal}:${page}`]
-  const portalMeta = portal === 'agent' && agentRole === 'multiLevel' ? { ...PORTAL_META.agent, suffix: '多层级代理' } : PORTAL_META[portal]
+  const title = portal === 'agent' && agentRole === 'rebate' && page === 'mlAccountChanges' ? '账变流水记录' : PAGE_META[portal][page]
+  const noteKey = `${portal}:${page}`
+  const baseNote = LOTTERY_REBATE_NOTES[noteKey] || SITE_MANAGEMENT_NOTES[noteKey] || PAGE_NOTES[noteKey]
+  const note = version4NoteFor(noteKey, baseNote, agentRole)
+  const portalMeta = portalMetaFor(portal, agentRole)
   const navigateFromPage = (nextPage, target) => {
     if (nextPage === 'teamDetails' && target) setTeamDetailTargets((current) => ({ ...current, [portal]: target }))
     navigateTo(portal, nextPage === 'teamDetails' ? 'teams' : nextPage)
@@ -230,13 +260,14 @@ function PrototypeApp() {
     if (portal === 'master' && page === 'siteList') return <SiteListPage onToast={notify} />
     if (portal === 'master' && page === 'lotteryMemberRebate') return <LotteryMemberRebatePage onToast={notify} />
     if (portal === 'master' && page === 'lotteryMemberRebateReport') return <LotteryMemberRebateReportPage onToast={notify} />
+    if (portal === 'master' && page === 'lotteryHandicap') return <LotteryHandicapSettingsPage onToast={notify} />
     if (portal === 'master') return <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.master} onToast={notify} />
     if (portal === 'site') return <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.site} portal="site" onToast={notify} />
-    return <><AgentRoleBar role={agentRole} setRole={setAgentRole} />{agentRole === 'multiLevel' || SHARED_AGENT_PAGES.has(page) ? <MultiLevelAgentPage page={page} role={agentRole} onToast={notify} /> : <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.agent} portal="agent" role={agentRole} onToast={notify} />}</>
+    return <><AgentRoleBar role={agentRole} setRole={setAgentRole} />{['multiLevel', 'rebate'].includes(agentRole) || SHARED_AGENT_PAGES.has(page) ? <MultiLevelAgentPage page={page} role={agentRole} onToast={notify} /> : <MasterPage page={page} navigate={navigateFromPage} detailTarget={teamDetailTargets.agent} portal="agent" role={agentRole} onToast={notify} />}</>
   }
 
   return <div className="app-shell ta-app-shell">
-    <Sidebar portal={portal} page={page} agentRole={agentRole} onNavigate={(nextPage) => portal === 'agent' && agentRole === 'multiLevel' ? (setMultiLevelPage(nextPage), setNotesOpen(false)) : navigateTo(portal, nextPage)} />
+    <Sidebar portal={portal} page={page} agentRole={agentRole} onNavigate={(nextPage) => portal === 'agent' && ['multiLevel', 'rebate'].includes(agentRole) ? (setMultiLevelPage(nextPage), setNotesOpen(false)) : navigateTo(portal, nextPage)} />
     <main className="main-shell ta-main-shell">
       <header className="topbar ta-topbar"><button className="menu-button" aria-label="菜单"><MenuOutlined /></button><div className="breadcrumb">{portalMeta.title}<span>/</span>{title}</div><PortalSwitch active={portal} onChange={navigateTo} /><div className="top-actions">
         <button className="requirements-trigger" onClick={() => setNotesOpen(true)}><FileTextOutlined /><span>业务及需求说明</span></button>
@@ -254,5 +285,5 @@ function PrototypeApp() {
 }
 
 export function App() {
-  return <TeamAgentProvider><LotteryRebateProvider><PrototypeApp /></LotteryRebateProvider></TeamAgentProvider>
+  return <TeamAgentProvider><LotteryRebateProvider><LotteryHandicapProvider><PrototypeApp /></LotteryHandicapProvider></LotteryRebateProvider></TeamAgentProvider>
 }

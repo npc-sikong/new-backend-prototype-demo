@@ -40,6 +40,7 @@ const ROLES = {
   secondary: { label: '副线', account: 'WC002', subtitle: 'gaodashang01部 / LINE-B', icon: <TeamOutlined /> },
   independent: { label: '单线代理', account: 'dailiwc001', subtitle: '单线代理01', icon: <BankOutlined /> },
   multiLevel: { label: '多层级代理', account: 'gaodashang', subtitle: '9级代理 / 站点 2222', icon: <BarChartOutlined /> },
+  rebate: { label: '返水代理', account: 'rebate_agent88', subtitle: '彩票返水代理', icon: <WalletOutlined /> },
 }
 
 function show(result, onToast, onSuccess) {

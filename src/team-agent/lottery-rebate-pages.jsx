@@ -21,35 +21,36 @@ const INITIAL_CONFIGS = [
 ]
 
 const REPORT_SEEDS = [
-  { member: 'member_10086', agent: 'gaodashang', date: '2026-08-08', validBet: 128600 },
-  { member: 'wc_member02', agent: 'WC002', date: '2026-08-07', validBet: 86400 },
-  { member: 'vip_8821', agent: 'gaodashang', date: '2026-08-06', validBet: 57800 },
-  { member: 'fee_member8', agent: 'FEE0428_A8', date: '2026-08-05', validBet: 142000 },
-  { member: 'na7_player', agent: 'NA7', date: '2026-08-04', validBet: 39600 },
-  { member: 'single_0201', agent: 'dailiwc001', date: '2026-08-03', validBet: 71500 },
+  { member: 'member_10086', agent: 'gaodashang', validBet: 42800 },
+  { member: 'wc_member02', agent: 'WC002', validBet: 28800 },
+  { member: 'vip_8821', agent: 'gaodashang', validBet: 19300 },
+  { member: 'fee_member8', agent: 'FEE0428_A8', validBet: 47300 },
+  { member: 'na7_player', agent: 'NA7', validBet: 13200 },
+  { member: 'single_0201', agent: 'dailiwc001', validBet: 23800 },
 ]
+const REPORT_DATES = ['2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06', '2026-08-07', '2026-08-08']
 
 const LotteryRebateContext = createContext(null)
 
 export const LOTTERY_REBATE_NOTES = {
   'master:version': {
     title: '版本需求说明：新增3.0并改为按明确指令升级版本',
-    updatedAt: '2026-08-08 15:22',
+    updatedAt: '2026-08-08 20:14',
     summary: '版本需求说明默认展示当前3.0版本，并保留2.0与1.0历史版本；后续不再按自然周自动切换版本号。',
     fields: '页面展示版本号、版本状态、版本主题、后台分组、模块数量、完成时间、模块说明、修改说明、功能验收和页面跳转。3.0当前包含彩票会员返水及彩票会员返水报表。',
-    logic: '版本号仅在收到用户明确升级指令时新增或切换；未收到版本指令时，后续修改继续归入当前3.0版本，同一模块反复调整时使用最新说明覆盖。',
+    logic: '版本号仅在收到用户明确升级指令时新增或切换；未收到版本指令时，后续修改继续归入当前3.0版本，同一模块反复调整时使用最新说明覆盖。彩票会员返水报表按查询日期区间汇总，同一会员与同一彩票玩法的不同天数据合并展示。',
     related: '关联总控后台、站点后台、代理后台各业务模块及各页面业务及需求说明；版本条目可跳转到对应页面。',
-    requirement: '新增3.0版本，移除按周更换版本的规则，改为由用户明确指令控制版本升级。',
-    acceptance: '首次进入默认显示3.0；可切换查看2.0与1.0历史版本；3.0不显示周次，明确提示“按指令更新”；两个新增模块均可直接跳转。',
+    requirement: '新增3.0版本，移除按周更换版本的规则，改为由用户明确指令控制版本升级；同步记录彩票会员返水报表的跨日期区间合并口径。',
+    acceptance: '首次进入默认显示3.0；可切换查看2.0与1.0历史版本；3.0不显示周次，明确提示“按指令更新”；两个新增模块均可直接跳转，返水报表说明明确不同天数合并。',
     boundary: '版本说明为演示原型内置内容，不提供页面内编辑或自动按日期升级能力。',
-    record: '2026-08-08 15:22｜修改说明：将版本节奏由按周切换改为按用户指令升级，并建立3.0当前版本。修改内容：新增3.0版本页签、当前版本主题、两项会员管理模块说明、历史版本标识和页面跳转。',
+    record: '2026-08-08 20:14｜修改说明：同步彩票会员返水报表的跨日期区间汇总口径。修改内容：3.0版本说明补充同一会员、站点、上级代理、彩票及玩法在不同日期的数据合并展示，并按区间累计有效投注额和总返水额度。',
     comparison: {
       mark: '改', baseline: '原总控后台版本需求说明', legacy: '原页面按1.0对应第26周、2.0对应第27周展示，并默认进入2.0。',
       additions: {
         fields: ['3.0当前版本状态', '按指令更新说明', '彩票会员返水与报表模块条目'],
         views: ['新增3.0版本页签', '2.0与1.0改为历史版本标识'],
         actions: ['3.0模块可跳转至两个新增会员管理页面'],
-        rules: ['版本号仅在收到明确指令时升级', '不再按自然周自动切换版本'],
+        rules: ['版本号仅在收到明确指令时升级', '不再按自然周自动切换版本', '彩票会员返水报表的不同天数据按查询日期区间合并'],
       },
     },
   },
@@ -77,22 +78,22 @@ export const LOTTERY_REBATE_NOTES = {
   },
   'master:lotteryMemberRebateReport': {
     title: '彩票会员返水报表：按有效投注额和配置比例计算会员返水',
-    updatedAt: '2026-08-08 15:22',
-    summary: '总控后台会员管理下新增独立的彩票会员返水报表，用于查询各会员在指定彩票玩法下的有效投注额、适用返水比例与总返水额度。',
-    fields: '筛选区包含日期区间、站点、会员账号、上级代理、彩票名称、彩票玩法、有效投注额区间和总返水额度区间；列表展示日期、站点、会员账号、上级代理、彩票名称、彩票玩法、返水比例、有效投注额和总返水额度。',
-    logic: '仅对生效中的彩票会员返水配置生成报表。单条总返水额度 = 有效投注额 × 返水比例；当前筛选总计为筛选结果内有效投注额与总返水额度分别求和。修改配置比例后，演示报表按最新配置重新计算。',
+    updatedAt: '2026-08-08 20:14',
+    summary: '总控后台会员管理下的彩票会员返水报表按查询日期区间汇总，将同一会员在同一彩票玩法下的不同天数据合并为一行。',
+    fields: '筛选区包含日期区间、站点、会员账号、上级代理、彩票名称、彩票玩法、有效投注额区间和总返水额度区间；列表展示日期区间、站点、会员账号、上级代理、彩票名称、彩票玩法、返水比例、区间有效投注额和区间总返水额度。',
+    logic: '仅对生效中的彩票会员返水配置生成报表。系统先按日期区间筛选每日数据，再按站点、会员账号、上级代理、彩票名称、彩票玩法及返水比例合并；区间有效投注额 = 各日有效投注额之和，区间总返水额度 = 区间有效投注额 × 返水比例。金额区间筛选作用于合并后的结果。',
     related: '关联彩票会员返水配置、会员有效投注统计、会员管理及返水发放核对；报表比例来源于“彩票会员返水”页面。',
-    requirement: '新增“彩票会员返水报表”独立入口，可按日期、站点、会员、上级代理、彩票与玩法及金额区间查询，并展示有效投注额和总返水额度。',
-    acceptance: '默认可看到生效配置生成的报表；筛选条件可组合查询和重置；有效投注额及总返水额度汇总随筛选结果变化；导出内容与当前筛选结果一致。',
+    requirement: '彩票会员返水报表的日期采用跨时间段统计，不同天数的数据按相同会员与玩法维度合并展示，并累计有效投注额和总返水额度。',
+    acceptance: '同一会员、站点、上级代理、彩票名称、彩票玩法和返水比例在所选日期区间内只展示一行；日期列显示查询区间；金额筛选、列表合计和导出均使用合并后的区间数据。',
     boundary: '本页为前端模拟报表，不触发真实返水发放；新配置会生成演示记录，停用或删除配置不再出现在当前报表。',
-    record: '2026-08-08 15:22｜修改说明：为彩票返水提供可核对、可筛选的会员级计算报表。修改内容：新增菜单、日期及业务筛选、金额区间筛选、配置联动、公式提示、列表汇总和CSV导出。',
+    record: '2026-08-08 20:14｜修改说明：避免同一会员的跨天返水记录分散，改为按查询时间段统一核对。修改内容：日期列改为日期区间；不同天数按站点、会员、上级代理、彩票、玩法和比例合并；有效投注额与总返水额度按区间累计；金额筛选、合计和导出同步使用合并结果。',
     comparison: {
       mark: '新', baseline: '原总控后台会员管理无对应独立页面', legacy: '原后台没有基于彩票玩法返水配置生成会员级返水报表的独立查询页。',
       additions: {
-        fields: ['日期、站点、会员账号、上级代理、彩票名称、彩票玩法、返水比例、有效投注额、总返水额度'],
+        fields: ['日期区间、站点、会员账号、上级代理、彩票名称、彩票玩法、返水比例、区间有效投注额、区间总返水额度'],
         filters: ['日期区间、站点、会员账号、上级代理、彩票名称、彩票玩法、有效投注额区间、总返水额度区间'],
         actions: ['组合查询', '重置筛选', '导出当前结果'],
-        rules: ['总返水额度=有效投注额×返水比例', '仅生效配置生成报表', '汇总随当前筛选结果联动'],
+        rules: ['不同天数按相同会员与玩法维度合并', '区间总返水额度=区间有效投注额×返水比例', '仅生效配置生成报表', '金额筛选与总计作用于合并结果'],
       },
     },
   },
@@ -196,22 +197,44 @@ export function LotteryMemberRebatePage({ onToast }) {
 }
 
 function buildReportRows(configs) {
-  return configs.filter((config) => config.status === '生效中').flatMap((config, configIndex) => [0, 1].map((offset) => {
-    const seed = REPORT_SEEDS[(configIndex * 2 + offset) % REPORT_SEEDS.length]
-    const validBet = seed.validBet + configIndex * 7200 + offset * 3600
-    return {
-      id: `${config.id}-${offset}`,
-      date: seed.date,
-      site: config.site,
-      member: seed.member,
-      agent: seed.agent,
-      lottery: config.lottery,
-      play: config.play,
-      rate: config.rate,
-      validBet,
-      totalRebate: Math.round(validBet * config.rate * 100) / 100,
-    }
+  return configs.filter((config) => config.status === '生效中').flatMap((config, configIndex) => [0, 1].flatMap((memberOffset) => {
+    const seed = REPORT_SEEDS[(configIndex * 2 + memberOffset) % REPORT_SEEDS.length]
+    return [0, 1, 2].map((dayOffset) => {
+      const date = REPORT_DATES[(configIndex + memberOffset + dayOffset) % REPORT_DATES.length]
+      const validBet = seed.validBet + configIndex * 2400 + memberOffset * 1200 + dayOffset * 800
+      return {
+        id: `${config.id}-${memberOffset}-${date}`,
+        configId: config.id,
+        date,
+        site: config.site,
+        member: seed.member,
+        agent: seed.agent,
+        lottery: config.lottery,
+        play: config.play,
+        rate: config.rate,
+        validBet,
+        totalRebate: Math.round(validBet * config.rate * 100) / 100,
+      }
+    })
   }))
+}
+
+function aggregateReportRows(dailyRows, startDate, endDate) {
+  const groups = new Map()
+  dailyRows.forEach((row) => {
+    const key = [row.configId, row.site, row.member, row.agent, row.lottery, row.play, row.rate].join('|')
+    const current = groups.get(key) || { ...row, id: key, dates: [], validBet: 0, totalRebate: 0 }
+    current.dates.push(row.date)
+    current.validBet += row.validBet
+    current.totalRebate += row.totalRebate
+    groups.set(key, current)
+  })
+  return [...groups.values()].map((row) => {
+    const dates = [...row.dates].sort()
+    const rangeStart = startDate || dates[0]
+    const rangeEnd = endDate || dates.at(-1)
+    return { ...row, dateRange: rangeStart === rangeEnd ? rangeStart : `${rangeStart} 至 ${rangeEnd}`, totalRebate: Math.round(row.validBet * row.rate * 100) / 100 }
+  })
 }
 
 export function LotteryMemberRebateReportPage({ onToast }) {
@@ -221,20 +244,23 @@ export function LotteryMemberRebateReportPage({ onToast }) {
   const [filters, setFilters] = useState(defaults)
   const sourceRows = useMemo(() => buildReportRows(configs), [configs])
   const playOptions = draft.lottery ? PLAY_OPTIONS[draft.lottery] : ALL_PLAY_OPTIONS
-  const rows = useMemo(() => sourceRows.filter((row) => (!filters.startDate || row.date >= filters.startDate)
+  const rows = useMemo(() => {
+    const dailyRows = sourceRows.filter((row) => (!filters.startDate || row.date >= filters.startDate)
     && (!filters.endDate || row.date <= filters.endDate)
     && (!filters.site || row.site === filters.site)
     && (!filters.member || row.member.toLowerCase().includes(filters.member.toLowerCase()))
     && (!filters.agent || row.agent.toLowerCase().includes(filters.agent.toLowerCase()))
     && (!filters.lottery || row.lottery === filters.lottery)
-    && (!filters.play || row.play === filters.play)
-    && (!filters.minValidBet || row.validBet >= Number(filters.minValidBet))
+    && (!filters.play || row.play === filters.play))
+    return aggregateReportRows(dailyRows, filters.startDate, filters.endDate).filter((row) => (
+      (!filters.minValidBet || row.validBet >= Number(filters.minValidBet))
     && (!filters.maxValidBet || row.validBet <= Number(filters.maxValidBet))
     && (!filters.minRebate || row.totalRebate >= Number(filters.minRebate))
-    && (!filters.maxRebate || row.totalRebate <= Number(filters.maxRebate))), [sourceRows, filters])
+    && (!filters.maxRebate || row.totalRebate <= Number(filters.maxRebate))))
+  }, [sourceRows, filters])
   const totals = rows.reduce((result, row) => ({ validBet: result.validBet + row.validBet, totalRebate: result.totalRebate + row.totalRebate }), { validBet: 0, totalRebate: 0 })
   const columns = [
-    { key: 'date', label: '日期' },
+    { key: 'dateRange', label: '日期区间' },
     { key: 'site', label: '站点' },
     { key: 'member', label: '会员账号', render: (value) => <b>{value}</b> },
     { key: 'agent', label: '上级代理' },
@@ -245,8 +271,8 @@ export function LotteryMemberRebateReportPage({ onToast }) {
     { key: 'totalRebate', label: '总返水额度', render: (value) => <Money value={value} tone="positive" /> },
   ]
   function exportRows() {
-    const headers = ['日期', '站点', '会员账号', '上级代理', '彩票名称', '彩票玩法', '返水比例', '有效投注额', '总返水额度']
-    const values = rows.map((row) => [row.date, row.site, row.member, row.agent, row.lottery, row.play, `${(row.rate * 100).toFixed(2)}%`, row.validBet, row.totalRebate])
+    const headers = ['日期区间', '站点', '会员账号', '上级代理', '彩票名称', '彩票玩法', '返水比例', '有效投注额', '总返水额度']
+    const values = rows.map((row) => [row.dateRange, row.site, row.member, row.agent, row.lottery, row.play, `${(row.rate * 100).toFixed(2)}%`, row.validBet, row.totalRebate])
     const csv = [headers, ...values].map((cells) => cells.map((cell) => `"${String(cell ?? '').replaceAll('"', '""')}"`).join(',')).join('\n')
     const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' }))
     const link = document.createElement('a')
@@ -264,7 +290,7 @@ export function LotteryMemberRebateReportPage({ onToast }) {
     onToast?.('报表筛选条件已重置')
   }
   return <section className="lottery-rebate-report-screen">
-    <SectionHeader title="彩票会员返水报表" description="根据彩票会员返水配置，查询会员有效投注额与应计返水额度。" />
+    <SectionHeader title="彩票会员返水报表" description="按查询日期区间合并不同天数，汇总会员有效投注额与应计返水额度。" />
     <FilterBar onSearch={() => { setFilters(draft); onToast?.('彩票会员返水报表已查询') }} onReset={reset} onExport={exportRows}>
       <Field label="开始日期"><Input type="date" value={draft.startDate} onChange={(startDate) => setDraft((current) => ({ ...current, startDate }))} /></Field>
       <Field label="结束日期"><Input type="date" value={draft.endDate} onChange={(endDate) => setDraft((current) => ({ ...current, endDate }))} /></Field>
@@ -278,8 +304,8 @@ export function LotteryMemberRebateReportPage({ onToast }) {
       <Field label="总返水额度（最低）"><Input type="number" min="0" value={draft.minRebate} onChange={(minRebate) => setDraft((current) => ({ ...current, minRebate }))} placeholder="最低金额" /></Field>
       <Field label="总返水额度（最高）"><Input type="number" min="0" value={draft.maxRebate} onChange={(maxRebate) => setDraft((current) => ({ ...current, maxRebate }))} placeholder="最高金额" /></Field>
     </FilterBar>
-    <Alert title="返水计算口径">总返水额度 = 有效投注额 × 彩票会员返水配置比例；仅生效中的配置参与当前报表生成。</Alert>
-    <div className="lottery-rebate-summary"><span>当前筛选结果</span><b>{rows.length} 条</b><span>有效投注额合计</span><strong><Money value={totals.validBet} /></strong><span>总返水额度合计</span><strong><Money value={totals.totalRebate} tone="positive" /></strong></div>
-    <Panel title="彩票会员返水明细" description="报表比例与彩票会员返水配置实时联动"><DataTable minWidth={1180} columns={columns} rows={rows} paginated footer={<tr className="lottery-rebate-total-row"><td colSpan={7}>当前筛选总计</td><td><Money value={totals.validBet} /></td><td><Money value={totals.totalRebate} tone="positive" /></td></tr>} /></Panel>
+    <Alert title="跨日期汇总口径">先按日期区间筛选每日记录，再将同一会员、站点、上级代理、彩票及玩法的不同天数合并；区间总返水额度 = 区间有效投注额 × 返水比例。</Alert>
+    <div className="lottery-rebate-summary"><span>统计区间</span><b>{filters.startDate || '最早记录'} 至 {filters.endDate || '最新记录'}</b><span>汇总结果</span><b>{rows.length} 条</b><span>有效投注额合计</span><strong><Money value={totals.validBet} /></strong><span>总返水额度合计</span><strong><Money value={totals.totalRebate} tone="positive" /></strong></div>
+    <Panel title="彩票会员返水区间汇总" description="不同日期按相同会员与彩票玩法合并，配置比例实时联动"><DataTable minWidth={1180} columns={columns} rows={rows} paginated footer={<tr className="lottery-rebate-total-row"><td colSpan={7}>当前筛选总计</td><td><Money value={totals.validBet} /></td><td><Money value={totals.totalRebate} tone="positive" /></td></tr>} /></Panel>
   </section>
 }
