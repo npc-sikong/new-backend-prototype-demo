@@ -17,6 +17,7 @@ import { Alert, Button, DataTable, Field, FormGrid, Input, Modal, StatusTag, Tab
 const toneClass = (tone) => `ml-tone-${tone || 'default'}`
 
 const DASHBOARD_ROLE_ACCOUNTS = { main: 'gaodashang', secondary: 'WC002', independent: 'dailiwc001', rebate: 'rebate_agent88' }
+const REBATE_HIDDEN_FLOW_ITEMS = new Set(['总盈亏', '会员VIP福利', '活动福利', '会员推广福利', '充提手续运营费'])
 
 export function dashboardGroupsForRole(data, role) {
   if (role === 'multiLevel') return DASHBOARD_GROUPS
@@ -53,7 +54,7 @@ export function dashboardGroupsForRole(data, role) {
     .filter((group) => !['secondary', 'independent'].includes(role) || group.title !== '代理数据')
     .map((group) => ({
     ...group,
-    items: group.items.filter((item) => item.label !== '未结算佣金').map((item) => values[item.label] === undefined ? item : {
+    items: group.items.filter((item) => item.label !== '未结算佣金').filter((item) => role !== 'rebate' || group.title !== '资金流水' || !REBATE_HIDDEN_FLOW_ITEMS.has(item.label)).map((item) => values[item.label] === undefined ? item : {
       ...item,
       value: moneyLabels.has(item.label) ? `¥${values[item.label].toLocaleString('zh-CN', { maximumFractionDigits: 2 })}` : String(values[item.label]),
       note: item.label === '有效投注' ? '占比 100%' : item.label === '活跃代理' ? '活跃率 100.0%' : item.note,
