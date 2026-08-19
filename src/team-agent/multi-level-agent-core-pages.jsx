@@ -44,8 +44,6 @@ export function dashboardGroupsForRole(data, role) {
     '活跃会员': activeMembers,
     '付费会员': Number(bill?.firstDepositCount || 0),
     '新增付费': Number(bill?.firstDepositCount || 0),
-    '代理推广会员': 0,
-    '会员推广会员': 0,
     '30天未登录会员': Math.max(0, members - activeMembers),
   }
   const moneyLabels = new Set(['当前余额', '已结算佣金', '总充值', '总提现', '总投注', '有效投注', '总盈亏'])

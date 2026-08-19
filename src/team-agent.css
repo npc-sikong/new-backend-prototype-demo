@@ -748,27 +748,8 @@
 .lottery-handicap-multi > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px; }
 .lottery-play-detail { display: grid; gap: 12px; }
 .lottery-play-detail .ta-description-grid { margin-bottom: 0; }
-.rebate-odds-reference { grid-column: 1 / -1; overflow: hidden; border: 1px solid #cfe1f0; border-radius: 5px; background: #f8fbfe; }
-.rebate-odds-reference > header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 12px; border-bottom: 1px solid #dce9f3; background: #edf7ff; }
-.rebate-odds-reference > header div { display: grid; gap: 2px; }
-.rebate-odds-reference > header strong { color: #315d80; font-size: 12px; }
-.rebate-odds-reference > header small { color: #7890a5; font-size: 10px; }
-.rebate-odds-reference > header > b { color: #1683d8; font-size: 13px; white-space: nowrap; }
-.rebate-odds-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; padding: 9px; }
-.rebate-odds-grid article { display: grid; gap: 7px; padding: 9px; border: 1px solid #dce7f0; border-radius: 4px; background: #fff; }
-.rebate-odds-grid article.is-active { border-color: #55aaf0; box-shadow: inset 0 0 0 1px #d4ecff; background: #f3faff; }
-.rebate-odds-grid article > span { display: flex; align-items: center; justify-content: space-between; color: #315a7b; font-size: 12px; font-weight: 700; }
-.rebate-odds-grid article em { padding: 1px 5px; border-radius: 8px; color: #fff; background: #2b98f1; font-size: 9px; font-style: normal; }
-.rebate-odds-grid article > div { display: grid; gap: 2px; }
-.rebate-odds-grid article small { color: #8093a5; font-size: 9px; }
-.rebate-odds-grid article strong { color: #344f67; font-size: 11px; }
-.rebate-odds-reference > footer { padding: 0 11px 9px; color: #72889b; font-size: 10px; }
-.rebate-current-odds { grid-column: 1 / -1; display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid #cfe1f0; border-radius: 4px; color: #637b8f; background: #f4faff; font-size: 11px; }
-.rebate-current-odds strong { color: #1683d8; font-size: 17px; }
-.rebate-current-odds small { color: #8194a5; }
 .ta-table-link.danger { color: #db5b5b; }
 @media (max-width: 1050px) {
   .lottery-handicap-screen .ta-filter-fields { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
   .lottery-handicap-multi > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .rebate-odds-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

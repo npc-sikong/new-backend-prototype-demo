@@ -199,11 +199,13 @@ export function H5AgentListPage({ role = 'main', onToast = EMPTY_FN }) {
   }
   const saveEditor = () => {
     if (!form.account?.trim()) return onToast('请输入代理账号', 'error')
+    if (editor.kind === 'create' && String(form.password || '').trim().length < 6) return onToast('代理密码至少输入6位', 'error')
+    const { password, ...agentForm } = form
     if (editor.kind === 'create') {
       const nextId = Math.max(0, ...multiRows.map((row) => Number(row.id) || 0)) + 1
-      setMultiRows((current) => [{ ...form, id: nextId, siteCode: '2222', childAgents: 0, childMembers: 0, lastLogin: '—' }, ...current])
+      setMultiRows((current) => [{ ...agentForm, id: nextId, siteCode: '2222', childAgents: 0, childMembers: 0, lastLogin: '—' }, ...current])
     } else if (editor.kind === 'edit') {
-      setMultiRows((current) => current.map((row) => row.id === editor.row.id ? { ...row, ...form } : row))
+      setMultiRows((current) => current.map((row) => row.id === editor.row.id ? { ...row, ...agentForm } : row))
     }
     onToast(editor.kind === 'create' ? '代理已新增' : editor.kind === 'edit' ? '代理资料已修改' : '代理密码已更新')
     setEditor(null)
@@ -254,6 +256,7 @@ export function H5AgentListPage({ role = 'main', onToast = EMPTY_FN }) {
     <H5Sheet open={Boolean(editor)} title={editor?.kind === 'create' ? '新增多层级代理' : editor?.kind === 'edit' ? '修改代理' : '修改代理密码'} onClose={() => setEditor(null)} footer={<><button className="h5-agent-button h5-agent-button-ghost" onClick={() => setEditor(null)}>取消</button><button className="h5-agent-button h5-agent-button-primary" onClick={saveEditor}>保存</button></>}>
       {editor?.kind === 'password' ? <div className="h5-agent-form"><Field label="代理账号"><input value={form.account || ''} disabled /></Field><Field label="新密码"><input type="password" value={form.password || ''} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="至少输入6位" /></Field></div> : <div className="h5-agent-form">
         <Field label="代理账号"><input value={form.account || ''} onChange={(event) => setForm({ ...form, account: event.target.value })} /></Field>
+        {editor?.kind === 'create' && <Field label="代理密码"><input type="password" value={form.password || ''} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="至少输入6位" /></Field>}
         <Field label="代理模型"><input value="多层级代理" disabled /></Field>
         <Field label="层级级别"><select value={form.level || '1层代理'} onChange={(event) => setForm({ ...form, level: event.target.value })}>{Array.from({ length: 8 }, (_, index) => <option key={index + 1}>{index + 1}层代理</option>)}</select></Field>
         <Field label="代理状态"><select value={form.status || '正常'} onChange={(event) => setForm({ ...form, status: event.target.value })}><option>正常</option><option>停用</option></select></Field>

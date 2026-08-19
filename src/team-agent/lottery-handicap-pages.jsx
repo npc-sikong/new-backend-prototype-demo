@@ -19,7 +19,7 @@ const LOTTERY_PLAY_PRESETS = {
   markSix: [['特码', '特码A', 4], ['特码', '特码B', 4], ['特码', '特码大小单双', 5], ['色波', '红波', 3], ['色波', '蓝波', 3], ['色波', '绿波', 3], ['生肖', '特肖', 2], ['生肖', '六肖', 2], ['正码', '正码一至六', 4], ['连码', '二全中', 1], ['连码', '三全中', 1], ['尾数', '特码尾数', 2]],
   canada: [['混合', '混合大', 4], ['混合', '混合小', 4], ['混合', '混合单', 4], ['混合', '混合双', 4], ['极值', '极大', 2], ['极值', '极小', 2], ['特码', '三个数字和值', 3], ['色波', '红波', 2], ['色波', '蓝波', 2], ['色波', '绿波', 2], ['组合', '大单/小双', 1], ['组合', '大双/小单', 1]],
 }
-const playRowsFor = (lottery) => { const key = lottery.includes('六合彩') ? 'markSix' : lottery.includes('加拿大') ? 'canada' : lottery.includes('时时彩') || lottery.includes('幸运5') ? 'number' : 'speed'; return LOTTERY_PLAY_PRESETS[key].map(([group, play, rebateRate], index) => ({ id: `${key}-${index + 1}`, group, play, rebateRate, odds: rebateOddsOf(rebateRate), status: '启用' })) }
+const playRowsFor = (lottery) => { const key = lottery.includes('六合彩') ? 'markSix' : lottery.includes('加拿大') ? 'canada' : lottery.includes('时时彩') || lottery.includes('幸运5') ? 'number' : 'speed'; return LOTTERY_PLAY_PRESETS[key].map(([group, play, rebateRate], index) => ({ id: `${key}-${index + 1}`, group, play, rebateRate, odds: rebateOddsOf(rebateRate) })) }
 
 const LotteryHandicapContext = createContext(null)
 const emptyForm = () => ({ site: '旺财体育', lotteries: [...LOTTERY_NAMES], rebateRate: '0.80', handicap: 'A盘', status: '启用', effectiveAt: '2026-08-17' })
@@ -30,20 +30,21 @@ export function LotteryHandicapProvider({ children }) {
   function saveConfig(form, editingId) {
     const lotteries = [...new Set(form.lotteries || [])]
     const rebateRate = Number(form.rebateRate)
+    const handicap = String(form.handicap || '').trim()
     if (!form.site) return { ok: false, message: '请选择站点' }
     if (!lotteries.length) return { ok: false, message: '请至少选择一个彩票' }
-    if (!LOTTERY_HANDICAPS.includes(form.handicap)) return { ok: false, message: '请选择A、B、C或D盘口' }
+    if (!handicap) return { ok: false, message: '请输入彩票赔率盘口名称' }
     if (!Number.isFinite(rebateRate) || rebateRate <= 0 || rebateRate > 100) return { ok: false, message: '返水比例必须大于0且不超过100%' }
-    const conflict = configs.some((row) => row.id !== editingId && row.site === form.site && row.handicap === form.handicap && row.lotteries.some((lottery) => lotteries.includes(lottery)))
+    const conflict = configs.some((row) => row.id !== editingId && row.site === form.site && row.handicap === handicap && row.lotteries.some((lottery) => lotteries.includes(lottery)))
     if (conflict) return { ok: false, message: '所选站点、彩票和盘口已存在配置' }
     const timestamp = '2026-08-17 17:25'
     if (editingId) {
-      setConfigs((current) => current.map((row) => row.id === editingId ? { ...row, ...form, lotteries, rebateRate, operator: '若依', updatedAt: timestamp } : row))
+      setConfigs((current) => current.map((row) => row.id === editingId ? { ...row, ...form, handicap, lotteries, rebateRate, operator: '若依', updatedAt: timestamp } : row))
       return { ok: true, message: '彩票盘口配置已更新' }
     }
     const nextNumber = Math.max(0, ...configs.map((row) => Number(String(row.id).match(/\d+$/)?.[0] || 0))) + 1
     const nextId = `LHP-${String(nextNumber).padStart(3, '0')}`
-    setConfigs((current) => [{ id: nextId, ...form, lotteries, rebateRate, operator: '若依', updatedAt: timestamp }, ...current])
+    setConfigs((current) => [{ id: nextId, ...form, handicap, lotteries, rebateRate, operator: '若依', updatedAt: timestamp }, ...current])
     return { ok: true, message: '彩票盘口配置已新增' }
   }
 
@@ -78,6 +79,7 @@ export function LotteryHandicapSettingsPage({ onToast }) {
   const [deleting, setDeleting] = useState(null)
   const [detail, setDetail] = useState(null)
   const [form, setForm] = useState(emptyForm)
+  const handicapOptions = useMemo(() => [...new Set([...LOTTERY_HANDICAPS, ...configs.map((row) => row.handicap)])], [configs])
   const rows = useMemo(() => configs.filter((row) => (!filters.site || row.site === filters.site)
     && (!filters.lottery || row.lotteries.includes(filters.lottery))
     && (!filters.handicap || row.handicap === filters.handicap)
@@ -109,20 +111,20 @@ export function LotteryHandicapSettingsPage({ onToast }) {
     { key: 'action', label: '操作', render: (_, row) => <div className="ta-table-actions"><button className="ta-table-link" onClick={() => openEdit(row)}><EditOutlined /> 修改</button><button className="ta-table-link danger" onClick={() => setDeleting(row)}><DeleteOutlined /> 删除</button></div> },
   ]
   return <section className="lottery-handicap-screen">
-    <SectionHeader title="彩票ABCD盘口设置" description="按站点和彩票配置A、B、C、D四类赔率盘口返水比例，供返水代理选择对应彩票赔率盘口。" />
+    <SectionHeader title="彩票ABCD盘口设置" description="按站点和彩票配置赔率盘口返水比例，除A、B、C、D外也支持E、F或其它自定义盘口。" />
     <Alert title="配置口径">同一站点、同一彩票、同一盘口只能存在一条配置；一次可全选、多选或单选彩票，保存后作为一组配置展示。</Alert>
     <FilterBar onSearch={() => onToast(`已查询到 ${rows.length} 条盘口配置`)} onReset={() => setFilters({ site: '', lottery: '', handicap: '', status: '' })}>
       <Field label="所属站点"><Select value={filters.site} onChange={(value) => setFilter('site', value)} placeholder="全部站点" options={LOTTERY_SITES} /></Field>
       <Field label="彩票名称"><Select value={filters.lottery} onChange={(value) => setFilter('lottery', value)} placeholder="全部彩票" options={LOTTERY_NAMES} /></Field>
-      <Field label="彩票赔率盘口"><Select value={filters.handicap} onChange={(value) => setFilter('handicap', value)} placeholder="全部盘口" options={LOTTERY_HANDICAPS} /></Field>
+      <Field label="彩票赔率盘口"><Select value={filters.handicap} onChange={(value) => setFilter('handicap', value)} placeholder="全部盘口" options={handicapOptions} /></Field>
       <Field label="状态"><Select value={filters.status} onChange={(value) => setFilter('status', value)} placeholder="全部状态" options={['启用', '停用']} /></Field>
     </FilterBar>
     <Toolbar><Button icon={<PlusOutlined />} onClick={openCreate}>新增盘口设置</Button></Toolbar>
     <DataTable minWidth={1280} columns={columns} rows={rows} paginated />
-    <Modal open={Boolean(editing)} title={editing?.id ? '修改彩票ABCD盘口设置' : '新增彩票ABCD盘口设置'} description="彩票支持全选、多选或单选；盘口必须在A、B、C、D中四选一。" onClose={closeEditor} onConfirm={submit} width={760}>
-      <FormGrid><Field label="所属站点" required><Select value={form.site} onChange={(value) => setForm({ ...form, site: value })} options={LOTTERY_SITES} /></Field><Field label="返水比例" required help="按百分比录入，保留两位小数"><Input type="number" min="0.01" max="100" step="0.01" value={form.rebateRate} onChange={(value) => setForm({ ...form, rebateRate: value })} /></Field><Field label="彩票赔率盘口" required><Select value={form.handicap} onChange={(value) => setForm({ ...form, handicap: value })} options={LOTTERY_HANDICAPS} /></Field><Field label="状态" required><Select value={form.status} onChange={(value) => setForm({ ...form, status: value })} options={['启用', '停用']} /></Field><Field label="生效日期" required><Input type="date" value={form.effectiveAt} onChange={(value) => setForm({ ...form, effectiveAt: value })} /></Field><Field label="彩票名称" required className="ta-field-full"><LotteryMultiSelect value={form.lotteries || []} onChange={(lotteries) => setForm({ ...form, lotteries })} /></Field></FormGrid>
+    <Modal open={Boolean(editing)} title={editing?.id ? '修改彩票ABCD盘口设置' : '新增彩票ABCD盘口设置'} description="彩票支持全选、多选或单选；盘口可直接输入A、B、C、D、E、F或其它名称。" onClose={closeEditor} onConfirm={submit} width={760}>
+      <FormGrid><Field label="所属站点" required><Select value={form.site} onChange={(value) => setForm({ ...form, site: value })} options={LOTTERY_SITES} /></Field><Field label="返水比例" required help="按百分比录入，保留两位小数"><Input type="number" min="0.01" max="100" step="0.01" value={form.rebateRate} onChange={(value) => setForm({ ...form, rebateRate: value })} /></Field><Field label="彩票赔率盘口" required help="支持输入E盘、F盘或其它自定义盘口"><Input value={form.handicap} onChange={(value) => setForm({ ...form, handicap: value })} placeholder="请输入盘口名称" /></Field><Field label="彩票名称" required className="ta-field-full"><LotteryMultiSelect value={form.lotteries || []} onChange={(lotteries) => setForm({ ...form, lotteries })} /></Field></FormGrid>
     </Modal>
     <Modal open={Boolean(deleting)} title="确认删除盘口配置" description="删除后该配置将从当前演示列表移除，不影响其他站点、彩票或盘口。" onClose={() => setDeleting(null)} onConfirm={confirmDelete} confirmText="确认删除"><p>确定删除“{deleting?.site} / {deleting?.lotteries?.join('、')} / {deleting?.handicap}”配置吗？</p></Modal>
-    <Modal open={Boolean(detail)} title={`${detail?.lottery || ''}玩法返水及赔率详情`} description="参照代理端玩法配置结构展示；风格、字段和交互沿用当前后台原型。" onClose={() => setDetail(null)} onConfirm={() => setDetail(null)} confirmText="关闭" showCancel={false} width={860}><div className="lottery-play-detail"><DescriptionGrid columns={4} items={[{ label: '所属站点', value: detail?.config?.site }, { label: '彩票名称', value: detail?.lottery }, { label: '当前盘口', value: detail?.config?.handicap }, { label: '配置返水', value: `${Number(detail?.config?.rebateRate || 0).toFixed(2)}%` }]} /><Alert title="赔率换算口径">赔率 = 2.00 − 返水比例 × 0.02；例如返水4.00%对应1.92，返水6.00%对应1.88。下表为玩法级演示数据。</Alert><DataTable minWidth={680} columns={[{ key: 'group', label: '玩法分类' }, { key: 'play', label: '彩票玩法' }, { key: 'rebateRate', label: '返水比例', render: (value) => <b className="ta-primary-text">{Number(value).toFixed(2)}%</b> }, { key: 'odds', label: '对应赔率', render: (value) => <b>{value}</b> }, { key: 'status', label: '状态', render: (value) => <StatusTag>{value}</StatusTag> }]} rows={detail ? playRowsFor(detail.lottery) : []} /></div></Modal>
+    <Modal open={Boolean(detail)} title={`${detail?.lottery || ''}玩法返水及赔率详情`} onClose={() => setDetail(null)} onConfirm={() => setDetail(null)} confirmText="关闭" showCancel={false} width={860}><div className="lottery-play-detail"><DescriptionGrid columns={3} items={[{ label: '所属站点', value: detail?.config?.site }, { label: '彩票名称', value: detail?.lottery }, { label: '当前盘口', value: detail?.config?.handicap }]} /><DataTable minWidth={520} columns={[{ key: 'group', label: '玩法分类' }, { key: 'play', label: '彩票玩法' }, { key: 'odds', label: '对应赔率', render: (value) => <b>{value}</b> }]} rows={detail ? playRowsFor(detail.lottery) : []} /></div></Modal>
   </section>
 }

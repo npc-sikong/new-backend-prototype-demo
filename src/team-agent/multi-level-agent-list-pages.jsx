@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { DownloadOutlined, EditOutlined, LockOutlined, PlusOutlined } from '@ant-design/icons'
 import { AGENT_ROWS, BET_ROWS, MEMBER_ROWS, REBATE_AGENT_ROWS, rowsForAgentRole } from './multi-level-agent-data'
 import { Button, DataTable, Field, FormGrid, Input, Modal, Select, StatusTag } from './ui'
-import { RebateOddsReference, rebateOddsOf } from './rebate-odds'
+import { rebateOddsOf } from './rebate-odds'
 
 function FilterSurface({ children, actions }) {
   return <div className="ml-filter-surface"><div className="ml-filter-grid">{children}</div><div className="ml-filter-actions">{actions}</div></div>
@@ -14,21 +14,21 @@ function compactMoney(value) {
 
 export function MultiLevelAgentsPage({ role = 'multiLevel', onToast }) {
   const isRebate = role === 'rebate'
-  const empty = isRebate ? { id: '', account: '', type: '返水代理', level: '—', starLevel: '—', parent: '无上级代理', lotteryBetRebateRate: '6.00', status: '正常', plan: '彩票返水方案' } : { id: '', account: '', type: '多层级代理', level: '1层代理', status: '正常', plan: '层级代理方案A' }
+  const empty = isRebate ? { id: '', account: '', type: '返水代理', level: '—', starLevel: '—', parent: 'rebate_agent88', lotteryBetRebateRate: '5.99', status: '正常', plan: '彩票返水方案' } : { id: '', account: '', type: '多层级代理', level: '1层代理', status: '正常', plan: '层级代理方案A' }
   const [rows, setRows] = useState(() => isRebate ? REBATE_AGENT_ROWS : AGENT_ROWS)
   const [filters, setFilters] = useState({ id: '', account: '', status: '' })
   const [selected, setSelected] = useState(null)
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(empty)
   const visibleRows = useMemo(() => rows.filter((row) => (!filters.id || String(row.id).includes(filters.id)) && (!filters.account || row.account.toLowerCase().includes(filters.account.toLowerCase())) && (!filters.status || row.status === filters.status)), [rows, filters])
-  const parentOptions = useMemo(() => [{ value: '无上级代理', label: '无上级代理' }, { value: 'rebate_agent88', label: '1888 / rebate_agent88' }, ...rows.filter((row) => row.account !== form.account).map((row) => ({ value: row.account, label: `${row.id} / ${row.account}` }))], [rows, form.account])
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
-  const open = (kind, row = empty) => { setModal(kind); setForm({ ...row }) }
+  const open = (kind, row = empty) => { setModal(kind); setForm({ ...row, ...(isRebate && (!row.parent || row.parent === '无上级代理') ? { parent: '无上级代理', lotteryBetRebateRate: '6.00' } : {}) }) }
   const save = () => {
     if (!form.account.trim()) return onToast('请输入代理账号', 'error')
-    const hasParent = form.parent && form.parent !== '无上级代理', rate = Number(form.lotteryBetRebateRate), maxRate = hasParent ? 5.99 : 6
+    if (modal === 'create' && String(form.password || '').trim().length < 6) return onToast('代理密码至少输入6位', 'error')
+    const hasParent = form.parent && form.parent !== '无上级代理', rate = hasParent ? Number(form.lotteryBetRebateRate) : 6, maxRate = hasParent ? 5.99 : 6
     if (isRebate && ['create', 'edit'].includes(modal) && (!Number.isFinite(rate) || rate < 0 || rate > maxRate)) return onToast(`彩票投注返水比例必须为0.00%至${maxRate.toFixed(2)}%`, 'error')
-    const nextForm = isRebate ? { ...form, parent: form.parent || '无上级代理', lotteryBetRebateRate: rate } : form
+    const { password, ...agentForm } = form; const nextForm = isRebate ? { ...agentForm, parent: form.parent || '无上级代理', lotteryBetRebateRate: rate } : agentForm
     if (modal === 'create') setRows((current) => [{ ...nextForm, id: Math.max(...current.map((item) => item.id)) + 1, siteCode: '2222', childAgents: 0, childMembers: 0, lastLogin: '—' }, ...current])
     else if (modal === 'edit') setRows((current) => current.map((item) => item.id === form.id ? nextForm : item))
     setModal(null); onToast(modal === 'create' ? '代理已新增' : modal === 'edit' ? '代理资料已修改' : '代理密码已更新')
@@ -47,7 +47,7 @@ export function MultiLevelAgentsPage({ role = 'multiLevel', onToast }) {
     <div className="ml-list-toolbar"><Button icon={<PlusOutlined />} onClick={() => open('create')}>新增代理</Button><Button icon={<EditOutlined />} variant="success" disabled={!selected} onClick={() => selected && open('edit', selected)}>修改</Button><Button icon={<LockOutlined />} variant="warning" disabled={!selected} onClick={() => selected && open('password', selected)}>修改密码</Button></div>
     <div className="ml-card"><DataTable paginated minWidth={1650} columns={columns} rows={visibleRows} /></div>
     <Modal open={Boolean(modal)} title={modal === 'create' ? `新增${isRebate ? '返水' : '多层级'}代理` : modal === 'edit' ? `修改${isRebate ? '返水' : '多层级'}代理` : '修改代理密码'} onClose={() => setModal(null)} onConfirm={save}>
-      {modal === 'password' ? <FormGrid columns={1}><Field label="代理账号"><Input value={form.account} disabled /></Field><Field label="新密码" required><Input type="password" value={form.password || ''} onChange={(value) => setForm({ ...form, password: value })} /></Field></FormGrid> : <FormGrid><Field label="代理账号" required><Input value={form.account} onChange={(value) => setForm({ ...form, account: value })} /></Field><Field label="代理模型"><Input value={isRebate ? '返水代理' : '多层级代理'} disabled /></Field>{!isRebate && <Field label="层级级别"><Select value={form.level} onChange={(value) => setForm({ ...form, level: value })} options={['1层代理', '2层代理', '3层代理', '4层代理', '5层代理', '6层代理', '7层代理', '8层代理']} /></Field>}{isRebate && <><Field label="上级代理"><Select value={form.parent || '无上级代理'} onChange={(value) => setForm({ ...form, parent: value, lotteryBetRebateRate: Math.min(Number(form.lotteryBetRebateRate) || 0, value === '无上级代理' ? 6 : 5.99).toFixed(2) })} options={parentOptions} /></Field><Field label="彩票投注返水比例" required help={`可设置0.00%至${form.parent && form.parent !== '无上级代理' ? '5.99' : '6.00'}%，当前赔率${rebateOddsOf(form.lotteryBetRebateRate)}`}><Input type="number" min="0" max={form.parent && form.parent !== '无上级代理' ? '5.99' : '6.00'} step="0.01" value={form.lotteryBetRebateRate ?? '6.00'} onChange={(value) => setForm({ ...form, lotteryBetRebateRate: value })} /></Field><RebateOddsReference activeRate={form.lotteryBetRebateRate} showHandicaps={false} /></>}<Field label="代理状态"><Select value={form.status} onChange={(value) => setForm({ ...form, status: value })} options={['正常', '停用']} /></Field><Field label="佣金方案"><Select value={form.plan} onChange={(value) => setForm({ ...form, plan: value })} options={isRebate ? ['彩票返水方案'] : ['层级代理方案A', '层级代理方案B', '未设置']} /></Field></FormGrid>}
+      {modal === 'password' ? <FormGrid columns={1}><Field label="代理账号"><Input value={form.account} disabled /></Field><Field label="新密码" required><Input type="password" value={form.password || ''} onChange={(value) => setForm({ ...form, password: value })} /></Field></FormGrid> : <FormGrid><Field label="代理账号" required><Input value={form.account} onChange={(value) => setForm({ ...form, account: value })} /></Field>{modal === 'create' && <Field label="代理密码" required help="至少输入6位"><Input type="password" value={form.password || ''} onChange={(value) => setForm({ ...form, password: value })} placeholder="请输入代理密码" /></Field>}<Field label="代理模型"><Input value={isRebate ? '返水代理' : '多层级代理'} disabled /></Field>{!isRebate && <Field label="层级级别"><Select value={form.level} onChange={(value) => setForm({ ...form, level: value })} options={['1层代理', '2层代理', '3层代理', '4层代理', '5层代理', '6层代理', '7层代理', '8层代理']} /></Field>}{isRebate && <><Field label="上级代理" help="由当前返水代理关系自动带出，不允许修改"><Input value={form.parent || '无上级代理'} disabled /></Field><Field label="彩票投注返水比例" required help={form.parent && form.parent !== '无上级代理' ? '可设置0.00%至5.99%' : '无上级代理时固定为6.00%，不可修改'}><Input type="number" min="0" max={form.parent && form.parent !== '无上级代理' ? '5.99' : '6.00'} step="0.01" value={form.lotteryBetRebateRate ?? '6.00'} disabled={!form.parent || form.parent === '无上级代理'} onChange={(value) => setForm({ ...form, lotteryBetRebateRate: value })} /></Field></>}{!isRebate && <Field label="代理状态"><Select value={form.status} onChange={(value) => setForm({ ...form, status: value })} options={['正常', '停用']} /></Field>}{!isRebate && <Field label="佣金方案"><Select value={form.plan} onChange={(value) => setForm({ ...form, plan: value })} options={['层级代理方案A', '层级代理方案B', '未设置']} /></Field>}</FormGrid>}
     </Modal>
   </section>
 }

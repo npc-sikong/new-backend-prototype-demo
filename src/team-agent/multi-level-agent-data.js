@@ -71,8 +71,6 @@ export const DASHBOARD_GROUPS = [
       { label: '活跃会员', value: '0', tone: 'orange', note: '活跃率 0.0%' },
       { label: '付费会员', value: '0', tone: 'blue', note: '付费率 0.0%' },
       { label: '新增付费', value: '0', tone: 'orange' },
-      { label: '代理推广会员', value: '0', tone: 'green', note: '占比 0.0%' },
-      { label: '会员推广会员', value: '0', tone: 'red', note: '裂变率 0.0%' },
       { label: '30天未登录会员', value: '27', tone: 'default', note: '流失率 87.1%' },
     ],
   },
