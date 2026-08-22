@@ -557,6 +557,19 @@ body:has(.h5-agent-preview-stage),
 .h5-agent-function-grid button > span { grid-row: 1 / 3; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 12px; color: #8bb6f7; background: #12315d; font-size: 16px; }
 .h5-agent-function-grid b { overflow: hidden; color: #dfe7f2; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .h5-agent-function-grid small { color: #687b93; font-size: 8px; }
+.h5-agent-lottery-rebate-page { display: grid; gap: 10px; }
+.h5-agent-rebate-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding: 13px; border-color: #244b7f; background: linear-gradient(145deg, #102d54, #0d2039); }
+.h5-agent-rebate-summary > div { display: grid; gap: 5px; }
+.h5-agent-rebate-summary span { color: #7792b4; font-size: 8px; }
+.h5-agent-rebate-summary strong { color: #edf5ff; font-size: 15px; font-variant-numeric: tabular-nums; }
+.h5-agent-rebate-summary > div:nth-child(2) strong { color: #60d6aa; }
+.h5-agent-rebate-summary small { grid-column: 1 / -1; padding-top: 8px; border-top: 1px solid rgba(105, 151, 211, .2); color: #7291b8; font-size: 8px; }
+.h5-agent-rebate-record { cursor: pointer; }
+.h5-agent-rebate-record > header > div { min-width: 0; flex: 1; }
+.h5-agent-rebate-record > header em { padding: 5px 8px; border: 1px solid #2d6b58; border-radius: 9px; color: #64d5ad; background: #123a31; font-size: 9px; font-style: normal; font-weight: 800; }
+.h5-agent-rebate-record > p { margin: 8px 0 0; color: #6f84a1; font-size: 9px; }
+.h5-agent-range-fields { display: grid; grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); align-items: center; gap: 5px; }
+.h5-agent-range-fields span { color: #61748f; font-size: 9px; text-align: center; }
 .h5-agent-note-list { display: grid; gap: 9px; }
 .h5-agent-note-list section { padding: 11px; border: 1px solid #21334c; border-radius: 13px; background: #0f2033; }
 .h5-agent-note-list h3 { margin: 0; color: #85aee8; font-size: 10px; }

@@ -38,7 +38,7 @@ import {
 } from '../team-agent/multi-level-agent-data'
 
 const PAGE_SIZE_OPTIONS = [20, 50, 100, 200]
-const ROLE_ACCOUNTS = { main: ['gaodashang'], secondary: ['WC002'], independent: ['dailiwc001'] }
+const ROLE_ACCOUNTS = { main: ['gaodashang'], secondary: ['WC002'], independent: ['dailiwc001'], rebate: ['rebate_agent88', 'rebate_child01', 'rebate_child03'] }
 
 function money(value, signed = false) {
   const amount = Number(value || 0)
@@ -424,7 +424,7 @@ export function H5AccountChangesPage({ role = 'main', onToast }) {
   const accountTotals = (filtered) => ({ member: '—', type: '—', amount: money(filtered.reduce((sum, row) => sum + Number(row.amount || 0), 0), true), time: '—', id: '—' })
   const filteredTotal = accountTotals(rows.filter((row) => predicate(row, filters))).amount
   const metrics = <div className="h5-agent-metric-strip"><div><span>当前筛选账变总计</span><b className={valueTone(Number(String(filteredTotal).replace(/[^0-9.-]/g, '')))}>{filteredTotal}</b></div></div>
-  return <RecordPage title="账变流水报表" rows={rows} filters={filters} setFilters={setFilters} predicate={predicate} onToast={onToast} searchKey="member" searchPlaceholder="请输入会员名" metrics={metrics} filterFields={[{ key: 'type', label: '账变类型', type: 'select', options: unique(rows, 'type') }, { key: 'date', label: '账变时间', type: 'date', value: '2026-07-21' }]} detailFields={ACCOUNT_FIELDS} card={(row, open) => <ReportCard key={row.id} title={row.member} subtitle={`账号 ${row.memberId} · ${row.time}`} status={row.type} values={[{ label: '账变金额(元)', value: money(row.amount, true), tone: valueTone(row.amount) }, { label: '记录编号', value: `${row.id.slice(0, 8)}…${row.id.slice(-5)}` }]} onDetail={open} />} />
+  return <RecordPage title={role === 'rebate' ? '账变流水记录' : '账变流水报表'} rows={rows} filters={filters} setFilters={setFilters} predicate={predicate} onToast={onToast} searchKey="member" searchPlaceholder="请输入会员名" metrics={metrics} filterFields={[{ key: 'type', label: '账变类型', type: 'select', options: unique(rows, 'type') }, { key: 'date', label: '账变时间', type: 'date', value: '2026-07-21' }]} detailFields={ACCOUNT_FIELDS} card={(row, open) => <ReportCard key={row.id} title={row.member} subtitle={`账号 ${row.memberId} · ${row.time}`} status={row.type} values={[{ label: '账变金额(元)', value: money(row.amount, true), tone: valueTone(row.amount) }, { label: '记录编号', value: `${row.id.slice(0, 8)}…${row.id.slice(-5)}` }]} onDetail={open} />} />
 }
 
 const FUND_FIELDS = [{ key: 'orderNo', label: '单号' }, { key: 'account', label: '会员账号' }, { key: 'type', label: '交易类型' }, { key: 'currency', label: '币种' }, { key: 'amount', label: '金额', render: (value) => <b className={valueTone(value)}>{money(value, true)}</b> }, { key: 'status', label: '状态', render: (value) => <StatusPill>{value}</StatusPill> }, { key: 'createdAt', label: '创建时间' }, { key: 'remark', label: '备注' }]

@@ -16,6 +16,7 @@ import {
   AGENT_ROWS,
   BET_ROWS,
   MEMBER_ROWS,
+  REBATE_AGENT_ROWS,
   rowsForAgentRole,
 } from '../team-agent/multi-level-agent-data'
 import {
@@ -34,11 +35,13 @@ const ROLE_META = {
   secondary: { account: 'WC002', label: '副线' },
   independent: { account: 'dailiwc001', label: '单线代理' },
   multiLevel: { account: 'gaodashang', label: '多层级代理' },
+  rebate: { account: 'rebate_agent88', label: '返水代理' },
 }
 const ROLE_ACCOUNTS = {
   main: ['gaodashang', 'WC002', 'LGNB'],
   secondary: ['WC002'],
   independent: ['dailiwc001'],
+  rebate: ['rebate_agent88', 'rebate_child01', 'rebate_child03'],
 }
 
 const money = (value) => `¥${Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -172,54 +175,62 @@ const agentRateDisplay = (row) => agentTypeDisplay(row) === '星级代理' ? '30
 export function H5AgentListPage({ role = 'main', onToast = EMPTY_FN }) {
   const { data } = useTeamAgent()
   const isMultiLevel = role === 'multiLevel'
-  const [multiRows, setMultiRows] = useState(AGENT_ROWS)
+  const isRebate = role === 'rebate'
+  const canManage = isMultiLevel || isRebate
+  const [multiRows, setMultiRows] = useState(() => isRebate ? REBATE_AGENT_ROWS : AGENT_ROWS)
   const [keyword, setKeyword] = useState('')
-  const emptyFilters = isMultiLevel ? { id: '', status: '' } : { id: '', agentType: '', status: '', google: '', registeredFrom: '' }
+  const emptyFilters = canManage ? { id: '', status: '' } : { id: '', agentType: '', status: '', google: '', registeredFrom: '' }
   const [filters, setFilters] = useState(emptyFilters)
   const [filterOpen, setFilterOpen] = useState(false)
   const [selected, setSelected] = useState(null)
   const [editor, setEditor] = useState(null)
-  const [form, setForm] = useState({ account: '', type: '多层级代理', level: '1层代理', status: '正常', plan: '层级代理方案A', password: '' })
+  const [form, setForm] = useState(isRebate ? { account: '', type: '返水代理', parent: 'rebate_agent88', lotteryBetRebateRate: '5.99', password: '' } : { account: '', type: '多层级代理', level: '1层代理', status: '正常', plan: '层级代理方案A', password: '' })
   const sourceRows = useMemo(() => {
-    if (isMultiLevel) return multiRows
+    if (canManage) return multiRows
     return data.agents.filter((row) => roleAccounts(role).includes(row.account))
-  }, [data, role, isMultiLevel, multiRows])
+  }, [data, role, canManage, multiRows])
   const rows = useMemo(() => sourceRows.filter((row) => contains(row.account, keyword)
     && (!filters.id || contains(row.id, filters.id))
-    && (isMultiLevel || !filters.agentType || agentTypeDisplay(row) === filters.agentType)
+    && (canManage || !filters.agentType || agentTypeDisplay(row) === filters.agentType)
     && (!filters.status || row.status === filters.status)
-    && (isMultiLevel || !filters.google || filters.google === '未绑定')
-    && (isMultiLevel || !filters.registeredFrom || dateOnly(row.registeredAt) >= filters.registeredFrom)), [sourceRows, keyword, filters, isMultiLevel])
+    && (canManage || !filters.google || filters.google === '未绑定')
+    && (canManage || !filters.registeredFrom || dateOnly(row.registeredAt) >= filters.registeredFrom)), [sourceRows, keyword, filters, canManage])
   const paging = usePaging(rows)
   const activeFilters = Object.values(filters).filter(Boolean).length
 
   const openEditor = (kind, row) => {
     setEditor({ kind, row })
-    setForm(kind === 'create' ? { account: '', type: '多层级代理', level: '1层代理', status: '正常', plan: '层级代理方案A', password: '' } : { ...row, password: '' })
+    setForm(kind === 'create'
+      ? isRebate ? { account: '', type: '返水代理', parent: 'rebate_agent88', lotteryBetRebateRate: '5.99', password: '' } : { account: '', type: '多层级代理', level: '1层代理', status: '正常', plan: '层级代理方案A', password: '' }
+      : { ...row, ...(isRebate && (!row.parent || row.parent === '无上级代理') ? { parent: '无上级代理', lotteryBetRebateRate: '6.00' } : {}), password: '' })
   }
   const saveEditor = () => {
     if (!form.account?.trim()) return onToast('请输入代理账号', 'error')
     if (editor.kind === 'create' && String(form.password || '').trim().length < 6) return onToast('代理密码至少输入6位', 'error')
+    const hasParent = form.parent && form.parent !== '无上级代理'
+    const rebateRate = hasParent ? Number(form.lotteryBetRebateRate) : 6
+    if (isRebate && editor.kind !== 'password' && (!Number.isFinite(rebateRate) || rebateRate < 0 || rebateRate > (hasParent ? 5.99 : 6))) return onToast(`彩票投注返水比例必须为0.00%至${hasParent ? '5.99' : '6.00'}%`, 'error')
     const { password, ...agentForm } = form
+    const nextAgentForm = isRebate ? { ...agentForm, type: '返水代理', parent: form.parent || '无上级代理', lotteryBetRebateRate: rebateRate } : agentForm
     if (editor.kind === 'create') {
       const nextId = Math.max(0, ...multiRows.map((row) => Number(row.id) || 0)) + 1
-      setMultiRows((current) => [{ ...agentForm, id: nextId, siteCode: '2222', childAgents: 0, childMembers: 0, lastLogin: '—' }, ...current])
+      setMultiRows((current) => [{ ...nextAgentForm, id: nextId, siteCode: '2222', childAgents: 0, childMembers: 0, lastLogin: '—' }, ...current])
     } else if (editor.kind === 'edit') {
-      setMultiRows((current) => current.map((row) => row.id === editor.row.id ? { ...row, ...agentForm } : row))
+      setMultiRows((current) => current.map((row) => row.id === editor.row.id ? { ...row, ...nextAgentForm } : row))
     }
     onToast(editor.kind === 'create' ? '代理已新增' : editor.kind === 'edit' ? '代理资料已修改' : '代理密码已更新')
     setEditor(null)
   }
 
   return <section className="h5-agent-page h5-agent-agent-list-page">
-    <SearchBar value={keyword} onChange={setKeyword} placeholder="请输入代理账号" onFilter={() => setFilterOpen(true)} filterCount={activeFilters} actions={isMultiLevel && <button className="h5-agent-add-button" aria-label="新增代理" onClick={() => openEditor('create')}><PlusOutlined /></button>} />
-    <div className="h5-agent-result-meta"><span>{ROLE_META[role].label}可见范围 · {rows.length} 条</span>{!isMultiLevel && <span><button onClick={() => onToast('代理列表已导出')}>导出</button><button onClick={() => onToast('下载文件为演示状态')}>下载文件</button></span>}</div>
+    <SearchBar value={keyword} onChange={setKeyword} placeholder="请输入代理账号" onFilter={() => setFilterOpen(true)} filterCount={activeFilters} actions={canManage && <button className="h5-agent-add-button" aria-label="新增代理" onClick={() => openEditor('create')}><PlusOutlined /></button>} />
+    <div className="h5-agent-result-meta"><span>{ROLE_META[role].label}可见范围 · {rows.length} 条</span>{!canManage && <span><button onClick={() => onToast('代理列表已导出')}>导出</button><button onClick={() => onToast('下载文件为演示状态')}>下载文件</button></span>}</div>
     <div className="h5-agent-card-list">
       {paging.visibleRows.map((row) => <article key={row.id} className="h5-agent-list-card" onClick={() => setSelected(row)}>
-        <header><div className="h5-agent-card-avatar"><UserOutlined /></div><div><b>{row.account}</b><span>ID {row.id} · {isMultiLevel ? row.level : agentLevelDisplay(row, data.teams)}</span></div><RightOutlined /></header>
-        <div className="h5-agent-card-badges"><StatusPill tone="brand">{isMultiLevel ? row.type : agentTypeDisplay(row)}</StatusPill><StatusPill>{row.status === '启用' ? '正常' : row.status}</StatusPill>{!isMultiLevel && <StatusPill tone="neutral">{agentIdentityDisplay(row)}</StatusPill>}</div>
-        <div className="h5-agent-card-metrics"><div><span>下属代理</span><b>{isMultiLevel ? row.childAgents || 0 : row.subAgents || 0}</b></div><div><span>下属会员</span><b>{isMultiLevel ? row.childMembers || 0 : row.members || 0}</b></div><div><span>{isMultiLevel ? '站点编码' : '代理钱包余额'}</span><b>{isMultiLevel ? row.siteCode : money(row.balance)}</b></div></div>
-        {isMultiLevel && <footer><button onClick={(event) => { event.stopPropagation(); openEditor('edit', row) }}><EditOutlined />修改</button><button onClick={(event) => { event.stopPropagation(); openEditor('password', row) }}><LockOutlined />修改密码</button></footer>}
+        <header><div className="h5-agent-card-avatar"><UserOutlined /></div><div><b>{row.account}</b><span>ID {row.id} · {isRebate ? '返水代理' : isMultiLevel ? row.level : agentLevelDisplay(row, data.teams)}</span></div><RightOutlined /></header>
+        <div className="h5-agent-card-badges"><StatusPill tone="brand">{canManage ? row.type : agentTypeDisplay(row)}</StatusPill><StatusPill>{row.status === '启用' ? '正常' : row.status}</StatusPill>{!canManage && <StatusPill tone="neutral">{agentIdentityDisplay(row)}</StatusPill>}</div>
+        <div className="h5-agent-card-metrics"><div><span>下属代理</span><b>{canManage ? row.childAgents || 0 : row.subAgents || 0}</b></div><div><span>下属会员</span><b>{canManage ? row.childMembers || 0 : row.members || 0}</b></div><div><span>{isRebate ? '彩票投注返水比例' : isMultiLevel ? '站点编码' : '代理钱包余额'}</span><b>{isRebate ? `${Number(row.lotteryBetRebateRate || 0).toFixed(2)}%` : isMultiLevel ? row.siteCode : money(row.balance)}</b></div></div>
+        {canManage && <footer><button onClick={(event) => { event.stopPropagation(); openEditor('edit', row) }}><EditOutlined />修改</button><button onClick={(event) => { event.stopPropagation(); openEditor('password', row) }}><LockOutlined />修改密码</button></footer>}
       </article>)}
       {!rows.length && <EmptyState />}
     </div>
@@ -227,14 +238,21 @@ export function H5AgentListPage({ role = 'main', onToast = EMPTY_FN }) {
 
     <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} onReset={() => setFilters(emptyFilters)} resultCount={rows.length}>
       <Field label="代理ID"><input value={filters.id} onChange={(event) => setFilters({ ...filters, id: event.target.value })} placeholder="请输入代理ID" /></Field>
-      {!isMultiLevel && <Field label="代理类型"><select value={filters.agentType} onChange={(event) => setFilters({ ...filters, agentType: event.target.value })}><option value="">全部类型</option>{['多层级代理', '星级代理', '团队代理'].map((value) => <option key={value}>{value}</option>)}</select></Field>}
+      {!canManage && <Field label="代理类型"><select value={filters.agentType} onChange={(event) => setFilters({ ...filters, agentType: event.target.value })}><option value="">全部类型</option>{['多层级代理', '星级代理', '团队代理'].map((value) => <option key={value}>{value}</option>)}</select></Field>}
       <Field label="代理状态"><select value={filters.status} onChange={(event) => setFilters({ ...filters, status: event.target.value })}><option value="">全部状态</option>{unique(sourceRows, 'status').map((value) => <option key={value} value={value}>{value === '启用' ? '正常' : value}</option>)}</select></Field>
-      {!isMultiLevel && <Field label="谷歌验证"><select value={filters.google} onChange={(event) => setFilters({ ...filters, google: event.target.value })}><option value="">全部状态</option><option>未绑定</option></select></Field>}
-      {!isMultiLevel && <Field label="代理注册时间"><input type="date" value={filters.registeredFrom} onChange={(event) => setFilters({ ...filters, registeredFrom: event.target.value })} /></Field>}
+      {!canManage && <Field label="谷歌验证"><select value={filters.google} onChange={(event) => setFilters({ ...filters, google: event.target.value })}><option value="">全部状态</option><option>未绑定</option></select></Field>}
+      {!canManage && <Field label="代理注册时间"><input type="date" value={filters.registeredFrom} onChange={(event) => setFilters({ ...filters, registeredFrom: event.target.value })} /></Field>}
     </FilterSheet>
 
     <H5Sheet open={Boolean(selected)} title="代理资料" subtitle={selected ? `${selected.account} / ${selected.id}` : ''} onClose={() => setSelected(null)}>
-      {selected && <DetailGrid items={isMultiLevel ? [
+      {selected && <DetailGrid items={isRebate ? [
+        { label: '代理ID', value: selected.id }, { label: '代理账号', value: selected.account },
+        { label: '代理模型', value: '返水代理' }, { label: '站点编码', value: selected.siteCode },
+        { label: '上级代理', value: selected.parent === '无上级代理' ? '—' : selected.parent }, { label: '彩票投注返水比例', value: `${Number(selected.lotteryBetRebateRate || 0).toFixed(2)}%` },
+        { label: '彩票投注赔率', value: (2 - Number(selected.lotteryBetRebateRate || 0) * 0.02).toFixed(2) }, { label: '代理状态', value: selected.status },
+        { label: '下属代理', value: selected.childAgents || 0 }, { label: '下属会员', value: selected.childMembers || 0 },
+        { label: '佣金方案', value: selected.plan, wide: true }, { label: '最后登录', value: selected.lastLogin, wide: true },
+      ] : isMultiLevel ? [
         { label: '代理ID', value: selected.id }, { label: '代理账号', value: selected.account },
         { label: '代理模型', value: selected.type }, { label: '星级级别', value: selected.starLevel },
         { label: '层级级别', value: selected.level }, { label: '站点编码', value: selected.siteCode },
@@ -253,14 +271,12 @@ export function H5AgentListPage({ role = 'main', onToast = EMPTY_FN }) {
       ]} />}
     </H5Sheet>
 
-    <H5Sheet open={Boolean(editor)} title={editor?.kind === 'create' ? '新增多层级代理' : editor?.kind === 'edit' ? '修改代理' : '修改代理密码'} onClose={() => setEditor(null)} footer={<><button className="h5-agent-button h5-agent-button-ghost" onClick={() => setEditor(null)}>取消</button><button className="h5-agent-button h5-agent-button-primary" onClick={saveEditor}>保存</button></>}>
+    <H5Sheet open={Boolean(editor)} title={editor?.kind === 'create' ? `新增${isRebate ? '返水' : '多层级'}代理` : editor?.kind === 'edit' ? `修改${isRebate ? '返水' : ''}代理` : '修改代理密码'} onClose={() => setEditor(null)} footer={<><button className="h5-agent-button h5-agent-button-ghost" onClick={() => setEditor(null)}>取消</button><button className="h5-agent-button h5-agent-button-primary" onClick={saveEditor}>保存</button></>}>
       {editor?.kind === 'password' ? <div className="h5-agent-form"><Field label="代理账号"><input value={form.account || ''} disabled /></Field><Field label="新密码"><input type="password" value={form.password || ''} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="至少输入6位" /></Field></div> : <div className="h5-agent-form">
         <Field label="代理账号"><input value={form.account || ''} onChange={(event) => setForm({ ...form, account: event.target.value })} /></Field>
         {editor?.kind === 'create' && <Field label="代理密码"><input type="password" value={form.password || ''} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="至少输入6位" /></Field>}
-        <Field label="代理模型"><input value="多层级代理" disabled /></Field>
-        <Field label="层级级别"><select value={form.level || '1层代理'} onChange={(event) => setForm({ ...form, level: event.target.value })}>{Array.from({ length: 8 }, (_, index) => <option key={index + 1}>{index + 1}层代理</option>)}</select></Field>
-        <Field label="代理状态"><select value={form.status || '正常'} onChange={(event) => setForm({ ...form, status: event.target.value })}><option>正常</option><option>停用</option></select></Field>
-        <Field label="佣金方案"><select value={form.plan || '层级代理方案A'} onChange={(event) => setForm({ ...form, plan: event.target.value })}><option>层级代理方案A</option><option>层级代理方案B</option><option>未设置</option></select></Field>
+        <Field label="代理模型"><input value={isRebate ? '返水代理' : '多层级代理'} disabled /></Field>
+        {isRebate ? <><Field label="上级代理"><input value={form.parent || '无上级代理'} disabled /></Field><Field label="彩票投注返水比例"><input type="number" min="0" max={form.parent && form.parent !== '无上级代理' ? '5.99' : '6.00'} step="0.01" value={form.lotteryBetRebateRate ?? '6.00'} disabled={!form.parent || form.parent === '无上级代理'} onChange={(event) => setForm({ ...form, lotteryBetRebateRate: event.target.value })} /><small>{form.parent && form.parent !== '无上级代理' ? '可设置0.00%至5.99%' : '无上级代理时固定为6.00%，不可修改'}</small></Field></> : <><Field label="层级级别"><select value={form.level || '1层代理'} onChange={(event) => setForm({ ...form, level: event.target.value })}>{Array.from({ length: 8 }, (_, index) => <option key={index + 1}>{index + 1}层代理</option>)}</select></Field><Field label="代理状态"><select value={form.status || '正常'} onChange={(event) => setForm({ ...form, status: event.target.value })}><option>正常</option><option>停用</option></select></Field><Field label="佣金方案"><select value={form.plan || '层级代理方案A'} onChange={(event) => setForm({ ...form, plan: event.target.value })}><option>层级代理方案A</option><option>层级代理方案B</option><option>未设置</option></select></Field></>}
       </div>}
     </H5Sheet>
   </section>

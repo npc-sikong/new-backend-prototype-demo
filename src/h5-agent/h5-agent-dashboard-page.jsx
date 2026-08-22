@@ -8,6 +8,7 @@ const SCOPE_LABELS = {
   secondary: '当前副线',
   independent: '当前单线',
   multiLevel: '当前多层级代理授权下级',
+  rebate: '当前返水代理及授权下级',
 }
 
 const ACCUMULATED_CARD_LABELS = new Set([

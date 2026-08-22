@@ -15,6 +15,7 @@ const LOGIN_ROLES = {
   wc002: 'secondary',
   dailiwc001: 'independent',
   gaodashang_ml: 'multiLevel',
+  rebate_agent88: 'rebate',
 }
 
 export function H5AgentLogin({ onBack, onLogin, note, notesOpen, onOpenNotes, onCloseNotes, onToast = () => {} }) {
@@ -49,7 +50,7 @@ export function H5AgentLogin({ onBack, onLogin, note, notesOpen, onOpenNotes, on
         <label><span>登录密码</span><div><LockOutlined /><input type={visible ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" placeholder="请输入登录密码" /><button type="button" aria-label={visible ? '隐藏密码' : '显示密码'} onClick={() => setVisible((current) => !current)}>{visible ? <EyeInvisibleOutlined /> : <EyeOutlined />}</button></div></label>
         <div className="h5-agent-login-options"><label><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /><span>记住账号</span></label><button type="button" onClick={() => onToast('请联系站点管理员重置登录密码')}>忘记密码</button></div>
         <button type="submit" className="h5-agent-login-submit">登录</button>
-        <p className="h5-agent-login-demo">演示账号：gaodashang、WC002、dailiwc001、gaodashang_ml</p>
+        <p className="h5-agent-login-demo">演示账号：gaodashang、WC002、dailiwc001、gaodashang_ml、rebate_agent88</p>
       </form>
     </div>
     <footer className="h5-agent-login-footer">旺财体育 · 代理经营管理后台</footer>

@@ -14,7 +14,7 @@ import { middleEllipsis, roleProfile } from './h5-agent-data'
 const GOOGLE_SECRET = 'SZWPWXSGRKPTPPCD'
 
 function createProfileState() {
-  return Object.fromEntries(['main', 'secondary', 'independent', 'multiLevel'].map((role) => {
+  return Object.fromEntries(['main', 'secondary', 'independent', 'multiLevel', 'rebate'].map((role) => {
     const profile = roleProfile(role)
     return [role, {
       nickname: profile.account,

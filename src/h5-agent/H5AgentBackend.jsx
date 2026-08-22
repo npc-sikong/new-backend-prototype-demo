@@ -36,6 +36,7 @@ import { H5AgentDashboardPage } from './h5-agent-dashboard-page'
 import { H5AgentDebtReversalReportPage } from './h5-agent-debt-reversal-report-page'
 import { H5AgentLogin } from './h5-agent-login'
 import { H5NegativeProfitReportPage } from './h5-agent-negative-profit-report-page'
+import { H5LotteryMemberRebateReportPage } from './h5-agent-lottery-rebate-report-page'
 import {
   createFinanceState,
   H5_AGENT_NOTES,
@@ -58,6 +59,7 @@ const PAGE_ICONS = {
   finance: WalletOutlined,
   accountChanges: TransactionOutlined,
   memberFunds: CreditCardOutlined,
+  lotteryMemberRebateReport: LineChartOutlined,
   negativeProfitReport: LineChartOutlined,
   reversalStats: SyncOutlined,
   reversalRepayment: ReloadOutlined,
@@ -115,20 +117,22 @@ function H5AgentAllFunctions({ role, onNavigate, excludedPages = [] }) {
   const pages = pagesForRole(role).filter((page) => page !== 'home' && !excludedPages.includes(page))
   return <div className="h5-agent-function-grid">{pages.map((page) => {
     const Icon = PAGE_ICONS[page] || AppstoreOutlined
-    return <button type="button" key={page} onClick={() => onNavigate(page)}><span><Icon /></span><b>{H5_AGENT_PAGE_META[page].shortLabel}</b><small>{H5_AGENT_PAGE_META[page].group === 'finance' ? '资金与报表' : H5_AGENT_PAGE_META[page].group === 'agent' ? '代理经营' : '业务功能'}</small></button>
+    const label = role === 'rebate' && page === 'accountChanges' ? '账变流水记录' : H5_AGENT_PAGE_META[page].shortLabel
+    return <button type="button" key={page} onClick={() => onNavigate(page)}><span><Icon /></span><b>{label}</b><small>{H5_AGENT_PAGE_META[page].group === 'finance' ? '资金与报表' : H5_AGENT_PAGE_META[page].group === 'agent' ? '代理经营' : '业务功能'}</small></button>
   })}</div>
 }
 
 export function H5AgentBackend({ onBack, onToast = () => {} }) {
   const [authenticated, setAuthenticated] = useState(false)
   const [role, setRole] = useState('main')
-  const [pageByRole, setPageByRole] = useState({ main: 'home', secondary: 'home', independent: 'home', multiLevel: 'home' })
+  const [pageByRole, setPageByRole] = useState({ main: 'home', secondary: 'home', independent: 'home', multiLevel: 'home', rebate: 'home' })
   const [financeByRole, setFinanceByRole] = useState(createFinanceState)
   const [financeAction, setFinanceAction] = useState(null)
   const [roleOpen, setRoleOpen] = useState(false)
   const [notesOpen, setNotesOpen] = useState(false)
   const page = pageByRole[role]
-  const note = H5_AGENT_NOTES[page]
+  const baseNote = H5_AGENT_NOTES[page]
+  const note = role === 'rebate' && page === 'accountChanges' ? { ...baseNote, title: '账变流水记录' } : baseNote
   const bottomTabs = useMemo(() => bottomTabsForRole(), [])
   const directPages = bottomTabs.map((item) => item.page)
   const activeBottom = bottomTabs.find((item) => item.page === page)?.id || null
@@ -171,6 +175,7 @@ export function H5AgentBackend({ onBack, onToast = () => {} }) {
     if (page === 'finance') return <H5FinancePage role={role} financeState={financeByRole[role]} onFinanceChange={updateFinance} initialActionKey={financeAction} onInitialActionConsumed={() => setFinanceAction(null)} onToast={onToast} />
     if (page === 'accountChanges') return <H5AccountChangesPage role={role} onToast={onToast} />
     if (page === 'memberFunds') return <H5MemberFundsPage role={role} onToast={onToast} />
+    if (page === 'lotteryMemberRebateReport') return <H5LotteryMemberRebateReportPage onToast={onToast} />
     if (page === 'negativeProfitReport') return <H5NegativeProfitReportPage role={role} onToast={onToast} />
     if (page === 'reversalStats') return role === 'multiLevel' ? <H5ReversalStatsPage role={role} onToast={onToast} /> : <H5AgentDebtReversalReportPage role={role} onToast={onToast} />
     if (page === 'reversalRepayment') return <H5ReversalRepaymentPage role={role} onToast={onToast} />
@@ -181,7 +186,7 @@ export function H5AgentBackend({ onBack, onToast = () => {} }) {
   }
 
   return <main className="h5-agent-preview-stage"><section className="h5-agent-phone" aria-label="H5代理后台">
-    {page !== 'home' && <header className="h5-agent-topbar"><button type="button" aria-label="返回首页" onClick={() => navigate('home')}><ArrowLeftOutlined /></button><strong>{H5_AGENT_PAGE_META[page].label}</strong><button type="button" className="role" onClick={() => setRoleOpen(true)}>{roleMeta(role).label}</button></header>}
+    {page !== 'home' && <header className="h5-agent-topbar"><button type="button" aria-label="返回首页" onClick={() => navigate('home')}><ArrowLeftOutlined /></button><strong>{role === 'rebate' && page === 'accountChanges' ? '账变流水记录' : H5_AGENT_PAGE_META[page].label}</strong><button type="button" className="role" onClick={() => setRoleOpen(true)}>{roleMeta(role).label}</button></header>}
     <div className={`h5-agent-scroll ${page === 'home' ? 'home' : ''}`}>
       {page !== 'home' && <>
         <H5AgentPageIntro title={note.title} onOpenNotes={() => setNotesOpen(true)} />

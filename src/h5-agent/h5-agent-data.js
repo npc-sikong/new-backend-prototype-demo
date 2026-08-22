@@ -9,6 +9,7 @@ export const H5_AGENT_ROLES = [
   { id: 'secondary', label: '副线', account: 'WC002', scope: '本人线路及直属会员' },
   { id: 'independent', label: '单线代理', account: 'dailiwc001', scope: '本人及直属会员' },
   { id: 'multiLevel', label: '多层级代理', account: 'gaodashang', scope: '授权层级代理及会员' },
+  { id: 'rebate', label: '返水代理', account: 'rebate_agent88', scope: '本人及授权返水下级' },
 ]
 
 export const H5_AGENT_PAGE_META = {
@@ -21,6 +22,7 @@ export const H5_AGENT_PAGE_META = {
   finance: { label: '财务中心', shortLabel: '财务中心', group: 'finance' },
   accountChanges: { label: '账变流水报表', shortLabel: '账变流水', group: 'finance' },
   memberFunds: { label: '会员资金记录', shortLabel: '会员资金', group: 'finance' },
+  lotteryMemberRebateReport: { label: '彩票会员返水报表', shortLabel: '彩票返水报表', group: 'member' },
   negativeProfitReport: { label: '负盈利代理佣金报表', shortLabel: '负盈利佣金', group: 'finance' },
   reversalStats: { label: '冲正统计报表', shortLabel: '冲正统计', group: 'finance' },
   reversalRepayment: { label: '冲正回款报表', shortLabel: '冲正回款', group: 'finance' },
@@ -34,12 +36,13 @@ export const H5_AGENT_ROLE_PAGES = {
   secondary: ['home', 'dashboard', 'negativeProfitReport', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
   independent: ['home', 'dashboard', 'negativeProfitReport', 'reversalStats', 'profile', 'finance', 'members', 'bets', 'accountChanges', 'memberFunds', 'venueFees'],
   multiLevel: ['home', 'dashboard', 'profile', 'finance', 'agents', 'members', 'bets', 'accountChanges', 'memberFunds', 'reversalStats', 'reversalRepayment', 'venueFees', 'activities'],
+  rebate: ['home', 'dashboard', 'profile', 'finance', 'agents', 'members', 'bets', 'lotteryMemberRebateReport', 'accountChanges', 'memberFunds'],
 }
 
 export const H5_AGENT_WORKSPACES = {
   home: ['home'],
   agent: ['dashboard', 'agents'],
-  member: ['members', 'bets'],
+  member: ['members', 'bets', 'lotteryMemberRebateReport'],
   finance: ['finance', 'negativeProfitReport', 'reversalStats', 'reversalRepayment', 'accountChanges', 'memberFunds'],
   more: ['profile', 'venueFees', 'activities'],
 }
@@ -95,8 +98,8 @@ const NOTE_SPECS = {
   login: {
     summary: '通过代理账号和登录密码进入H5代理后台，并按账号识别当前代理身份。',
     fields: '代理账号、登录密码、记住账号、忘记密码和登录。',
-    logic: '登录成功后按代理账号进入对应身份首页；本原型提供团队负责人、副线、单线代理和多层级代理演示账号，登录只建立当前H5会话，不影响桌面代理后台身份。',
-    related: '关联H5代理首页、个人中心和四种代理身份权限。',
+    logic: '登录成功后按代理账号进入对应身份首页；本原型提供团队负责人、副线、单线代理、多层级代理和返水代理演示账号，登录只建立当前H5会话，不影响桌面代理后台身份。',
+    related: '关联H5代理首页、个人中心和五种代理身份权限。',
   },
   home: {
     summary: '集中查看当前代理身份、可用额度，直接发起四项资金操作，并进入当前身份的其它业务模块。',
@@ -106,14 +109,14 @@ const NOTE_SPECS = {
   },
   dashboard: {
     summary: '按当前代理身份查看桌面代理数据看板的佣金、资金、代理与会员经营指标，不提供代理列表切页。',
-    fields: '多层级代理展示本期佣金预估或净收益、当前余额、未结算佣金、已结算佣金、资金流水、代理数据和会员数据；团队负责人不展示两个不适用佣金指标；副线和单线代理继续移除代理数据整组；四种身份统一去除代理推广会员和会员推广会员。会员VIP福利、活动福利、会员推广福利、充提手续运营费分别提供明细弹窗。',
-    logic: '四种身份复用桌面端看板结构并按身份收窄：团队负责人按授权团队、副线按本人线路、单线代理按本人、多层级代理按授权下级统计；桌面与H5同步移除代理推广会员和会员推广会员，其余身份专属字段保持原口径。四个费用明细弹窗继续沿用当前身份及看板账期。',
+    fields: '多层级代理展示本期佣金预估或净收益、当前余额、未结算佣金、已结算佣金、资金流水、代理数据和会员数据；团队负责人不展示两个不适用佣金指标；副线和单线代理继续移除代理数据整组；返水代理资金流水只保留总充值、总提现、总投注和有效投注；所有身份统一去除代理推广会员和会员推广会员。',
+    logic: '五种身份复用桌面端看板结构并按身份收窄：团队负责人按授权团队、副线按本人线路、单线代理按本人、多层级代理按授权下级、返水代理按本人及授权返水下级统计；返水代理同步桌面端专属精简口径。',
     related: '关联代理列表、会员列表、财务中心、会员VIP福利、活动奖励、会员推广奖励和充提手续运营费。',
   },
   agents: {
-    summary: '团队负责人查看本人及授权下级代理资料，多层级代理可演示维护操作，不提供数据看板切页。',
+    summary: '团队负责人查看本人及授权下级代理资料；多层级代理和返水代理可演示维护操作，不提供数据看板切页。',
     fields: '代理ID、账号、新增代理密码、代理身份、代理层级、代理类型、状态、下级代理、下级会员、方案及最后登录。',
-    logic: '团队负责人只读；多层级代理新增时必须设置至少6位密码，修改资料时不展示密码，密码仅通过独立修改密码操作维护。副线和单线代理不展示代理列表模块。',
+    logic: '团队负责人只读；多层级代理和返水代理新增时必须设置至少6位密码，修改资料时不展示密码，密码仅通过独立修改密码操作维护。返水代理的上级代理只读，无上级时彩票投注返水比例固定6.00%，有上级时允许0.00%至5.99%；不展示彩票赔率盘口。副线和单线代理不展示代理列表模块。',
     related: '关联会员列表、财务中心、代理数据看板和负盈利代理佣金报表。',
   },
   members: {
@@ -145,6 +148,12 @@ const NOTE_SPECS = {
     fields: '单号、会员账号、交易类型、币种、金额、状态、创建时间和备注。',
     logic: '记录按当前身份范围过滤，正负金额与状态共同说明资金方向及处理结果。',
     related: '关联会员列表、财务中心和账变流水报表。',
+  },
+  lotteryMemberRebateReport: {
+    summary: '按返水代理本人及授权下级范围，跨日期汇总会员彩票有效投注与应计返水额度。',
+    fields: '日期区间、会员账号、上级代理、彩票名称、彩票玩法、返水比例、有效投注额和总返水额度；筛选包含日期、授权代理、彩票与玩法及两个金额区间。',
+    logic: '仅返水代理身份可见。先按日期筛选每日记录，再按会员、上级代理、彩票、玩法及比例合并；区间有效投注额为各日合计，区间总返水额度 = 区间有效投注额 × 返水比例。',
+    related: '关联桌面代理后台彩票会员返水报表、返水代理列表、会员列表、投注记录和会员资金记录。',
   },
   negativeProfitReport: {
     summary: '只读查询当前身份授权范围内的负盈利代理佣金结果。',
@@ -186,15 +195,15 @@ const NOTE_SPECS = {
 
 export const H5_AGENT_NOTES = Object.fromEntries(Object.entries(H5_AGENT_PAGE_META).map(([page, meta]) => {
   const spec = NOTE_SPECS[page]
-  const updatedAt = page === 'negativeProfitReport' ? '2026-07-25 21:25' : page === 'dashboard' ? '2026-08-19 15:35' : page === 'agents' ? '2026-08-19 16:26' : H5_AGENT_NAV_UPDATED_AT
+  const updatedAt = page === 'lotteryMemberRebateReport' ? '2026-08-22 15:38' : page === 'negativeProfitReport' ? '2026-07-25 21:25' : page === 'dashboard' ? '2026-08-22 15:38' : page === 'agents' ? '2026-08-22 15:38' : H5_AGENT_NAV_UPDATED_AT
   return [page, {
     title: meta.label,
     summary: spec.summary,
     fields: spec.fields,
     logic: spec.logic,
     related: spec.related,
-    requirement: '将现有代理后台对应模块完整 H5 化；每个一级页面只展示自身模块内容，页面顶部不提供其他模块入口；底部导航固定为首页、看板、财务、个人中心，左上返回按钮固定返回首页。',
-    acceptance: '登录后进入对应身份首页；首页余额卡和四项资金操作高度较前版缩小约25%，图标语义正确且其它模块入口完整；四种身份底部导航顺序均为首页、看板、财务、个人中心，不展示更多；财务和个人中心可直接进入，其他授权模块从首页其它模块进入；一级页面左上返回首页，完整字段和身份权限与桌面端一致。',
+    requirement: page === 'lotteryMemberRebateReport' ? '将桌面返水代理的彩票会员返水报表按H5重新排版为汇总卡片、记录卡片、筛选抽屉和详情抽屉，字段、公式及授权范围保持一致。' : '将现有代理后台对应模块完整 H5 化；每个一级页面只展示自身模块内容，页面顶部不提供其他模块入口；底部导航固定为首页、看板、财务、个人中心，左上返回按钮固定返回首页。',
+    acceptance: page === 'lotteryMemberRebateReport' ? '切换或登录返水代理后可从首页进入报表；仅展示本人及授权下级记录；可按日期、代理、彩票、玩法和金额筛选，查看跨日期合计、详情并导出；其他身份没有入口。' : '登录后进入对应身份首页；首页余额卡和四项资金操作高度较前版缩小约25%，图标语义正确且其它模块入口完整；五种身份底部导航顺序均为首页、看板、财务、个人中心，不展示更多；财务和个人中心可直接进入，其他授权模块从首页其它模块进入；一级页面左上返回首页，完整字段和身份权限与桌面端一致。',
     boundary: '纯前端演示，不连接真实接口；资金、密码、导出、下载和保存均不产生真实业务结果；桌面代理后台与原 H5 前端保持不变。',
     record: page === 'login'
       ? `修改时间：${updatedAt}；修改说明：新增代理登录流程；修改内容：新增代理账号、登录密码、记住账号、忘记密码和登录操作，登录后按账号进入对应代理身份首页。`
@@ -205,7 +214,9 @@ export const H5_AGENT_NOTES = Object.fromEntries(Object.entries(H5_AGENT_PAGE_ME
       : page === 'agents'
         ? `修改时间：${updatedAt}；修改说明：分离代理创建密码与资料修改；修改内容：新增代理增加至少6位密码字段，修改代理不展示密码，独立修改密码操作保持不变。`
       : page === 'dashboard'
-        ? `修改时间：${updatedAt}；修改说明：精简代理数据看板推广指标；修改内容：四种身份同步去除代理推广会员和会员推广会员，保留其余身份专属指标和费用明细。`
+        ? `修改时间：${updatedAt}；修改说明：增加返水代理H5看板适配；修改内容：新增返水代理身份并同步桌面专属资金流水精简，所有身份继续去除代理推广会员和会员推广会员。`
+        : page === 'lotteryMemberRebateReport'
+          ? `修改时间：${updatedAt}；修改说明：为返水代理增加移动端会员返水核对；修改内容：新增授权范围汇总卡、记录卡、日期与金额筛选、详情抽屉、跨日期合计及CSV导出。`
         : page === 'negativeProfitReport'
           ? `修改时间：${updatedAt}；修改说明：同步负盈利佣金报表历史盈亏与费用口径；修改内容：增加历史总输赢、历史运营费用及可点击明细，充提手续费右侧展示返佣等级，返佣比例移至历史结余佣金左侧；移除本期欠款、账户调整及存提款手续费，总欠款改为欠站点总额，卡片、详情与横向核对同步。`
         : page === 'reversalStats'
@@ -235,3 +246,14 @@ H5_AGENT_NOTES.profile.requirement = '按参考图重构H5个人中心安全设�
 H5_AGENT_NOTES.profile.acceptance = '安全设置切页可查看谷歌身份验证器用途、开启状态和两条安全建议；点击立即绑定可打开H5绑定抽屉，二维码、密钥复制、6位验证码校验、确认绑定、取消及关闭操作可用，页面无横向溢出。'
 H5_AGENT_NOTES.profile.record = `修改时间：${H5_AGENT_PROFILE_SECURITY_UPDATED_AT}；修改说明：补齐H5个人中心二次验证流程；修改内容：重构安全设置状态卡与安全建议，新增谷歌验证器绑定抽屉、二维码、下载入口、密钥复制、动态验证码校验及绑定成功状态。`
 H5_AGENT_NOTES.profile.updatedAt = H5_AGENT_PROFILE_SECURITY_UPDATED_AT
+
+const H5_REBATE_ROLE_UPDATED_AT = '2026-08-22 15:38'
+const H5_REBATE_SHARED_PAGES = ['login', 'home', 'dashboard', 'profile', 'finance', 'agents', 'members', 'bets', 'accountChanges', 'memberFunds']
+H5_REBATE_SHARED_PAGES.forEach((page) => {
+  const note = H5_AGENT_NOTES[page]
+  note.updatedAt = H5_REBATE_ROLE_UPDATED_AT
+  note.related = `${note.related} 同步关联H5返水代理身份及彩票会员返水报表。`
+  note.requirement = `${note.requirement} 返水代理按桌面端权限开放九个模块，当前页面只展示 rebate_agent88 本人及授权下级范围。`
+  note.acceptance = `${note.acceptance} 切换或登录返水代理后，本页面结构与桌面同名模块一致且数据范围不会越权到其他代理身份。`
+  note.record = `${note.record}；修改时间：${H5_REBATE_ROLE_UPDATED_AT}；修改说明：增加H5返水代理身份适配；修改内容：当前页面加入返水代理授权范围，并与彩票会员返水报表及九模块菜单保持一致。`
+})
